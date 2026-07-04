@@ -3,155 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>실시간 오픈월드 로그라이크 RPG - 무한 스크롤 버전</title>
+    <title>초호화 로그라이크 액션 RPG</title>
     <style>
         :root {
-            --bg-color: #0c0c0e;
-            --panel-color: #16161a;
+            --bg-color: #09090b;
+            --panel-color: #18181b;
             --border-color: #27272a;
             --text-color: #f4f4f5;
             --hp-color: #ef4444;
             --mp-color: #3b82f6;
+            --exp-color: #10b981;
+            --gold-color: #eab308;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background-color: var(--bg-color); color: var(--text-color);
             font-family: system-ui, -apple-system, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding: 8px;
-            overflow: hidden;
-            user-select: none;
-            box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center;
+            margin: 0; padding: 6px; overflow: hidden; user-select: none; box-sizing: border-box;
         }
 
-        .game-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 480px;
-        }
-
-        h1 { font-size: 1rem; margin: 4px 0; color: #a1a1aa; text-transform: uppercase; }
+        .game-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 460px; }
         
+        /* 대시보드 스탯 창 */
         .status-panel {
-            width: 100%;
-            background-color: var(--panel-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            box-sizing: border-box;
+            width: 100%; background-color: var(--panel-color); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 6px 10px; margin-bottom: 4px; box-sizing: border-box;
         }
-
-        .bar-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+        .bar-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .bar-container {
-            position: relative; width: 48%; height: 14px;
-            background-color: #1f1f23; border-radius: 4px; overflow: hidden; border: 1px solid #3f3f46;
+            position: relative; width: 49%; height: 14px;
+            background-color: #27272a; border-radius: 4px; overflow: hidden;
         }
-        .bar-fill { height: 100%; width: 100%; }
-        .bar-text {
-            position: absolute; width: 100%; text-align: center;
-            font-size: 9px; font-weight: bold; line-height: 14px; color: #fff;
-        }
+        .bar-fill { height: 100%; width: 100%; transition: width 0.1s; }
+        .bar-text { position: absolute; width: 100%; text-align: center; font-size: 9px; font-weight: bold; line-height: 14px; color: #fff; }
+        
+        .exp-container { position: relative; width: 100%; height: 8px; background-color: #27272a; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+        
         .info-row { display: flex; justify-content: space-between; font-size: 10px; color: #a1a1aa; }
 
-        canvas {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: #09090b;
-            width: 100%;
-            max-height: 32vh;
-            height: auto;
-        }
+        canvas { border: 1px solid var(--border-color); border-radius: 8px; background-color: #020205; width: 100%; max-height: 28vh; height: auto; }
 
-        .log-box {
-            width: 100%; height: 42px; background-color: #09090b; border: 1px solid var(--border-color);
-            border-radius: 6px; padding: 4px 6px; overflow-y: auto; font-size: 10px; color: #d4d4d8;
-            margin-top: 4px; box-sizing: border-box;
+        /* 통합 하단 컨트롤 및 스킬 레이아웃 */
+        .control-panel {
+            display: flex; width: 100%; justify-content: space-between; align-items: center; margin-top: 6px; gap: 8px;
         }
-
-        /* 버프 스킬 세련된 그리드 배치 */
-        .skills-wrapper { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin-top: 4px; gap: 4px; }
-        .skill-btn {
-            padding: 5px; font-size: 10px; font-weight: bold;
-            background-color: #27272a; border: 1px solid #3f3f46; color: white; border-radius: 4px;
-        }
-        .skill-btn:disabled { opacity: 0.3; }
-
-        .controls-wrapper {
-            display: flex; justify-content: space-between; align-items: center;
-            width: 100%; margin-top: 10px; padding-bottom: 10px; box-sizing: border-box;
-        }
-
         .joystick-zone {
-            width: 95px; height: 95px; background: #1f1f23; border: 2px solid #3f3f46;
-            border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
+            width: 85px; height: 85px; background: #27272a; border: 2px solid #3f3f46; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
         }
-        .joystick-stick {
-            width: 38px; height: 38px; background: #52525b; border-radius: 50%;
-            position: absolute; box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+        .joystick-stick { width: 34px; height: 34px; background: #71717a; border-radius: 50%; position: absolute; }
+
+        /* 하나로 통합된 스킬/액션 창 */
+        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 55%; }
+        .action-btn {
+            padding: 6px 4px; font-size: 10px; font-weight: bold; background-color: #27272a; border: 1px solid #3f3f46; color: #fff; border-radius: 6px;
+        }
+        .action-btn:disabled { opacity: 0.25; color: #71717a; }
+        .btn-locked { background-color: #111113; border-color: #222; color: #555; }
+
+        /* 상점 및 스킬트리 팝업 오버레이 */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--panel-color); border: 1px solid var(--border-color);
+            padding: 16px; border-radius: 12px; width: 85%; max-width: 360px; text-align: center;
+        }
+        .modal-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; color: var(--gold-color); }
+        .choice-btn {
+            width: 100%; padding: 10px; margin: 4px 0; background-color: #27272a;
+            border: 1px solid #3f3f46; color: white; border-radius: 6px; font-size: 11px; text-align: left;
         }
         
-        .ultimate-wrapper { display: flex; width: 40%; justify-content: center; }
-        .action-btn-main {
-            width: 72px; height: 72px; background: linear-gradient(145deg, #d97706, #b45309);
-            border: 1px solid #f59e0b; color: #fff; font-size: 11px; font-weight: bold;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-        }
-        .action-btn-main:disabled { background: #27272a; border-color: #3f3f46; color: #71717a; box-shadow: none; }
+        .sub-nav { display: flex; width: 100%; gap: 4px; margin-top: 4px; }
+        .nav-btn { flex: 1; padding: 5px; font-size: 10px; background-color: #27272a; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; }
     </style>
 </head>
 <body>
 
     <div class="game-container">
-        <h1>Infinite Seamless World</h1>
-        
         <div class="status-panel">
             <div class="bar-row">
                 <div class="bar-container">
                     <div id="hpFill" class="bar-fill" style="background-color: var(--hp-color);"></div>
-                    <div class="bar-text">HP <span id="pHp">50</span>/50</div>
+                    <div class="bar-text">HP <span id="pHp">50</span>/<span id="pMaxHp">50</span></div>
                 </div>
                 <div class="bar-container">
                     <div id="mpFill" class="bar-fill" style="background-color: var(--mp-color);"></div>
                     <div class="bar-text">MP <span id="pMp">30</span>/30</div>
                 </div>
             </div>
+            <div class="exp-container">
+                <div id="expFill" class="bar-fill" style="background-color: var(--exp-color); width: 0%;"></div>
+            </div>
             <div class="info-row">
-                <div>⚔️ ATK: <span id="pAtk">8</span> | 🚀 버프 활성화 중</div>
-                <div>🔮 상태: <span id="pState" style="color: #10b981; font-weight:bold;">정상</span></div>
+                <div>🌟 Lv.<span id="pLv">1</span> (<span id="pSp">0</span> SP) | 💰 <span id="pGold">0</span> G</div>
+                <div>⚔️ ATK: <span id="pAtk">8</span></div>
             </div>
         </div>
 
-        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        <canvas id="gameCanvas" width="600" height="380"></canvas>
         
-        <div class="skills-wrapper">
-            <button id="btnSkill1" class="skill-btn" onclick="useSpeedZeus()">⚡ 신속의 신벌 (MP12)</button>
-            <button id="btnSkill2" class="skill-btn" onclick="useBerserk()">🩸 신성한 광폭화 (MP14)</button>
+        <div class="sub-nav">
+            <button class="nav-btn" onclick="openTreeModal()">🌲 특수 스킬 트리 해금</button>
+            <button class="nav-btn" onclick="openShopModal()">🛒 코인 영구 상점</button>
         </div>
-        
-        <div id="gameLog" class="log-box">월드가 자연스럽게 스크롤됩니다. 끝없는 전장을 탐험하세요!</div>
 
-        <div class="controls-wrapper">
+        <div class="control-panel">
             <div id="joystickZone" class="joystick-zone">
                 <div id="joystickStick" class="joystick-stick"></div>
             </div>
             
-            <div class="ultimate-wrapper">
-                <button id="btnUltimate" class="action-btn-main" onclick="useTrance()">
-                    <span>🔥</span>
-                    <span>무아지경</span>
-                    <span style="font-size: 8px; color: #fef08a;">MP 15</span>
-                </button>
+            <div class="action-grid">
+                <button id="btnTrance" class="action-btn btn-locked" disabled onclick="useTrance()">🔥 무아지경<br>[잠김]</button>
+                <button id="btnZeus" class="action-btn btn-locked" disabled onclick="useSpeedZeus()">⚡ 신속신벌<br>[잠김]</button>
+                <button id="btnBerserk" class="action-btn btn-locked" disabled onclick="useBerserk()">🩸 성광폭화<br>[잠김]</button>
+                <button id="btnHeal" class="action-btn" onclick="useBasicHeal()">✨ 생명회복<br>MP 8</button>
             </div>
+        </div>
+    </div>
+
+    <div id="levelModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🌟 LEVEL UP! 특성 능력 선택 (중첩 가능)</div>
+            <div id="levelChoices"></div>
+        </div>
+    </div>
+
+    <div id="treeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🌲 고유 액티브 비기 스킬 트리</div>
+            <p style="font-size: 11px; color:#a1a1aa; margin:-6px 0 10px 0;">레벨업 시 얻는 SP포인트로 해금합니다.</p>
+            <button id="treeBtn1" class="choice-btn" onclick="unlockTreeSkill(1)">🔥 무아지경 비기 해금 (필요: 1 SP)</button>
+            <button id="treeBtn2" class="choice-btn" onclick="unlockTreeSkill(2)">⚡ 신속의 신벌 비기 해금 (필요: 1 SP)</button>
+            <button id="treeBtn3" class="choice-btn" onclick="unlockTreeSkill(3)">🩸 신성한 광폭화 비기 해금 (필요: 2 SP)</button>
+            <button class="choice-btn" style="text-align:center; background:#444;" onclick="closeModals()">❌ 닫기</button>
+        </div>
+    </div>
+
+    <div id="shopModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">🛒 인게임 코인 골드 상점</div>
+            <p style="font-size: 11px; color:#a1a1aa; margin:-6px 0 10px 0;">드롭된 골드로 기본 체력과 공격력을 영구 강화합니다.</p>
+            <button class="choice-btn" onclick="buyShop(1)">⚔️ 영구 공격력 고정 증가 +2 [가격: 15G]</button>
+            <button class="choice-btn" onclick="buyShop(2)">❤️ 영구 최대 체력 고정 증가 +10 [가격: 20G]</button>
+            <button class="choice-btn" style="text-align:center; background:#444;" onclick="closeModals()">❌ 닫기</button>
         </div>
     </div>
 
@@ -159,41 +156,42 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // 무한 가상 좌표 시스템
+        // 밸런스 조정: 이동 속도를 하향하여 묵직하게 조율
         let player = { 
-            worldX: 300, worldY: 200, radius: 14,
+            worldX: 300, worldY: 200, radius: 13,
             hp: 50, maxHp: 50, mp: 30, maxMp: 30, baseAtk: 8,
-            speed: 3.5, 
-            isTrance: false,
-            speedZeusTimer: 0,
-            berserkTimer: 0
+            speed: 2.2, level: 1, exp: 0, maxExp: 10, sp: 0, gold: 0,
+            isTrance: false, speedZeusTimer: 0, berserkTimer: 0,
+            
+            // 레벨업 중첩 특성 목록
+            stats: { atkBonus: 0, hpBonus: 0, mpRegen: 0.02, magnetRange: 55 },
+            unlockedSkills: { trance: false, zeus: false, berserk: false }
         };
 
-        // 카메라 객체 (플레이어를 부드럽게 추적)
         let camera = { x: 0, y: 0 };
-
         const MONSTER_TYPES = [
-            { name: "슬라임", color: "#22c55e", hp: 15, atk: 2, radius: 12, speed: 1.0 },
-            { name: "고블린 추격꾼", color: "#a855f7", hp: 18, atk: 4, radius: 10, speed: 1.8 },
-            { name: "오크 전사", color: "#f97316", hp: 35, atk: 6, radius: 16, speed: 0.8 }
+            { name: "아기 슬라임", color: "#22c55e", hp: 12, atk: 1, radius: 11, speed: 0.6 },
+            { name: "추격병 고블린", color: "#a855f7", hp: 16, atk: 3, radius: 10, speed: 1.1 },
+            { name: "철갑 오크", color: "#f97316", hp: 32, atk: 5, radius: 15, speed: 0.5 }
         ];
 
         let monsters = [];
+        let droppedGolds = [];
         let damageNumbers = [];
         let keys = {};
         let joystickInput = { x: 0, y: 0 };
+        let joystickActive = false;
 
-        // 조이스틱 드래그 핸들링
+        // 가상 조이스틱 영역
         const zone = document.getElementById("joystickZone");
         const stick = document.getElementById("joystickStick");
-        let joystickActive = false;
 
         function handleJoystick(ex, ey) {
             const rect = zone.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
             let dx = ex - centerX; let dy = ey - centerY;
-            const dist = Math.sqrt(dx*dx + dy*dy); const maxDist = 38;
+            const dist = Math.sqrt(dx*dx + dy*dy); const maxDist = 32;
             if (dist > maxDist) { dx = (dx / dist) * maxDist; dy = (dy / dist) * maxDist; }
             stick.style.transform = `translate(${dx}px, ${dy}px)`;
             joystickInput.x = dx / maxDist; joystickInput.y = dy / maxDist;
@@ -205,111 +203,180 @@
         window.addEventListener("mousemove", (e) => { if(joystickActive) handleJoystick(e.clientX, e.clientY); });
         window.addEventListener("mouseup", () => { joystickActive = false; stick.style.transform = "translate(0px, 0px)"; joystickInput = {x:0, y:0}; });
 
-        function addLog(message) {
-            const logBox = document.getElementById("gameLog");
-            logBox.innerHTML += `<br>${message}`;
-            logBox.scrollTop = logBox.scrollHeight;
+        function closeModals() {
+            document.getElementById("levelModal").style.display = "none";
+            document.getElementById("treeModal").style.display = "none";
+            document.getElementById("shopModal").style.display = "none";
         }
+        function openTreeModal() { closeModals(); document.getElementById("treeModal").style.display = "flex"; }
+        function openShopModal() { closeModals(); document.getElementById("shopModal").style.display = "flex"; }
 
         function updateUI() {
+            let totalAtk = player.baseAtk + player.stats.atkBonus;
+            let totalMaxHp = player.maxHp + player.stats.hpBonus;
+
             document.getElementById("pHp").innerText = Math.ceil(player.hp);
+            document.getElementById("pMaxHp").innerText = totalMaxHp;
             document.getElementById("pMp").innerText = Math.floor(player.mp);
-            document.getElementById("hpFill").style.width = `${(player.hp / player.maxHp) * 100}%`;
+            document.getElementById("pLv").innerText = player.level;
+            document.getElementById("pSp").innerText = player.sp;
+            document.getElementById("pGold").innerText = player.gold;
+            document.getElementById("pAtk").innerText = totalAtk;
+
+            document.getElementById("hpFill").style.width = `${(player.hp / totalMaxHp) * 100}%`;
             document.getElementById("mpFill").style.width = `${(player.mp / player.maxMp) * 100}%`;
+            document.getElementById("expFill").style.width = `${(player.exp / player.maxExp) * 100}%`;
 
-            const stateEl = document.getElementById("pState");
-            if (player.isTrance) { stateEl.innerText = "💥무아지경 난격!"; stateEl.style.color = "#f59e0b"; }
-            else if (player.berserkTimer > 0) { stateEl.innerText = "🩸광폭화 상태"; stateEl.style.color = "#ef4444"; }
-            else if (player.speedZeusTimer > 0) { stateEl.innerText = "⚡신속 구동"; stateEl.style.color = "#3b82f6"; }
-            else { stateEl.innerText = "정상"; stateEl.style.color = "#10b981"; }
-
-            document.getElementById("btnUltimate").disabled = (player.mp < 15 || player.isTrance);
-            document.getElementById("btnSkill1").disabled = (player.mp < 12 || player.isTrance);
-            document.getElementById("btnSkill2").disabled = (player.mp < 14 || player.isTrance);
+            // 스킬트리 락 해제 연동 가시성 패치
+            const tBtn = document.getElementById("btnTrance");
+            if (player.unlockedSkills.trance) {
+                tBtn.classList.remove("btn-locked"); tBtn.innerHTML = "🔥 무아지경<br>MP 15"; tBtn.disabled = (player.mp < 15 || player.isTrance);
+            }
+            const zBtn = document.getElementById("btnZeus");
+            if (player.unlockedSkills.zeus) {
+                zBtn.classList.remove("btn-locked"); zBtn.innerHTML = "⚡ 신속신벌<br>MP 12"; zBtn.disabled = (player.mp < 12 || player.isTrance);
+            }
+            const bBtn = document.getElementById("btnBerserk");
+            if (player.unlockedSkills.berserk) {
+                bBtn.classList.remove("btn-locked"); bBtn.innerHTML = "🩸 성광폭화<br>MP 14"; bBtn.disabled = (player.mp < 14 || player.isTrance);
+            }
         }
 
-        // 월드 좌표 기반 주변 몬스터 유동적 생성
-        function manageMonsterSpawns() {
-            if (monsters.length < 5) {
-                let type = MONSTER_TYPES[Math.floor(Math.random() * MONSTER_TYPES.length)];
-                // 플레이어 주변 스크롤 바깥 영역에 생성
-                let angle = Math.random() * Math.PI * 2;
-                let spawnDist = Math.random() * 200 + 350; 
-                monsters.push({
-                    worldX: player.worldX + Math.cos(angle) * spawnDist,
-                    worldY: player.worldY + Math.sin(angle) * spawnDist,
-                    ...type, hp: type.hp, maxHp: type.hp, attackCooldown: 0
-                });
+        // 🛒 코인 골드 상점 강화 기능
+        function buyShop(type) {
+            if (type === 1 && player.gold >= 15) {
+                player.gold -= 15; player.stats.atkBonus += 2; alert("⚔️ 기본 공격력이 영구히 +2 증가했습니다!");
+            } else if (type === 2 && player.gold >= 20) {
+                player.gold -= 20; player.stats.hpBonus += 10; player.hp += 10; alert("❤️ 최대 체력이 영구히 +10 확장되었습니다!");
+            } else {
+                alert("코인(골드)이 부족합니다!");
             }
+            updateUI();
+        }
+
+        // 🌲 스킬포인트 스킬 트리 투자 해금
+        function unlockTreeSkill(id) {
+            if (id === 1 && player.sp >= 1 && !player.unlockedSkills.trance) {
+                player.sp -= 1; player.unlockedSkills.trance = true; alert("🔥 [무아지경] 사용 권한이 영구 해금되었습니다!");
+            } else if (id === 2 && player.sp >= 1 && !player.unlockedSkills.zeus) {
+                player.sp -= 1; player.unlockedSkills.zeus = true; alert("⚡ [신속의 신벌] 사용 권한이 영구 해금되었습니다!");
+            } else if (id === 3 && player.sp >= 2 && !player.unlockedSkills.berserk) {
+                player.sp -= 2; player.unlockedSkills.berserk = true; alert("🩸 [신성한 광폭화] 사용 권한이 영구 해금되었습니다!");
+            } else {
+                alert("SP가 부족하거나 이미 해금된 스킬입니다.");
+            }
+            updateUI();
+        }
+
+        // 🌟 로그라이크 레벨업 보상 3택 생성 시스템
+        function checkLevelUp() {
+            if (player.exp >= player.maxExp) {
+                player.exp -= player.maxExp;
+                player.level++;
+                player.sp++; // 스킬포인트 지급
+                player.maxExp = Math.floor(player.maxExp * 1.3) + 5;
+                
+                triggerLevelChoice();
+            }
+        }
+
+        function triggerLevelChoice() {
+            const container = document.getElementById("levelChoices");
+            container.innerHTML = "";
+            
+            // 중첩 가능한 다양성 풀 보상 설계
+            const pool = [
+                { text: "⚔️ 무모한 힘 (인게임 전용 공격력 +3)", action: () => { player.stats.atkBonus += 3; } },
+                { text: "❤️ 강인한 영혼 (인게임 전용 최대 체력 +15)", action: () => { player.stats.hpBonus += 15; player.hp += 15; } },
+                { text: "🔮 마력의 흐름 (이동 시 마나 회복량 상승 증가)", action: () => { player.stats.mpRegen += 0.015; } },
+                { text: "🧲 황금 탐욕의 자석 (코인 흡수 범위 대폭 확장)", action: () => { player.stats.magnetRange += 35; } },
+                { text: "🍗 응급 보급품 (잃은 체력 35 즉시 치료 회복)", action: () => { player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + 35); } }
+            ];
+
+            // 3개 무작위 비복원 추출 추려내기
+            let shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, 3);
+            shuffled.forEach(choice => {
+                let btn = document.createElement("button");
+                btn.className = "choice-btn";
+                btn.innerText = choice.text;
+                btn.onclick = () => {
+                    choice.action();
+                    closeModals();
+                    updateUI();
+                };
+                container.appendChild(btn);
+            });
+
+            closeModals();
+            document.getElementById("levelModal").style.display = "flex";
         }
 
         // 5초간 다중 타겟 폭풍 난격 무아지경
         function useTrance() {
-            if (player.mp < 15 || player.isTrance || player.hp <= 0) return;
+            if (!player.unlockedSkills.trance || player.mp < 15 || player.isTrance) return;
             player.mp -= 15; player.isTrance = true; updateUI();
-            addLog("🔥 [무아지경] 돌입! 5초간 전장의 적들을 무차별 고속 습격합니다!");
 
             let duration = 5000; let startTime = Date.now();
             let tranceInterval = setInterval(() => {
                 if (Date.now() - startTime >= duration || player.hp <= 0 || monsters.length === 0) {
-                    clearInterval(tranceInterval); player.isTrance = false;
-                    addLog("✨ 무아지경 연격 종료."); updateUI(); return;
+                    clearInterval(tranceInterval); player.isTrance = false; updateUI(); return;
                 }
                 let target = monsters[Math.floor(Math.random() * monsters.length)];
-                player.worldX = target.worldX; player.worldY = target.worldY; // 가상좌표 동기화
+                player.worldX = target.worldX; player.worldY = target.worldY;
 
-                let currentAtk = player.berserkTimer > 0 ? player.baseAtk * 2.5 : player.baseAtk;
+                let currentAtk = player.baseAtk + player.stats.atkBonus;
+                if (player.berserkTimer > 0) currentAtk *= 2.5;
                 let dmg = Math.floor(currentAtk * 1.5);
                 target.hp -= dmg;
                 damageNumbers.push({ worldX: target.worldX, worldY: target.worldY - 15, text: `💥 ${dmg}`, color: "#f59e0b", time: 35 });
 
-                if(player.berserkTimer > 0) {
-                    let heal = Math.floor(dmg * 0.3);
-                    player.hp = Math.min(player.maxHp, player.hp + heal);
+                if(target.hp <= 0) {
+                    dropCoin(target.worldX, target.worldY);
+                    monsters = monsters.filter(m => m !== target);
+                    player.exp += 3; checkLevelUp();
                 }
-                monsters = monsters.filter(m => m.hp > 0);
-            }, 250);
+            }, 240);
         }
 
-        // 초강력 버프 1: 신속의 신벌 발동
         function useSpeedZeus() {
-            if (player.mp < 12 || player.isTrance) return;
-            player.mp -= 12; player.speedZeusTimer = 360; // 6초 (60fps * 6)
-            addLog("⚡ [신속의 신벌] 발동! 속도가 2배가 되며 궤적에 번개가 치기 시작합니다.");
+            if (!player.unlockedSkills.zeus || player.mp < 12 || player.isTrance) return;
+            player.mp -= 12; player.speedZeusTimer = 360; updateUI();
+        }
+
+        function useBerserk() {
+            if (!player.unlockedSkills.berserk || player.mp < 14 || player.isTrance) return;
+            player.mp -= 14; player.berserkTimer = 420; updateUI();
+        }
+
+        function useBasicHeal() {
+            if (player.mp < 8 || player.isTrance) return;
+            player.mp -= 8;
+            let max = player.maxHp + player.stats.hpBonus;
+            player.hp = Math.min(max, player.hp + 15);
+            damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: "+15 Heal", color: "#10b981", time: 25 });
             updateUI();
         }
 
-        // 초강력 버프 2: 신성한 광폭화 발동
-        function useBerserk() {
-            if (player.mp < 14 || player.isTrance) return;
-            player.mp -= 14; player.berserkTimer = 420; // 7초
-            addLog("🩸 [신성한 광폭화] 돌입! 대미지가 2.5배 폭증하고 모든 타격에 흡혈 특성이 부여됩니다.");
-            updateUI();
+        function dropCoin(wx, wy) {
+            droppedGolds.push({ worldX: wx, worldY: wy, value: Math.floor(Math.random() * 3) + 2 });
         }
 
         function updateGame() {
-            if (player.hp <= 0) return;
+            if (player.hp <= 0 || document.getElementById("levelModal").style.display === "flex") return;
 
-            // 1. 버프 상태 체크 및 이동 속도 계산
             let currentSpeed = player.speed;
             if (player.speedZeusTimer > 0) {
-                currentSpeed *= 2.0;
-                player.speedZeusTimer--;
-                
-                // 신속 이동 중 일정 주기마다 주변 적들에게 전기 방전 유도
+                currentSpeed *= 1.8; player.speedZeusTimer--;
                 if (player.speedZeusTimer % 25 === 0) {
                     monsters.forEach(m => {
                         let dist = Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2);
-                        if (dist < 120) {
-                            m.hp -= 4;
-                            damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 10, text: "⚡ 4", color: "#3b82f6", time: 20 });
-                        }
+                        if (dist < 100) { m.hp -= 4; damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 10, text: "⚡ 4", color: "#3b82f6", time: 15 }); }
                     });
                 }
             }
             if (player.berserkTimer > 0) player.berserkTimer--;
 
-            // 2. 입력 벡터 가산 및 실시간 자유 월드 이동
+            // 실시간 물리 무빙 결합
             let moveX = joystickInput.x; let moveY = joystickInput.y;
             if (keys["w"] || keys["arrowup"]) moveY = -1;
             if (keys["s"] || keys["arrowdown"]) moveY = 1;
@@ -320,102 +387,100 @@
                 let length = Math.sqrt(moveX*moveX + moveY*moveY);
                 player.worldX += (moveX / length) * currentSpeed;
                 player.worldY += (moveY / length) * currentSpeed;
-                if (player.mp < player.maxMp) player.mp += 0.025; 
+                if (player.mp < player.maxMp) player.mp += player.stats.mpRegen;
             }
 
-            // 3. 부드러운 카메라 선형 보간 (심리스 핵심)
             camera.x += (player.worldX - canvas.width / 2 - camera.x) * 0.1;
             camera.y += (player.worldY - canvas.height / 2 - camera.y) * 0.1;
 
-            // 4. 리스폰 제어 및 몬스터 AI 역추적
-            manageMonsterSpawns();
-            monsters.forEach(m => {
-                let dx = player.worldX - m.worldX;
-                let dy = player.worldY - m.worldY;
+            // 드롭된 코인 골드 습득 및 영구 연산 (로그라이크 자석 메커니즘 접목)
+            for(let i=droppedGolds.length-1; i>=0; i--) {
+                let g = droppedGolds[i];
+                let dx = player.worldX - g.worldX; let dy = player.worldY - g.worldY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
-
-                if (dist > 5 && !player.isTrance) {
-                    m.worldX += (dx / dist) * m.speed;
-                    m.worldY += (dy / dist) * m.speed;
+                if (dist < player.stats.magnetRange) {
+                    g.worldX += (dx / dist) * 3.5; g.worldY += (dy / dist) * 3.5;
+                    if (dist < player.radius + 6) {
+                        player.gold += g.value;
+                        droppedGolds.splice(i, 1);
+                    }
                 }
+            }
 
-                // 월드 좌표 기반 실시간 공방전 교환
+            // 스폰 처리
+            if (monsters.length < 5) {
+                let type = MONSTER_TYPES[Math.floor(Math.random() * MONSTER_TYPES.length)];
+                let angle = Math.random() * Math.PI * 2; let spawnDist = 340;
+                monsters.push({ worldX: player.worldX + Math.cos(angle) * spawnDist, worldY: player.worldY + Math.sin(angle) * spawnDist, ...type, hp: type.hp, maxHp: type.hp, attackCooldown: 0 });
+            }
+
+            // 몬스터 AI 제어 및 자동 충돌 전투 연산
+            monsters.forEach(m => {
+                let dx = player.worldX - m.worldX; let dy = player.worldY - m.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist > 5 && !player.isTrance) { m.worldX += (dx / dist) * m.speed; m.worldY += (dy / dist) * m.speed; }
+
                 if (dist < player.radius + m.radius) {
                     if (m.attackCooldown <= 0) {
                         player.hp = Math.max(0, player.hp - m.atk);
-                        
-                        let currentAtk = player.baseAtk;
-                        if (player.berserkTimer > 0) currentAtk *= 2.5; // 광폭 버프 연산
+                        let currentAtk = player.baseAtk + player.stats.atkBonus;
+                        if (player.berserkTimer > 0) currentAtk *= 2.5;
 
-                        m.hp -= currentAtk;
-                        m.attackCooldown = 40;
+                        m.hp -= currentAtk; m.attackCooldown = 45;
+                        damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${m.atk}`, color: "#ef4444", time: 20 });
+                        damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 12, text: `-${Math.floor(currentAtk)}`, color: "#fff", time: 20 });
 
-                        damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${m.atk}`, color: "#ef4444", time: 25 });
-                        damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 12, text: `-${Math.floor(currentAtk)}`, color: player.berserkTimer > 0 ? "#ef4444" : "#ffffff", time: 25 });
-
-                        // 흡혈 연산 처리
-                        if (player.berserkTimer > 0) {
-                            let heal = Math.floor(currentAtk * 0.3);
-                            player.hp = Math.min(player.maxHp, player.hp + heal);
-                        }
+                        if (player.berserkTimer > 0) player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + currentAtk * 0.3);
                     }
                 }
                 if (m.attackCooldown > 0) m.attackCooldown--;
             });
 
-            monsters = monsters.filter(m => m.hp > 0 && Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 700);
+            // 사망 처리 동기화
+            monsters.forEach(m => {
+                if(m.hp <= 0) { dropCoin(m.worldX, m.worldY); player.exp += 3; checkLevelUp(); }
+            });
+            monsters = monsters.filter(m => m.hp > 0);
             updateUI();
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save(); ctx.translate(-camera.x, -camera.y);
 
-            ctx.save();
-            // 카메라 스크롤 변환 행렬 적용 (화면이 자연스럽게 이동하는 근원)
-            ctx.translate(-camera.x, -camera.y);
-
-            // 1. 격자 무한 루프 배경 드로잉
-            ctx.strokeStyle = "#141417"; ctx.lineWidth = 1;
+            // 무한 바닥 격자 그리기
+            ctx.strokeStyle = "#16161c"; ctx.lineWidth = 1;
             let startGridX = Math.floor(camera.x / 40) * 40 - 40;
-            let endGridX = startGridX + canvas.width + 80;
             let startGridY = Math.floor(camera.y / 40) * 40 - 40;
-            let endGridY = startGridY + canvas.height + 80;
-
-            for (let x = startGridX; x < endGridX; x += 40) {
-                ctx.beginPath(); ctx.moveTo(x, startGridY); ctx.lineTo(x, endGridY); ctx.stroke();
+            for (let x = startGridX; x < startGridX + canvas.width + 80; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, startGridY); ctx.lineTo(x, startGridY + canvas.height + 80); ctx.stroke();
             }
-            for (let y = startGridY; y < endGridY; y += 40) {
-                ctx.beginPath(); ctx.moveTo(startGridX, y); ctx.lineTo(endGridX, y); ctx.stroke();
+            for (let y = startGridY; y < startGridY + canvas.height + 80; y += 40) {
+                ctx.beginPath(); ctx.moveTo(startGridX, y); ctx.lineTo(startGridX + canvas.width + 80, y); ctx.stroke();
             }
 
-            // 2. 몬스터 배치 드로잉
-            monsters.forEach(m => {
-                ctx.fillStyle = m.color;
-                ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "#27272a"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24, 3);
-                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
+            // 코인 렌더링
+            droppedGolds.forEach(g => {
+                ctx.fillStyle = var(--gold-color, "#eab308");
+                ctx.beginPath(); ctx.arc(g.worldX, g.worldY, 5, 0, Math.PI * 2); ctx.fill();
             });
 
-            // 3. 플레이어 월드 개체 드로잉 (버프 유무에 따른 네온 아우라 서클 처리)
+            // 몬스터 렌더링
+            monsters.forEach(m => {
+                ctx.fillStyle = m.color; ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#27272a"; ctx.fillRect(m.worldX - 10, m.worldY - m.radius - 5, 20, 2);
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 10, m.worldY - m.radius - 5, 20 * (m.hp / m.maxHp), 2);
+            });
+
+            // 플레이어 렌더링
             ctx.fillStyle = player.isTrance ? "#f59e0b" : "#10b981";
             ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius, 0, Math.PI * 2); ctx.fill();
-            
-            if (player.speedZeusTimer > 0) {
-                ctx.strokeStyle = "rgba(59, 130, 246, 0.5)"; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius + 6, 0, Math.PI * 2); ctx.stroke();
-            }
-            if (player.berserkTimer > 0) {
-                ctx.strokeStyle = "rgba(239, 68, 68, 0.6)"; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius + 4, 0, Math.PI * 2); ctx.stroke();
-            }
 
-            // 4. 텍스트 연출 드로잉
+            // 데미지 텍스트
             for (let i = damageNumbers.length - 1; i >= 0; i--) {
-                let d = damageNumbers[i]; ctx.fillStyle = d.color; ctx.font = "bold 12px sans-serif";
-                ctx.fillText(d.text, d.worldX - 6, d.worldY); d.worldY -= 0.7; d.time--;
+                let d = damageNumbers[i]; ctx.fillStyle = d.color; ctx.font = "bold 11px sans-serif";
+                ctx.fillText(d.text, d.worldX - 5, d.worldY); d.worldY -= 0.6; d.time--;
                 if (d.time <= 0) damageNumbers.splice(i, 1);
             }
-
             ctx.restore();
         }
 
