@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>오픈월드 로그라이크 RPG - 얼티메이트 액션</title>
+    <title>실시간 오픈월드 로그라이크 RPG</title>
     <style>
         :root {
             --bg-color: #0c0c0e;
@@ -12,20 +12,19 @@
             --text-color: #f4f4f5;
             --hp-color: #ef4444;
             --mp-color: #3b82f6;
-            --action-color: #f59e0b;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 8px;
             overflow: hidden;
             user-select: none;
             box-sizing: border-box;
@@ -36,150 +35,86 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
         }
 
-        h1 {
-            font-size: 1.1rem;
-            margin: 5px 0;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: #a1a1aa;
-        }
+        h1 { font-size: 1rem; margin: 4px 0; color: #a1a1aa; text-transform: uppercase; }
         
         .status-panel {
             width: 100%;
             background-color: var(--panel-color);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 8px 12px;
+            border-radius: 8px;
+            padding: 6px 10px;
             margin-bottom: 6px;
             box-sizing: border-box;
         }
 
-        .bar-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
+        .bar-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
         .bar-container {
-            position: relative;
-            width: 48%;
-            height: 16px;
-            background-color: #1f1f23;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid #3f3f46;
+            position: relative; width: 48%; height: 14px;
+            background-color: #1f1f23; border-radius: 4px; overflow: hidden; border: 1px solid #3f3f46;
         }
-        .bar-fill { height: 100%; width: 100%; transition: width 0.1s; }
+        .bar-fill { height: 100%; width: 100%; }
         .bar-text {
             position: absolute; width: 100%; text-align: center;
-            font-size: 10px; font-weight: bold; line-height: 16px; color: #fff;
-            text-shadow: 1px 1px 1px #000;
+            font-size: 9px; font-weight: bold; line-height: 14px; color: #fff;
         }
-
-        .info-row {
-            display: flex; justify-content: space-between; font-size: 11px; color: #a1a1aa;
-        }
+        .info-row { display: flex; justify-content: space-between; font-size: 10px; color: #a1a1aa; }
 
         canvas {
             border: 1px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 8px;
             background-color: #09090b;
             width: 100%;
-            max-height: 35vh; /* 화면 잘림 방지를 위해 캔버스 최대 높이 제한 */
+            max-height: 32vh;
             height: auto;
         }
 
         .log-box {
-            width: 100%;
-            height: 50px;
-            background-color: #09090b;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 6px;
-            overflow-y: auto;
-            font-size: 11px;
-            color: #d4d4d8;
-            margin-top: 6px;
-            box-sizing: border-box;
+            width: 100%; height: 42px; background-color: #09090b; border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 4px 6px; overflow-y: auto; font-size: 10px; color: #d4d4d8;
+            margin-top: 4px; box-sizing: border-box;
         }
 
-        /* 스킬 버튼 단 */
-        .skills-wrapper {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 6px;
-            gap: 6px;
-        }
+        .skills-wrapper { display: flex; width: 100%; margin-top: 4px; gap: 4px; }
         .skill-btn {
-            flex: 1;
-            padding: 6px 2px;
-            font-size: 11px;
-            font-weight: bold;
-            background-color: #27272a;
-            border: 1px solid #3f3f46;
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
+            flex: 1; padding: 5px; font-size: 10px; font-weight: bold;
+            background-color: #27272a; border: 1px solid #3f3f46; color: white; border-radius: 4px;
         }
-        .skill-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .skill-btn:disabled { opacity: 0.3; }
 
-        /* 하단 조작계 배치 최적화 */
+        /* 조이스틱 및 패드 레이아웃 */
         .controls-wrapper {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-top: 8px;
-            padding-bottom: 10px; /* 네비게이션 바 등 하단 여백 확보 */
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; margin-top: 10px; padding-bottom: 10px; box-sizing: border-box;
         }
 
-        .dpad {
-            display: grid;
-            grid-template-columns: repeat(3, 44px);
-            grid-template-rows: repeat(3, 44px);
-            gap: 4px;
+        /* 가상 조이스틱 영역 */
+        .joystick-zone {
+            width: 100px; height: 100px; background: #1f1f23; border: 2px solid #3f3f46;
+            border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
         }
-        .dpad button {
-            background: #27272a;
-            color: #fff;
-            border: 1px solid #3f3f46;
-            border-radius: 8px;
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            touch-action: manipulation;
+        .joystick-stick {
+            width: 40px; height: 40px; background: #52525b; border-radius: 50%;
+            position: absolute; box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+            transition: transform 0.05s linear;
         }
-        .dpad button:active { background: #18181b; }
-        .dpad .empty { visibility: hidden; }
         
-        .ultimate-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 45%;
-        }
+        .ultimate-wrapper { display: flex; width: 40%; justify-content: center; }
         .action-btn-main {
-            width: 76px;
-            height: 76px;
-            background: linear-gradient(145deg, #d97706, #b45309);
-            border: 1px solid #f59e0b;
-            color: #fff;
-            font-size: 12px;
-            font-weight: bold;
+            width: 72px; height: 72px; background: linear-gradient(145deg, #d97706, #b45309);
+            border: 1px solid #f59e0b; color: #fff; font-size: 11px; font-weight: bold;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            gap: 2px; border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
-        .action-btn-main:disabled { background: #27272a; border-color: #3f3f46; color: #71717a; box-shadow: none;}
+        .action-btn-main:disabled { background: #27272a; border-color: #3f3f46; color: #71717a; box-shadow: none; }
     </style>
 </head>
 <body>
 
     <div class="game-container">
-        <h1>Annihilation Infinite World</h1>
+        <h1>Annihilation Realtime</h1>
         
         <div class="status-panel">
             <div class="bar-row">
@@ -193,7 +128,7 @@
                 </div>
             </div>
             <div class="info-row">
-                <div>⚔️ ATK: <span id="pAtk">7</span> | 🛡️ 장막: <span id="pShield">0</span>턴</div>
+                <div>⚔️ ATK: <span id="pAtk">8</span> | 🛡️ 장막: <span id="pShield">0</span>s</div>
                 <div>🔮 상태: <span id="pState" style="color: #10b981; font-weight:bold;">정상</span></div>
             </div>
         </div>
@@ -205,18 +140,11 @@
             <button id="btnSkill2" class="skill-btn" onclick="useVampire()">🩸 흡혈 (MP12)</button>
         </div>
         
-        <div id="gameLog" class="log-box">게임이 시작되었습니다. 몬스터들이 당신의 위치를 추격합니다!</div>
+        <div id="gameLog" class="log-box">조이스틱 드래그 또는 WASD/방향키로 실시간 자유 이동이 가능합니다!</div>
 
         <div class="controls-wrapper">
-            <div class="dpad">
-                <div class="empty"></div>
-                <button id="btnUp">▲</button>
-                <div class="empty"></div>
-                <button id="btnLeft">◀</button>
-                <div class="empty"></div>
-                <button id="btnRight">▶</button>
-                <div class="empty"></div>
-                <button id="btnDown">▼</button>
+            <div id="joystickZone" class="joystick-zone">
+                <div id="joystickStick" class="joystick-stick"></div>
             </div>
             
             <div class="ultimate-wrapper">
@@ -233,30 +161,56 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        const TILE_SIZE = 40;
-        const COLS = canvas.width / TILE_SIZE; 
-        const ROWS = canvas.height / TILE_SIZE; 
-
+        // 실시간 픽셀 기반 좌표 시스템
         let player = { 
-            x: 7, y: 5, 
-            hp: 50, maxHp: 50, 
-            mp: 30, maxMp: 30,
-            baseAtk: 7,
-            lightningTurn: 0, // 정전기 장막 지속 턴
-            isTrance: false
+            x: 300, y: 200, radius: 14,
+            hp: 50, maxHp: 50, mp: 30, maxMp: 30, baseAtk: 8,
+            speed: 3.5, lightningTime: 0, isTrance: false
         };
 
-        // 다채로운 몬스터 도감 프로필
         const MONSTER_TYPES = [
-            { name: "슬라임", color: "#22c55e", hp: 12, atk: 3, speed: 0.3 },
-            { name: "고블린 추격꾼", color: "#a855f7", hp: 15, atk: 5, speed: 0.7 },
-            { name: "오크 전사", color: "#f97316", hp: 25, atk: 7, speed: 0.4 }
+            { name: "슬라임", color: "#22c55e", hp: 15, atk: 2, radius: 12, speed: 1.0 },
+            { name: "고블린 추격꾼", color: "#a855f7", hp: 18, atk: 4, radius: 10, speed: 1.8 },
+            { name: "오크 전사", color: "#f97316", hp: 35, atk: 6, radius: 16, speed: 0.8 }
         ];
 
-        let chunks = {};
-        let chunkMonsters = {};
-        let cameraShake = { x: 0, y: 0, duration: 0 };
+        let chunkX = 0, chunkY = 0;
+        let monsters = [];
         let damageNumbers = [];
+        let keys = {};
+        let joystickInput = { x: 0, y: 0 };
+
+        // 가상 조이스틱 로직
+        const zone = document.getElementById("joystickZone");
+        const stick = document.getElementById("joystickStick");
+        let joystickActive = false;
+
+        function handleJoystick(ex, ey) {
+            const rect = zone.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            let dx = ex - centerX;
+            let dy = ey - centerY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            const maxDist = 40;
+
+            if (dist > maxDist) {
+                dx = (dx / dist) * maxDist;
+                dy = (dy / dist) * maxDist;
+            }
+
+            stick.style.transform = `translate(${dx}px, ${dy}px)`;
+            joystickInput.x = dx / maxDist;
+            joystickInput.y = dy / maxDist;
+        }
+
+        zone.addEventListener("touchstart", (e) => { joystickActive = true; handleJoystick(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener("touchmove", (e) => { if(joystickActive) handleJoystick(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
+        window.addEventListener("touchend", () => { joystickActive = false; stick.style.transform = "translate(0px, 0px)"; joystickInput = {x:0, y:0}; });
+
+        zone.addEventListener("mousedown", (e) => { joystickActive = true; handleJoystick(e.clientX, e.clientY); });
+        window.addEventListener("mousemove", (e) => { if(joystickActive) handleJoystick(e.clientX, e.clientY); });
+        window.addEventListener("mouseup", () => { joystickActive = false; stick.style.transform = "translate(0px, 0px)"; joystickInput = {x:0, y:0}; });
 
         function addLog(message) {
             const logBox = document.getElementById("gameLog");
@@ -265,385 +219,221 @@
         }
 
         function updateUI() {
-            document.getElementById("pHp").innerText = player.hp;
-            document.getElementById("pMp").innerText = player.mp;
-            document.getElementById("pAtk").innerText = player.baseAtk;
-            document.getElementById("pShield").innerText = player.lightningTurn;
-            
+            document.getElementById("pHp").innerText = Math.ceil(player.hp);
+            document.getElementById("pMp").innerText = Math.floor(player.mp);
+            document.getElementById("pShield").innerText = Math.ceil(player.lightningTime / 60);
             document.getElementById("hpFill").style.width = `${(player.hp / player.maxHp) * 100}%`;
             document.getElementById("mpFill").style.width = `${(player.mp / player.maxMp) * 100}%`;
 
             const stateEl = document.getElementById("pState");
-            if (player.isTrance) {
-                stateEl.innerText = "무아지경 돌진!";
-                stateEl.style.color = "#f59e0b";
-            } else {
-                stateEl.innerText = "정상";
-                stateEl.style.color = "#10b981";
-            }
+            if (player.isTrance) { stateEl.innerText = "💥무아지경 난무 중!"; stateEl.style.color = "#f59e0b"; }
+            else { stateEl.innerText = "정상"; stateEl.style.color = "#10b981"; }
 
-            // 마나 상태별 스킬 활성화 바인딩
             document.getElementById("btnUltimate").disabled = (player.mp < 15 || player.isTrance);
             document.getElementById("btnSkill1").disabled = (player.mp < 10 || player.isTrance);
             document.getElementById("btnSkill2").disabled = (player.mp < 12 || player.isTrance);
         }
 
-        function getOrCreateChunk(cx, cy) {
-            const key = `${cx},${cy}`;
-            if (chunks[key]) return chunks[key];
-
-            let mapData = [];
-            for (let r = 0; r < ROWS; r++) {
-                let row = [];
-                for (let c = 0; c < COLS; c++) {
-                    if (cx === 0 && cy === 0 && c === 7 && r === 5) row.push(0);
-                    else row.push(Math.random() < 0.06 ? 1 : 0); // 맵 시인성을 위해 벽 확률 조절
-                }
-                mapData.push(row);
-            }
-            chunks[key] = mapData;
-
-            // 다양한 종류의 몬스터 확충 스폰
-            let monsters = [];
-            const count = Math.floor(Math.random() * 2) + 2;
-            for (let i = 0; i < count; i++) {
-                let mx = Math.floor(Math.random() * COLS);
-                let my = Math.floor(Math.random() * ROWS);
-                if (mapData[my][mx] === 0 && !(cx === 0 && cy === 0 && mx === 7 && my === 5)) {
-                    let type = MONSTER_TYPES[Math.floor(Math.random() * MONSTER_TYPES.length)];
-                    monsters.push({ 
-                        x: mx, y: my, 
-                        name: type.name, color: type.color,
-                        hp: type.hp, maxHp: type.hp, atk: type.atk, speed: type.speed 
-                    });
-                }
-            }
-            chunkMonsters[key] = monsters;
-            return mapData;
-        }
-
-        function getPlayerState() {
-            let chunkX = Math.floor(player.x / COLS);
-            let chunkY = Math.floor(player.y / ROWS);
-            let localX = (player.x % COLS + COLS) % COLS;
-            let localY = (player.y % ROWS + ROWS) % ROWS;
-            return { chunkX, chunkY, localX, localY };
-        }
-
-        function renderLoop() {
-            if (cameraShake.duration > 0) {
-                cameraShake.x = (Math.random() - 0.5) * 8;
-                cameraShake.y = (Math.random() - 0.5) * 8;
-                cameraShake.duration--;
-            } else { cameraShake.x = 0; cameraShake.y = 0; }
-
-            ctx.save();
-            ctx.translate(cameraShake.x, cameraShake.y);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const state = getPlayerState();
-            const currentChunkKey = `${state.chunkX},${state.chunkY}`;
-            const currentMap = getOrCreateChunk(state.chunkX, state.chunkY);
-            const monsters = chunkMonsters[currentChunkKey] || [];
-
-            // 1. 타일맵 그리기
-            for (let r = 0; r < ROWS; r++) {
-                for (let c = 0; c < COLS; c++) {
-                    if (currentMap[r][c] === 1) {
-                        ctx.fillStyle = "#3f3f46";
-                        ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    } else {
-                        ctx.strokeStyle = "#18181b";
-                        ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    }
-                }
-            }
-
-            // 2. 고유 색상별 다채로운 몬스터 렌더링
-            monsters.forEach(m => {
-                ctx.fillStyle = m.color;
-                ctx.beginPath();
-                ctx.arc(m.x * TILE_SIZE + TILE_SIZE / 2, m.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 3.2, 0, Math.PI * 2);
-                ctx.fill();
-                
-                // 체력 바
-                ctx.fillStyle = "#27272a";
-                ctx.fillRect(m.x * TILE_SIZE + 6, m.y * TILE_SIZE + 2, TILE_SIZE - 12, 3);
-                ctx.fillStyle = "#ef4444";
-                ctx.fillRect(m.x * TILE_SIZE + 6, m.y * TILE_SIZE + 2, (TILE_SIZE - 12) * (m.hp / m.maxHp), 3);
-            });
-
-            // 3. 플레이어 시각효과 (장막 전개 시 전기 스파크 글로우 서클 부여)
-            ctx.fillStyle = player.isTrance ? "#f59e0b" : "#10b981";
-            if (player.lightningTurn > 0) {
-                ctx.shadowColor = "#3b82f6";
-                ctx.shadowBlur = 12;
-            }
-            ctx.beginPath();
-            ctx.arc(state.localX * TILE_SIZE + TILE_SIZE / 2, state.localY * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 2.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // 4. 데미지 플로팅 피드백
-            for (let i = damageNumbers.length - 1; i >= 0; i--) {
-                let dmg = damageNumbers[i];
-                ctx.fillStyle = dmg.color;
-                ctx.font = "bold 14px sans-serif";
-                ctx.fillText(dmg.text, dmg.x, dmg.y);
-                dmg.y -= 1;
-                dmg.duration--;
-                if (dmg.duration <= 0) damageNumbers.splice(i, 1);
-            }
-
-            ctx.restore();
-            requestAnimationFrame(renderLoop);
-        }
-
-        function triggerHit(x, y, text, color = "#ef4444") {
-            cameraShake.duration = 6;
-            damageNumbers.push({
-                x: x * TILE_SIZE + 10, y: y * TILE_SIZE + 5,
-                text: text, color: color, duration: 25
-            });
-        }
-
-        // ⚙️ [월드 추격 핵심 로직]: 맵이 바뀌어도 원거리 몬스터들이 연동되어 따라오게 처리
-        function migrateMonstersAcrossChunks(oldCx, oldCy, newCx, newCy, dx, dy) {
-            const oldKey = `${oldCx},${oldCy}`;
-            const newKey = `${newCx},${newCy}`;
-            
-            if (!chunkMonsters[oldKey] || chunkMonsters[oldKey].length === 0) return;
-            
-            getOrCreateChunk(newCx, newCy); // 목적지 청크 미리 개설 보장
-            let destinationMap = chunks[newKey];
-
-            // 이전 방에 있던 몬스터들을 추출해 새 타겟 방으로 경계 차원 이동 유도
-            let stayingMonsters = [];
-            chunkMonsters[oldKey].forEach(m => {
-                // 월드 맵 이동 방향의 반대편 모서리 경계면으로 리스폰 위치 전이 연출
-                let targetLocalX = m.x - (dx * COLS);
-                let targetLocalY = m.y - (dy * ROWS);
-
-                // 안전장치 범위 압축 가공
-                targetLocalX = Math.max(0, Math.min(COLS - 1, targetLocalX));
-                targetLocalY = Math.max(0, Math.min(ROWS - 1, targetLocalY));
-
-                if (destinationMap[targetLocalY][targetLocalX] === 0) {
-                    m.x = targetLocalX;
-                    m.y = targetLocalY;
-                    if (!chunkMonsters[newKey]) chunkMonsters[newKey] = [];
-                    chunkMonsters[newKey].push(m);
-                } else {
-                    stayingMonsters.push(m); // 벽이 막고 있으면 구역 보존
-                }
-            });
-            chunkMonsters[oldKey] = stayingMonsters;
-        }
-
-        // 전방위 적 탐지 추적 AI 알고리즘
-        function moveMonstersAI(monsters, currentMap, localX, localY) {
-            monsters.forEach(m => {
-                if (Math.random() > m.speed) return; // 고유 기동 스피드 적용 확률 연산
-                
-                let diffX = Math.sign(localX - m.x);
-                let diffY = Math.sign(localY - m.y);
-
-                let nextX = m.x + (diffX !== 0 ? diffX : 0);
-                let nextY = m.y + (diffX === 0 ? diffY : 0);
-
-                if (currentMap[nextY] && currentMap[nextY][nextX] === 0 && !(nextX === localX && nextY === localY)) {
-                    if (!monsters.some(o => o !== m && o.x === nextX && o.y === nextY)) {
-                        m.x = nextX;
-                        m.y = nextY;
-                    }
-                }
-            });
-        }
-
-        // 특수 유틸리티 메커니즘 1: 정전기 장막 광역 감전 피드백 효과 연출
-        function applyLightningTick(monsters) {
-            if (player.lightningTurn <= 0 || monsters.length === 0) return;
-            
-            const state = getPlayerState();
-            for(let i = monsters.length - 1; i >= 0; i--) {
-                let m = monsters[i];
-                // 주변 8칸 범위 내 연산 법칙
-                if (Math.abs(m.x - state.localX) <= 1 && Math.abs(m.y - state.localY) <= 1) {
-                    m.hp -= 3;
-                    triggerHit(m.x, m.y, "⚡감전 -3", "#3b82f6");
-                    if (m.hp <= 0) {
-                        addLog(`⚡ 감전 효과로 인해 [${m.name}]이 무력화되었습니다.`);
-                        monsters.splice(i, 1);
-                    }
-                }
+        function spawnMonsters() {
+            monsters = [];
+            const count = Math.floor(Math.random() * 3) + 3;
+            for(let i=0; i<count; i++) {
+                let type = MONSTER_TYPES[Math.floor(Math.random() * MONSTER_TYPES.length)];
+                monsters.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: Math.random() * (canvas.height - 60) + 30,
+                    ...type, hp: type.hp, maxHp: type.hp, attackCooldown: 0
+                });
             }
         }
 
-        function movePlayer(dx, dy) {
-            if (player.hp <= 0 || player.isTrance) return;
-
-            let prevStates = getPlayerState();
-            let nextGlobalX = player.x + dx;
-            let nextGlobalY = player.y + dy;
-
-            let nextStates = {
-                chunkX: Math.floor(nextGlobalX / COLS),
-                chunkY: Math.floor(nextGlobalY / ROWS),
-                localX: (nextGlobalX % COLS + COLS) % COLS,
-                localY: (nextGlobalY % ROWS + ROWS) % ROWS
-            };
-
-            // 청크 전이 확인 시 몬스터 마이그레이션 발동
-            if (prevStates.chunkX !== nextStates.chunkX || prevStates.chunkY !== nextStates.chunkY) {
-                migrateMonstersAcrossChunks(prevStates.chunkX, prevStates.chunkY, nextStates.chunkX, nextStates.chunkY, dx, dy);
-                addLog("🔮 공간이 왜곡되며 주위 적들이 당신을 쫓아 차원을 넘어옵니다!");
-            }
-
-            const targetMap = getOrCreateChunk(nextStates.chunkX, nextStates.chunkY);
-            if (targetMap[nextStates.localY][nextStates.localX] === 1) return;
-
-            const targetChunkKey = `${nextStates.chunkX},${nextStates.chunkY}`;
-            let monsters = chunkMonsters[targetChunkKey] || [];
-            let mIdx = monsters.findIndex(m => m.x === nextStates.localX && m.y === nextStates.localY);
-
-            if (mIdx !== -1) {
-                let m = monsters[mIdx];
-                m.hp -= player.baseAtk;
-                triggerHit(m.x, m.y, `-${player.baseAtk}`);
-
-                if (m.hp <= 0) {
-                    addLog(`⚔️ [${m.name}] 처치 완료.`);
-                    monsters.splice(mIdx, 1);
-                } else {
-                    player.hp = Math.max(0, player.hp - m.atk);
-                    if(player.hp <= 0) addLog("💀 사망하셨습니다.");
-                }
-            } else {
-                player.x = nextGlobalX;
-                player.y = nextGlobalY;
-                if (player.mp < player.maxMp && Math.random() < 0.35) player.mp = Math.min(player.maxMp, player.mp + 1);
-            }
-
-            // 지속형 장막 메커니즘 차감 및 작동 루프
-            if (player.lightningTurn > 0) {
-                applyLightningTick(monsters);
-                player.lightningTurn--;
-            }
-
-            const currentStates = getPlayerState();
-            moveMonstersAI(monsters, targetMap, currentStates.localX, currentStates.localY);
-            updateUI();
-        }
-
-        // 🔥 [개편된 무아지경]: 제자리 난사가 아닌 몬스터의 앞타일로 실제 대시 돌진격파 수행
         function useTrance() {
             if (player.mp < 15 || player.isTrance || player.hp <= 0) return;
-
-            const state = getPlayerState();
-            const currentChunkKey = `${state.chunkX},${state.chunkY}`;
-            let monsters = chunkMonsters[currentChunkKey] || [];
-            const currentMap = chunks[currentChunkKey];
-
-            if (monsters.length === 0) {
-                addLog("🌀 시야 주위에 돌진할 타겟팅 상대가 존재하지 않습니다!");
-                return;
-            }
-
             player.mp -= 15;
             player.isTrance = true;
             updateUI();
+            addLog("🔥 [무아지경] 돌입! 5초간 전장의 적들을 무차별 고속 습격합니다!");
 
-            let target = monsters[0];
-            addLog(`🔥 [무아지경] 발동! [${target.name}]의 좌표로 일섬 돌진합니다!`);
+            let duration = 5000;
+            let startTime = Date.now();
 
-            setTimeout(() => {
-                // 몬스터 근처 빈칸 위치 계산 후 실시간 물리 텔레포트 대시 무빙 처리
-                let targetDashX = target.x === 0 ? 1 : target.x - 1;
-                let targetDashY = target.y;
-
-                if (currentMap[targetDashY] && currentMap[targetDashY][targetDashX] === 0) {
-                    player.x = state.chunkX * COLS + targetDashX;
-                    player.y = state.chunkY * ROWS + targetDashY;
+            let tranceInterval = setInterval(() => {
+                if (Date.now() - startTime >= duration || player.hp <= 0 || monsters.length === 0) {
+                    clearInterval(tranceInterval);
+                    player.isTrance = false;
+                    addLog("✨ 무아지경 난격이 종료되었습니다.");
+                    updateUI();
+                    return;
                 }
 
-                // 강력한 치명타 가중 격파
-                let totalDmg = Math.floor(player.baseAtk * 2.5);
-                target.hp -= totalDmg;
-                triggerHit(target.x, target.y, `💥💥 CRIT ${totalDmg}`, "#f59e0b");
+                // 가장 가까운 타겟팅 선정 후 즉시 돌진 체인
+                let target = monsters[Math.floor(Math.random() * monsters.length)];
+                player.x = target.x;
+                player.y = target.y;
+
+                let dmg = Math.floor(player.baseAtk * 1.5);
+                target.hp -= dmg;
+                damageNumbers.push({ x: target.x, y: target.y - 10, text: `💥 ${dmg}`, color: "#f59e0b", time: 30 });
 
                 if (target.hp <= 0) {
-                    addLog(`🎉 무아지경 돌진 참격으로 [${target.name}]을 즉사 분쇄시켰습니다!`);
-                    monsters.shift();
-                } else {
-                    player.hp = Math.max(0, player.hp - Math.floor(target.atk / 2)); // 경감 반격
+                    monsters = monsters.filter(m => m !== target);
                 }
-
-                player.isTrance = false;
-                updateUI();
-            }, 300); // 0.3초의 강렬한 돌진 딜레이 연출
+            }, 250); // 0.25초 마다 무작위 적의 위치로 계속 텔레포트 돌진 연타
         }
 
-        // ⚡ 특수 메커니즘 스킬 1: 정전기 장막 활성화
         function useLightning() {
-            if (player.mp < 10 || player.isTrance || player.hp <= 0) return;
-            player.mp -= 10;
-            player.lightningTurn = 5; // 5보 폭 동안 주위 지속 방전 피해 활성화
-            addLog("⚡ [정전기 장막] 전개! 5턴 동안 곁으로 다가오는 적들을 지속 감전시킵니다.");
-            updateUI();
+            if (player.mp < 10 || player.isTrance) return;
+            player.mp -= 10; player.lightningTime = 300; addLog("⚡ 정전기 장막 활성화!"); updateUI();
         }
 
-        // 🩸 특수 메커니즘 스킬 2: 흡혈 참격 단타 발동
         function useVampire() {
-            if (player.mp < 12 || player.isTrance || player.hp <= 0) return;
-
-            const state = getPlayerState();
-            const currentChunkKey = `${state.chunkX},${state.chunkY}`;
-            let monsters = chunkMonsters[currentChunkKey] || [];
-
-            if (monsters.length === 0) {
-                addLog("🩸 주변에 피를 흡수할 타겟 생명체가 없습니다.");
-                return;
-            }
-
+            if (player.mp < 12 || player.isTrance || monsters.length === 0) return;
             player.mp -= 12;
             let target = monsters[0];
-            let vDmg = Math.floor(player.baseAtk * 1.4);
-            let vHeal = Math.floor(vDmg * 0.5); // 데미지의 50% 흡혈
-
-            target.hp -= vDmg;
-            player.hp = Math.min(player.maxHp, player.hp + vHeal);
-            
-            triggerHit(target.x, target.y, `🩸흡혈 참격 -${vDmg}`, "#ec4899");
-            addLog(`🩸 흡혈 참격 적중! 적에게 ${vDmg} 피해를 주고 체력을 +${vHeal} 흡수했습니다.`);
-
-            if (target.hp <= 0) {
-                addLog(`🎉 [${target.name}]이 피를 빨려 소멸했습니다.`);
-                monsters.shift();
-            }
+            target.hp -= player.baseAtk;
+            let heal = Math.floor(player.baseAtk * 0.5);
+            player.hp = Math.min(player.maxHp, player.hp + heal);
+            damageNumbers.push({ x: target.x, y: target.y - 10, text: `🩸 ${player.baseAtk}`, color: "#ec4899", time: 30 });
+            if (target.hp <= 0) monsters.shift();
             updateUI();
         }
 
-        // 이벤트 리스너 바인딩
-        window.addEventListener("keydown", (e) => {
-            switch(e.key.toLowerCase()) {
-                case "arrowup": case "w": movePlayer(0, -1); break;
-                case "arrowdown": case "s": movePlayer(0, 1); break;
-                case "arrowleft": case "a": movePlayer(-1, 0); break;
-                case "arrowright": case "d": movePlayer(1, 0); break;
+        // 실시간 물리 업데이트 및 무한 월드 체크 루프
+        function updateGame() {
+            if (player.hp <= 0) return;
+
+            // 1. 키보드 + 조이스틱 통합 이동 벡터 가산
+            let moveX = joystickInput.x;
+            let moveY = joystickInput.y;
+
+            if (keys["w"] || keys["arrowup"]) moveY = -1;
+            if (keys["s"] || keys["arrowdown"]) moveY = 1;
+            if (keys["a"] || keys["arrowleft"]) moveX = -1;
+            if (keys["d"] || keys["arrowright"]) moveX = 1;
+
+            if (!player.isTrance && (moveX !== 0 || moveY !== 0)) {
+                let length = Math.sqrt(moveX*moveX + moveY*moveY);
+                player.x += (moveX / length) * player.speed;
+                player.y += (moveY / length) * player.speed;
+                if (player.mp < player.maxMp) player.mp += 0.02; // 이동 시 마나 점진 회복
             }
-        });
 
-        const addTouch = (id, dx, dy) => {
-            const b = document.getElementById(id);
-            b.addEventListener("touchstart", (e) => { e.preventDefault(); movePlayer(dx, dy); }, { passive: false });
-            b.addEventListener("mousedown", (e) => { e.preventDefault(); movePlayer(dx, dy); });
-        };
-        addTouch("btnUp", 0, -1); addTouch("btnDown", 0, 1);
-        addTouch("btnLeft", -1, 0); addTouch("btnRight", 1, 0);
+            // 2. 무한 월드 스크롤 (화면 밖 전이 시 다음 맵으로 전환 + 적 연동 이동 보정)
+            let chunkChanged = false;
+            if (player.x < 0) { player.x = canvas.width; chunkX--; chunkChanged = true; }
+            if (player.x > canvas.width) { player.x = 0; chunkX++; chunkChanged = true; }
+            if (player.y < 0) { player.y = canvas.height; chunkY--; chunkChanged = true; }
+            if (player.y > canvas.height) { player.y = 0; chunkY++; chunkChanged = true; }
 
-        getOrCreateChunk(0, 0);
-        updateUI();
-        renderLoop();
+            if (chunkChanged) {
+                addLog(`🔮 새로운 구역 진입 (${chunkX}, ${chunkY})`);
+                // 이전 맵 생존 적이 있으면 데려오고 없으면 새 배치
+                if (monsters.length === 0) spawnMonsters();
+                else {
+                    monsters.forEach(m => {
+                        m.x = Math.random() * (canvas.width - 100) + 50;
+                        m.y = Math.random() * (canvas.height - 100) + 50;
+                    });
+                }
+            }
+
+            // 3. 정전기 장막 기믹 연산
+            if (player.lightningTime > 0) {
+                player.lightningTime--;
+                if (player.lightningTime % 20 === 0) {
+                    monsters.forEach(m => {
+                        let dist = Math.sqrt((m.x - player.x)**2 + (m.y - player.y)**2);
+                        if (dist < 80) {
+                            m.hp -= 2;
+                            damageNumbers.push({ x: m.x, y: m.y - 10, text: "⚡ 2", color: "#3b82f6", time: 15 });
+                        }
+                    });
+                    monsters = monsters.filter(m => m.hp > 0);
+                }
+            }
+
+            // 4. 실시간 적 AI 추적 및 충돌 전투 연산
+            monsters.forEach(m => {
+                let dx = player.x - m.x;
+                let dy = player.y - m.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                if (dist > 5 && !player.isTrance) {
+                    m.x += (dx / dist) * m.speed;
+                    m.y += (dy / dist) * m.speed;
+                }
+
+                // 실시간 물리 바디 충돌 시 자동 전투 공방 교환
+                if (dist < player.radius + m.radius) {
+                    if (m.attackCooldown <= 0) {
+                        player.hp = Math.max(0, player.hp - m.atk);
+                        m.hp -= player.baseAtk;
+                        m.attackCooldown = 45; // 프레임 단위 내부 무적/쿨타임
+
+                        damageNumbers.push({ x: player.x, y: player.y - 12, text: `-${m.atk}`, color: "#ef4444", time: 25 });
+                        damageNumbers.push({ x: m.x, y: m.y - 12, text: `-${player.baseAtk}`, color: "#ffffff", time: 25 });
+                    }
+                }
+                if (m.attackCooldown > 0) m.attackCooldown--;
+            });
+
+            monsters = monsters.filter(m => m.hp > 0);
+            updateUI();
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. 네온 액션 격자판 바닥 드로잉
+            ctx.strokeStyle = "#141417";
+            ctx.lineWidth = 1;
+            for (let i = 0; i < canvas.width; i += 30) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+
+            // 2. 적군 렌더링
+            monsters.forEach(m => {
+                ctx.fillStyle = m.color;
+                ctx.beginPath(); ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2); ctx.fill();
+                
+                // 체력 미니 바
+                ctx.fillStyle = "#27272a"; ctx.fillRect(m.x - 12, m.y - m.radius - 6, 24, 3);
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.x - 12, m.y - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
+            });
+
+            // 3. 플레이어 렌더링 (장막 발동 시 외곽 네온 서클 추가)
+            ctx.fillStyle = player.isTrance ? "#f59e0b" : "#10b981";
+            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2); ctx.fill();
+            
+            if (player.lightningTime > 0) {
+                ctx.strokeStyle = "rgba(59, 130, 246, 0.4)";
+                ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(player.x, player.y, 50, 0, Math.PI * 2); ctx.stroke();
+            }
+
+            // 4. 데미지 수치 드로잉
+            for (let i = damageNumbers.length - 1; i >= 0; i--) {
+                let d = damageNumbers[i];
+                ctx.fillStyle = d.color;
+                ctx.font = "bold 12px sans-serif";
+                ctx.fillText(d.text, d.x - 5, d.y);
+                d.y -= 0.8; d.time--;
+                if (d.time <= 0) damageNumbers.splice(i, 1);
+            }
+        }
+
+        function gameLoop() {
+            updateGame();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
+        window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
+
+        spawnMonsters();
+        gameLoop();
     </script>
 </body>
 </html>
