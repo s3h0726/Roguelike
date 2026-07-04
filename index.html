@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>실시간 오픈월드 로그라이크 RPG</title>
+    <title>실시간 오픈월드 로그라이크 RPG - 무한 스크롤 버전</title>
     <style>
         :root {
             --bg-color: #0c0c0e;
@@ -77,28 +77,26 @@
             margin-top: 4px; box-sizing: border-box;
         }
 
-        .skills-wrapper { display: flex; width: 100%; margin-top: 4px; gap: 4px; }
+        /* 버프 스킬 세련된 그리드 배치 */
+        .skills-wrapper { display: grid; grid-template-columns: 1fr 1fr; width: 100%; margin-top: 4px; gap: 4px; }
         .skill-btn {
-            flex: 1; padding: 5px; font-size: 10px; font-weight: bold;
+            padding: 5px; font-size: 10px; font-weight: bold;
             background-color: #27272a; border: 1px solid #3f3f46; color: white; border-radius: 4px;
         }
         .skill-btn:disabled { opacity: 0.3; }
 
-        /* 조이스틱 및 패드 레이아웃 */
         .controls-wrapper {
             display: flex; justify-content: space-between; align-items: center;
             width: 100%; margin-top: 10px; padding-bottom: 10px; box-sizing: border-box;
         }
 
-        /* 가상 조이스틱 영역 */
         .joystick-zone {
-            width: 100px; height: 100px; background: #1f1f23; border: 2px solid #3f3f46;
+            width: 95px; height: 95px; background: #1f1f23; border: 2px solid #3f3f46;
             border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
         }
         .joystick-stick {
-            width: 40px; height: 40px; background: #52525b; border-radius: 50%;
+            width: 38px; height: 38px; background: #52525b; border-radius: 50%;
             position: absolute; box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-            transition: transform 0.05s linear;
         }
         
         .ultimate-wrapper { display: flex; width: 40%; justify-content: center; }
@@ -114,7 +112,7 @@
 <body>
 
     <div class="game-container">
-        <h1>Annihilation Realtime</h1>
+        <h1>Infinite Seamless World</h1>
         
         <div class="status-panel">
             <div class="bar-row">
@@ -128,7 +126,7 @@
                 </div>
             </div>
             <div class="info-row">
-                <div>⚔️ ATK: <span id="pAtk">8</span> | 🛡️ 장막: <span id="pShield">0</span>s</div>
+                <div>⚔️ ATK: <span id="pAtk">8</span> | 🚀 버프 활성화 중</div>
                 <div>🔮 상태: <span id="pState" style="color: #10b981; font-weight:bold;">정상</span></div>
             </div>
         </div>
@@ -136,11 +134,11 @@
         <canvas id="gameCanvas" width="600" height="400"></canvas>
         
         <div class="skills-wrapper">
-            <button id="btnSkill1" class="skill-btn" onclick="useLightning()">⚡ 장막 (MP10)</button>
-            <button id="btnSkill2" class="skill-btn" onclick="useVampire()">🩸 흡혈 (MP12)</button>
+            <button id="btnSkill1" class="skill-btn" onclick="useSpeedZeus()">⚡ 신속의 신벌 (MP12)</button>
+            <button id="btnSkill2" class="skill-btn" onclick="useBerserk()">🩸 신성한 광폭화 (MP14)</button>
         </div>
         
-        <div id="gameLog" class="log-box">조이스틱 드래그 또는 WASD/방향키로 실시간 자유 이동이 가능합니다!</div>
+        <div id="gameLog" class="log-box">월드가 자연스럽게 스크롤됩니다. 끝없는 전장을 탐험하세요!</div>
 
         <div class="controls-wrapper">
             <div id="joystickZone" class="joystick-zone">
@@ -161,12 +159,18 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // 실시간 픽셀 기반 좌표 시스템
+        // 무한 가상 좌표 시스템
         let player = { 
-            x: 300, y: 200, radius: 14,
+            worldX: 300, worldY: 200, radius: 14,
             hp: 50, maxHp: 50, mp: 30, maxMp: 30, baseAtk: 8,
-            speed: 3.5, lightningTime: 0, isTrance: false
+            speed: 3.5, 
+            isTrance: false,
+            speedZeusTimer: 0,
+            berserkTimer: 0
         };
+
+        // 카메라 객체 (플레이어를 부드럽게 추적)
+        let camera = { x: 0, y: 0 };
 
         const MONSTER_TYPES = [
             { name: "슬라임", color: "#22c55e", hp: 15, atk: 2, radius: 12, speed: 1.0 },
@@ -174,13 +178,12 @@
             { name: "오크 전사", color: "#f97316", hp: 35, atk: 6, radius: 16, speed: 0.8 }
         ];
 
-        let chunkX = 0, chunkY = 0;
         let monsters = [];
         let damageNumbers = [];
         let keys = {};
         let joystickInput = { x: 0, y: 0 };
 
-        // 가상 조이스틱 로직
+        // 조이스틱 드래그 핸들링
         const zone = document.getElementById("joystickZone");
         const stick = document.getElementById("joystickStick");
         let joystickActive = false;
@@ -189,25 +192,15 @@
             const rect = zone.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
-            let dx = ex - centerX;
-            let dy = ey - centerY;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const maxDist = 40;
-
-            if (dist > maxDist) {
-                dx = (dx / dist) * maxDist;
-                dy = (dy / dist) * maxDist;
-            }
-
+            let dx = ex - centerX; let dy = ey - centerY;
+            const dist = Math.sqrt(dx*dx + dy*dy); const maxDist = 38;
+            if (dist > maxDist) { dx = (dx / dist) * maxDist; dy = (dy / dist) * maxDist; }
             stick.style.transform = `translate(${dx}px, ${dy}px)`;
-            joystickInput.x = dx / maxDist;
-            joystickInput.y = dy / maxDist;
+            joystickInput.x = dx / maxDist; joystickInput.y = dy / maxDist;
         }
-
         zone.addEventListener("touchstart", (e) => { joystickActive = true; handleJoystick(e.touches[0].clientX, e.touches[0].clientY); });
         window.addEventListener("touchmove", (e) => { if(joystickActive) handleJoystick(e.touches[0].clientX, e.touches[0].clientY); }, {passive:false});
         window.addEventListener("touchend", () => { joystickActive = false; stick.style.transform = "translate(0px, 0px)"; joystickInput = {x:0, y:0}; });
-
         zone.addEventListener("mousedown", (e) => { joystickActive = true; handleJoystick(e.clientX, e.clientY); });
         window.addEventListener("mousemove", (e) => { if(joystickActive) handleJoystick(e.clientX, e.clientY); });
         window.addEventListener("mouseup", () => { joystickActive = false; stick.style.transform = "translate(0px, 0px)"; joystickInput = {x:0, y:0}; });
@@ -221,91 +214,103 @@
         function updateUI() {
             document.getElementById("pHp").innerText = Math.ceil(player.hp);
             document.getElementById("pMp").innerText = Math.floor(player.mp);
-            document.getElementById("pShield").innerText = Math.ceil(player.lightningTime / 60);
             document.getElementById("hpFill").style.width = `${(player.hp / player.maxHp) * 100}%`;
             document.getElementById("mpFill").style.width = `${(player.mp / player.maxMp) * 100}%`;
 
             const stateEl = document.getElementById("pState");
-            if (player.isTrance) { stateEl.innerText = "💥무아지경 난무 중!"; stateEl.style.color = "#f59e0b"; }
+            if (player.isTrance) { stateEl.innerText = "💥무아지경 난격!"; stateEl.style.color = "#f59e0b"; }
+            else if (player.berserkTimer > 0) { stateEl.innerText = "🩸광폭화 상태"; stateEl.style.color = "#ef4444"; }
+            else if (player.speedZeusTimer > 0) { stateEl.innerText = "⚡신속 구동"; stateEl.style.color = "#3b82f6"; }
             else { stateEl.innerText = "정상"; stateEl.style.color = "#10b981"; }
 
             document.getElementById("btnUltimate").disabled = (player.mp < 15 || player.isTrance);
-            document.getElementById("btnSkill1").disabled = (player.mp < 10 || player.isTrance);
-            document.getElementById("btnSkill2").disabled = (player.mp < 12 || player.isTrance);
+            document.getElementById("btnSkill1").disabled = (player.mp < 12 || player.isTrance);
+            document.getElementById("btnSkill2").disabled = (player.mp < 14 || player.isTrance);
         }
 
-        function spawnMonsters() {
-            monsters = [];
-            const count = Math.floor(Math.random() * 3) + 3;
-            for(let i=0; i<count; i++) {
+        // 월드 좌표 기반 주변 몬스터 유동적 생성
+        function manageMonsterSpawns() {
+            if (monsters.length < 5) {
                 let type = MONSTER_TYPES[Math.floor(Math.random() * MONSTER_TYPES.length)];
+                // 플레이어 주변 스크롤 바깥 영역에 생성
+                let angle = Math.random() * Math.PI * 2;
+                let spawnDist = Math.random() * 200 + 350; 
                 monsters.push({
-                    x: Math.random() * (canvas.width - 60) + 30,
-                    y: Math.random() * (canvas.height - 60) + 30,
+                    worldX: player.worldX + Math.cos(angle) * spawnDist,
+                    worldY: player.worldY + Math.sin(angle) * spawnDist,
                     ...type, hp: type.hp, maxHp: type.hp, attackCooldown: 0
                 });
             }
         }
 
+        // 5초간 다중 타겟 폭풍 난격 무아지경
         function useTrance() {
             if (player.mp < 15 || player.isTrance || player.hp <= 0) return;
-            player.mp -= 15;
-            player.isTrance = true;
-            updateUI();
+            player.mp -= 15; player.isTrance = true; updateUI();
             addLog("🔥 [무아지경] 돌입! 5초간 전장의 적들을 무차별 고속 습격합니다!");
 
-            let duration = 5000;
-            let startTime = Date.now();
-
+            let duration = 5000; let startTime = Date.now();
             let tranceInterval = setInterval(() => {
                 if (Date.now() - startTime >= duration || player.hp <= 0 || monsters.length === 0) {
-                    clearInterval(tranceInterval);
-                    player.isTrance = false;
-                    addLog("✨ 무아지경 난격이 종료되었습니다.");
-                    updateUI();
-                    return;
+                    clearInterval(tranceInterval); player.isTrance = false;
+                    addLog("✨ 무아지경 연격 종료."); updateUI(); return;
                 }
-
-                // 가장 가까운 타겟팅 선정 후 즉시 돌진 체인
                 let target = monsters[Math.floor(Math.random() * monsters.length)];
-                player.x = target.x;
-                player.y = target.y;
+                player.worldX = target.worldX; player.worldY = target.worldY; // 가상좌표 동기화
 
-                let dmg = Math.floor(player.baseAtk * 1.5);
+                let currentAtk = player.berserkTimer > 0 ? player.baseAtk * 2.5 : player.baseAtk;
+                let dmg = Math.floor(currentAtk * 1.5);
                 target.hp -= dmg;
-                damageNumbers.push({ x: target.x, y: target.y - 10, text: `💥 ${dmg}`, color: "#f59e0b", time: 30 });
+                damageNumbers.push({ worldX: target.worldX, worldY: target.worldY - 15, text: `💥 ${dmg}`, color: "#f59e0b", time: 35 });
 
-                if (target.hp <= 0) {
-                    monsters = monsters.filter(m => m !== target);
+                if(player.berserkTimer > 0) {
+                    let heal = Math.floor(dmg * 0.3);
+                    player.hp = Math.min(player.maxHp, player.hp + heal);
                 }
-            }, 250); // 0.25초 마다 무작위 적의 위치로 계속 텔레포트 돌진 연타
+                monsters = monsters.filter(m => m.hp > 0);
+            }, 250);
         }
 
-        function useLightning() {
-            if (player.mp < 10 || player.isTrance) return;
-            player.mp -= 10; player.lightningTime = 300; addLog("⚡ 정전기 장막 활성화!"); updateUI();
-        }
-
-        function useVampire() {
-            if (player.mp < 12 || player.isTrance || monsters.length === 0) return;
-            player.mp -= 12;
-            let target = monsters[0];
-            target.hp -= player.baseAtk;
-            let heal = Math.floor(player.baseAtk * 0.5);
-            player.hp = Math.min(player.maxHp, player.hp + heal);
-            damageNumbers.push({ x: target.x, y: target.y - 10, text: `🩸 ${player.baseAtk}`, color: "#ec4899", time: 30 });
-            if (target.hp <= 0) monsters.shift();
+        // 초강력 버프 1: 신속의 신벌 발동
+        function useSpeedZeus() {
+            if (player.mp < 12 || player.isTrance) return;
+            player.mp -= 12; player.speedZeusTimer = 360; // 6초 (60fps * 6)
+            addLog("⚡ [신속의 신벌] 발동! 속도가 2배가 되며 궤적에 번개가 치기 시작합니다.");
             updateUI();
         }
 
-        // 실시간 물리 업데이트 및 무한 월드 체크 루프
+        // 초강력 버프 2: 신성한 광폭화 발동
+        function useBerserk() {
+            if (player.mp < 14 || player.isTrance) return;
+            player.mp -= 14; player.berserkTimer = 420; // 7초
+            addLog("🩸 [신성한 광폭화] 돌입! 대미지가 2.5배 폭증하고 모든 타격에 흡혈 특성이 부여됩니다.");
+            updateUI();
+        }
+
         function updateGame() {
             if (player.hp <= 0) return;
 
-            // 1. 키보드 + 조이스틱 통합 이동 벡터 가산
-            let moveX = joystickInput.x;
-            let moveY = joystickInput.y;
+            // 1. 버프 상태 체크 및 이동 속도 계산
+            let currentSpeed = player.speed;
+            if (player.speedZeusTimer > 0) {
+                currentSpeed *= 2.0;
+                player.speedZeusTimer--;
+                
+                // 신속 이동 중 일정 주기마다 주변 적들에게 전기 방전 유도
+                if (player.speedZeusTimer % 25 === 0) {
+                    monsters.forEach(m => {
+                        let dist = Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2);
+                        if (dist < 120) {
+                            m.hp -= 4;
+                            damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 10, text: "⚡ 4", color: "#3b82f6", time: 20 });
+                        }
+                    });
+                }
+            }
+            if (player.berserkTimer > 0) player.berserkTimer--;
 
+            // 2. 입력 벡터 가산 및 실시간 자유 월드 이동
+            let moveX = joystickInput.x; let moveY = joystickInput.y;
             if (keys["w"] || keys["arrowup"]) moveY = -1;
             if (keys["s"] || keys["arrowdown"]) moveY = 1;
             if (keys["a"] || keys["arrowleft"]) moveX = -1;
@@ -313,126 +318,111 @@
 
             if (!player.isTrance && (moveX !== 0 || moveY !== 0)) {
                 let length = Math.sqrt(moveX*moveX + moveY*moveY);
-                player.x += (moveX / length) * player.speed;
-                player.y += (moveY / length) * player.speed;
-                if (player.mp < player.maxMp) player.mp += 0.02; // 이동 시 마나 점진 회복
+                player.worldX += (moveX / length) * currentSpeed;
+                player.worldY += (moveY / length) * currentSpeed;
+                if (player.mp < player.maxMp) player.mp += 0.025; 
             }
 
-            // 2. 무한 월드 스크롤 (화면 밖 전이 시 다음 맵으로 전환 + 적 연동 이동 보정)
-            let chunkChanged = false;
-            if (player.x < 0) { player.x = canvas.width; chunkX--; chunkChanged = true; }
-            if (player.x > canvas.width) { player.x = 0; chunkX++; chunkChanged = true; }
-            if (player.y < 0) { player.y = canvas.height; chunkY--; chunkChanged = true; }
-            if (player.y > canvas.height) { player.y = 0; chunkY++; chunkChanged = true; }
+            // 3. 부드러운 카메라 선형 보간 (심리스 핵심)
+            camera.x += (player.worldX - canvas.width / 2 - camera.x) * 0.1;
+            camera.y += (player.worldY - canvas.height / 2 - camera.y) * 0.1;
 
-            if (chunkChanged) {
-                addLog(`🔮 새로운 구역 진입 (${chunkX}, ${chunkY})`);
-                // 이전 맵 생존 적이 있으면 데려오고 없으면 새 배치
-                if (monsters.length === 0) spawnMonsters();
-                else {
-                    monsters.forEach(m => {
-                        m.x = Math.random() * (canvas.width - 100) + 50;
-                        m.y = Math.random() * (canvas.height - 100) + 50;
-                    });
-                }
-            }
-
-            // 3. 정전기 장막 기믹 연산
-            if (player.lightningTime > 0) {
-                player.lightningTime--;
-                if (player.lightningTime % 20 === 0) {
-                    monsters.forEach(m => {
-                        let dist = Math.sqrt((m.x - player.x)**2 + (m.y - player.y)**2);
-                        if (dist < 80) {
-                            m.hp -= 2;
-                            damageNumbers.push({ x: m.x, y: m.y - 10, text: "⚡ 2", color: "#3b82f6", time: 15 });
-                        }
-                    });
-                    monsters = monsters.filter(m => m.hp > 0);
-                }
-            }
-
-            // 4. 실시간 적 AI 추적 및 충돌 전투 연산
+            // 4. 리스폰 제어 및 몬스터 AI 역추적
+            manageMonsterSpawns();
             monsters.forEach(m => {
-                let dx = player.x - m.x;
-                let dy = player.y - m.y;
+                let dx = player.worldX - m.worldX;
+                let dy = player.worldY - m.worldY;
                 let dist = Math.sqrt(dx*dx + dy*dy);
 
                 if (dist > 5 && !player.isTrance) {
-                    m.x += (dx / dist) * m.speed;
-                    m.y += (dy / dist) * m.speed;
+                    m.worldX += (dx / dist) * m.speed;
+                    m.worldY += (dy / dist) * m.speed;
                 }
 
-                // 실시간 물리 바디 충돌 시 자동 전투 공방 교환
+                // 월드 좌표 기반 실시간 공방전 교환
                 if (dist < player.radius + m.radius) {
                     if (m.attackCooldown <= 0) {
                         player.hp = Math.max(0, player.hp - m.atk);
-                        m.hp -= player.baseAtk;
-                        m.attackCooldown = 45; // 프레임 단위 내부 무적/쿨타임
+                        
+                        let currentAtk = player.baseAtk;
+                        if (player.berserkTimer > 0) currentAtk *= 2.5; // 광폭 버프 연산
 
-                        damageNumbers.push({ x: player.x, y: player.y - 12, text: `-${m.atk}`, color: "#ef4444", time: 25 });
-                        damageNumbers.push({ x: m.x, y: m.y - 12, text: `-${player.baseAtk}`, color: "#ffffff", time: 25 });
+                        m.hp -= currentAtk;
+                        m.attackCooldown = 40;
+
+                        damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${m.atk}`, color: "#ef4444", time: 25 });
+                        damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 12, text: `-${Math.floor(currentAtk)}`, color: player.berserkTimer > 0 ? "#ef4444" : "#ffffff", time: 25 });
+
+                        // 흡혈 연산 처리
+                        if (player.berserkTimer > 0) {
+                            let heal = Math.floor(currentAtk * 0.3);
+                            player.hp = Math.min(player.maxHp, player.hp + heal);
+                        }
                     }
                 }
                 if (m.attackCooldown > 0) m.attackCooldown--;
             });
 
-            monsters = monsters.filter(m => m.hp > 0);
+            monsters = monsters.filter(m => m.hp > 0 && Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 700);
             updateUI();
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // 1. 네온 액션 격자판 바닥 드로잉
-            ctx.strokeStyle = "#141417";
-            ctx.lineWidth = 1;
-            for (let i = 0; i < canvas.width; i += 30) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            ctx.save();
+            // 카메라 스크롤 변환 행렬 적용 (화면이 자연스럽게 이동하는 근원)
+            ctx.translate(-camera.x, -camera.y);
+
+            // 1. 격자 무한 루프 배경 드로잉
+            ctx.strokeStyle = "#141417"; ctx.lineWidth = 1;
+            let startGridX = Math.floor(camera.x / 40) * 40 - 40;
+            let endGridX = startGridX + canvas.width + 80;
+            let startGridY = Math.floor(camera.y / 40) * 40 - 40;
+            let endGridY = startGridY + canvas.height + 80;
+
+            for (let x = startGridX; x < endGridX; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, startGridY); ctx.lineTo(x, endGridY); ctx.stroke();
+            }
+            for (let y = startGridY; y < endGridY; y += 40) {
+                ctx.beginPath(); ctx.moveTo(startGridX, y); ctx.lineTo(endGridX, y); ctx.stroke();
             }
 
-            // 2. 적군 렌더링
+            // 2. 몬스터 배치 드로잉
             monsters.forEach(m => {
                 ctx.fillStyle = m.color;
-                ctx.beginPath(); ctx.arc(m.x, m.y, m.radius, 0, Math.PI * 2); ctx.fill();
-                
-                // 체력 미니 바
-                ctx.fillStyle = "#27272a"; ctx.fillRect(m.x - 12, m.y - m.radius - 6, 24, 3);
-                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.x - 12, m.y - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
+                ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#27272a"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24, 3);
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
             });
 
-            // 3. 플레이어 렌더링 (장막 발동 시 외곽 네온 서클 추가)
+            // 3. 플레이어 월드 개체 드로잉 (버프 유무에 따른 네온 아우라 서클 처리)
             ctx.fillStyle = player.isTrance ? "#f59e0b" : "#10b981";
-            ctx.beginPath(); ctx.arc(player.x, player.y, player.radius, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius, 0, Math.PI * 2); ctx.fill();
             
-            if (player.lightningTime > 0) {
-                ctx.strokeStyle = "rgba(59, 130, 246, 0.4)";
-                ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.arc(player.x, player.y, 50, 0, Math.PI * 2); ctx.stroke();
+            if (player.speedZeusTimer > 0) {
+                ctx.strokeStyle = "rgba(59, 130, 246, 0.5)"; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius + 6, 0, Math.PI * 2); ctx.stroke();
+            }
+            if (player.berserkTimer > 0) {
+                ctx.strokeStyle = "rgba(239, 68, 68, 0.6)"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius + 4, 0, Math.PI * 2); ctx.stroke();
             }
 
-            // 4. 데미지 수치 드로잉
+            // 4. 텍스트 연출 드로잉
             for (let i = damageNumbers.length - 1; i >= 0; i--) {
-                let d = damageNumbers[i];
-                ctx.fillStyle = d.color;
-                ctx.font = "bold 12px sans-serif";
-                ctx.fillText(d.text, d.x - 5, d.y);
-                d.y -= 0.8; d.time--;
+                let d = damageNumbers[i]; ctx.fillStyle = d.color; ctx.font = "bold 12px sans-serif";
+                ctx.fillText(d.text, d.worldX - 6, d.worldY); d.worldY -= 0.7; d.time--;
                 if (d.time <= 0) damageNumbers.splice(i, 1);
             }
+
+            ctx.restore();
         }
 
-        function gameLoop() {
-            updateGame();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
+        function gameLoop() { updateGame(); draw(); requestAnimationFrame(gameLoop); }
         window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
         window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 
-        spawnMonsters();
         gameLoop();
     </script>
 </body>
