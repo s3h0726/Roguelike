@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>오픈 월드 로그라이크 (모바일 프로토타입)</title>
+    <style>
+        body {
+            background-color: #222;
+            color: #fff;
+            font-family: monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden; /* 모바일 스크롤 방지 */
+            user-select: none; /* 텍스트 선택 방지 */
+        }
+        h1 {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #111;
+            max-width: 95vw; /* 모바일 화면에 맞춤 */
+            max-height: 50vh;
+        }
+        /* 모바일 가상 패드 스타일 */
+        .dpad {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            gap: 10px;
+        }
+        .dpad button {
+            background-color: #444;
+            color: white;
+            border: 2px solid #888;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation; /* 모바일 더블탭 줌 방지 */
+        }
+        .dpad button:active {
+            background-color: #666;
+        }
+        .dpad .empty {
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Mobile Roguelike Prototype</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    
+    <div class="dpad">
+        <div class="empty"></div>
+        <button id="btnUp">▲</button>
+        <div class="empty"></div>
+        
+        <button id="btnLeft">◀</button>
+        <div class="empty"></div>
+        <button id="btnRight">▶</button>
+        
+        <div class="empty"></div>
+        <button id="btnDown">▼</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const TILE_SIZE = 40;
+        const COLS = canvas.width / TILE_SIZE; // 15
+        const ROWS = canvas.height / TILE_SIZE; // 10
+
+        let player = { x: 1, y: 1 };
+        let worldMap = [];
+
+        // 맵 생성
+        for (let r = 0; r < ROWS; r++) {
+            let row = [];
+            for (let c = 0; c < COLS; c++) {
+                if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
+                    row.push(1);
+                } else if (Math.random() < 0.15 && !(c === 1 && r === 1)) {
+                    row.push(1);
+                } else {
+                    row.push(0);
+                }
+            }
+            worldMap.push(row);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 맵 그리기
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    if (worldMap[r][c] === 1) {
+                        ctx.fillStyle = "#555";
+                    } else {
+                        ctx.fillStyle = "#222";
+                    }
+                    ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    ctx.strokeStyle = "#333";
+                    ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                }
+            }
+
+            // 플레이어 그리기
+            ctx.fillStyle = "#00ff00";
+            ctx.beginPath();
+            ctx.arc(
+                player.x * TILE_SIZE + TILE_SIZE / 2, 
+                player.y * TILE_SIZE + TILE_SIZE / 2, 
+                TILE_SIZE / 3, 0, Math.PI * 2
+            );
+            ctx.fill();
+        }
+
+        function movePlayer(dx, dy) {
+            let nextX = player.x + dx;
+            let nextY = player.y + dy;
+
+            if (worldMap[nextY] && worldMap[nextY][nextX] === 0) {
+                player.x = nextX;
+                player.y = nextY;
+            }
+            draw();
+        }
+
+        // 1. 키보드 입력 (PC 테스트용)
+        window.addEventListener("keydown", (e) => {
+            switch(e.key.toLowerCase()) {
+                case "arrowup": case "w": movePlayer(0, -1); break;
+                case "arrowdown": case "s": movePlayer(0, 1); break;
+                case "arrowleft": case "a": movePlayer(-1, 0); break;
+                case "arrowright": case "d": movePlayer(1, 0); break;
+            }
+        });
+
+        // 2. 터치 버튼 입력 (모바일용)
+        // 모바일에서는 'touchstart' 이벤트를 써야 반응 속도가 빠릅니다.
+        const addTouchPointer = (elementId, dx, dy) => {
+            const btn = document.getElementById(elementId);
+            const handlePress = (e) => {
+                e.preventDefault(); // 기본 스크롤 등 방지
+                movePlayer(dx, dy);
+            };
+            btn.addEventListener("touchstart", handlePress);
+            btn.addEventListener("mousedown", handlePress); // PC 마우스 클릭도 대응
+        };
+
+        addTouchPointer("btnUp", 0, -1);
+        addTouchPointer("btnDown", 0, 1);
+        addTouchPointer("btnLeft", -1, 0);
+        addTouchPointer("btnRight", 1, 0);
+
+        draw();
+    </script>
+</body>
+</html>
