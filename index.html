@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>천의 경화</title>
+    <title>하이엔드 로그라이크 RPG - 스탯 진화 버전</title>
     <style>
         :root {
             --bg-color: #070709;
@@ -25,7 +25,6 @@
 
         .game-container { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 460px; }
         
-        /* 상태 창 */
         .status-panel {
             width: 100%; background-color: var(--panel-color); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 6px 10px; margin-bottom: 4px; box-sizing: border-box;
@@ -42,7 +41,6 @@
 
         canvas { border: 1px solid var(--border-color); border-radius: 8px; background-color: #020204; width: 100%; max-height: 28vh; height: auto; }
 
-        /* 하단 4개 고정 장착 스킬 퀵슬롯 */
         .control-panel {
             display: flex; width: 100%; justify-content: space-between; align-items: center; margin-top: 4px; gap: 6px;
         }
@@ -60,7 +58,6 @@
         .sub-nav { display: flex; width: 100%; gap: 4px; margin-top: 4px; }
         .nav-btn { flex: 1; padding: 6px; font-size: 10px; font-weight: bold; background-color: #1f1f23; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; }
 
-        /* 모달 공통 레이아웃 */
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center;
@@ -151,43 +148,43 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // 핵심 플레이어 스탯 엔진 구조
         let player = { 
             worldX: 300, worldY: 200, radius: 13,
             hp: 50, maxHp: 50, mp: 30, maxMp: 30, baseAtk: 8,
             speed: 1.8, level: 1, exp: 0, maxExp: 12, sp: 0, gold: 0,
             isTrance: false, speedZeusTimer: 0, berserkTimer: 0, blizzardTimer: 0,
             
+            // 🛑 자동 피격 회복 시스템 변수 추가
+            lastDamagedTick: 0, 
+
             stats: { atkBonus: 0, hpBonus: 0, mpRegen: 0.02, magnetRange: 60 },
             
-            // 🌀 로그라이크 신규 추가 패시브 인덱스
             shuriken: { count: 0, radius: 6, orbitRadius: 45, speed: 0.04, angle: 0, dmg: 4 },
             shield: { active: false, radius: 45, dmg: 2, tickTimer: 0 },
-            magicArrowTimer: 0, arrowLevel: 0, // 유도 화살 레벨
-            overloadLevel: 0, // 과부하 폭발 레벨
+            magicArrowTimer: 0, arrowLevel: 0, 
+            overloadLevel: 0, 
 
-            // 🎒 고유 액티브 스킬 마스터리 데이터베이스
             skills: [
-                { id: 0, name: "🔥 무아지경", lv: 0, maxLv: 5, mp: 15, desc: "적들에게 초고속 연속 돌진 콤보", type: "trance" },
+                { id: 0, name: "🔥 무아지경", lv: 0, maxLv: 5, mp: 15, desc: "연속 돌진 및 무적화 진화 (Lv5 완벽 무적)", type: "trance" },
                 { id: 1, name: "⚡ 신속신벌", lv: 0, maxLv: 5, mp: 12, desc: "속도 대폭 증가 및 이동 궤적 낙뢰 발사", type: "zeus" },
                 { id: 2, name: "🩸 성광폭화", lv: 0, maxLv: 5, mp: 14, desc: "공격력 폭증 및 모든 타격 흡혈 전환", type: "berserk" },
                 { id: 3, name: "❄️ 절대영도", lv: 0, maxLv: 5, mp: 16, desc: "화면 내 모든 적 일시 동결 및 피해", type: "blizzard" }
             ],
-            equippedSkillIds: [] // 최대 4개 장착 슬롯 배열
+            equippedSkillIds: [] 
         };
 
         let camera = { x: 0, y: 0 };
         let monsters = [];
         let droppedGolds = [];
         let damageNumbers = [];
-        let projectiles = []; // 유도 화살 등 투사체 배열
-        let particles = [];   // 폭발 파티클 이펙트
+        let projectiles = []; 
+        let particles = [];   
         
         let keys = {};
         let joystickInput = { x: 0, y: 0 };
         let joystickActive = false;
         let gameTick = 0;
-        let rushWaveTimer = 0; // 폭주 타이머
+        let rushWaveTimer = 0; 
 
         const zone = document.getElementById("joystickZone");
         const stick = document.getElementById("joystickStick");
@@ -216,14 +213,8 @@
             document.getElementById("shopModal").style.display = "none";
         }
         function openShopModal() { closeModals(); document.getElementById("shopModal").style.display = "flex"; }
-        
-        function openTreeModal() { 
-            closeModals(); 
-            renderTreeSkills();
-            document.getElementById("treeModal").style.display = "flex"; 
-        }
+        function openTreeModal() { closeModals(); renderTreeSkills(); document.getElementById("treeModal").style.display = "flex"; }
 
-        // 스킬 트리 팝업 동적 드로잉 및 장착 스위칭
         function renderTreeSkills() {
             const container = document.getElementById("treeSkillContainer");
             container.innerHTML = "";
@@ -255,28 +246,21 @@
         function upgradeSkill(id, e) {
             e.stopPropagation();
             let sk = player.skills.find(s => s.id === id);
-            if (player.sp >= 1 && sk.lv < sk.maxLv) {
-                player.sp--;
-                sk.lv++;
-                renderTreeSkills();
-                updateUI();
-            }
+            if (player.sp >= 1 && sk.lv < sk.maxLv) { player.sp--; sk.lv++; renderTreeSkills(); updateUI(); }
         }
 
         function toggleEquipSkill(id, e) {
             e.stopPropagation();
             let sk = player.skills.find(s => s.id === id);
-            if (sk.lv === 0) { alert("먼저 레벨을 1 이상 연구(해금)해야 합니다!"); return; }
+            if (sk.lv === 0) { alert("연구를 먼저 완료하십시오."); return; }
 
             let idx = player.equippedSkillIds.indexOf(id);
-            if (idx > -1) {
-                player.equippedSkillIds.splice(idx, 1);
-            } else {
-                if (player.equippedSkillIds.length >= 4) { alert("스킬은 최대 4개까지만 장착 가능합니다!"); return; }
+            if (idx > -1) { player.equippedSkillIds.splice(idx, 1); } 
+            else {
+                if (player.equippedSkillIds.length >= 4) { alert("최대 4개 제한!"); return; }
                 player.equippedSkillIds.push(id);
             }
-            renderTreeSkills();
-            updateUI();
+            renderTreeSkills(); updateUI();
         }
 
         function updateUI() {
@@ -294,12 +278,10 @@
             document.getElementById("mpFill").style.width = `${(player.mp / player.maxMp) * 100}%`;
             document.getElementById("expFill").style.width = `${(player.exp / player.maxExp) * 100}%`;
 
-            // 폭주 상태 텍스트 매핑
             const waveEl = document.getElementById("pWaveState");
-            if (rushWaveTimer > 0) { waveEl.innerText = `🚨 폭주 중 (${Math.ceil(rushWaveTimer/60)}s)`; waveEl.style.color = "#ef4444"; }
+            if (rushWaveTimer > 0) { waveEl.innerText = `🚨 폭주(XP 2배!)`; waveEl.style.color = "#ef4444"; }
             else { waveEl.innerText = "안정"; waveEl.style.color = "#10b981"; }
 
-            // 4개 슬롯 UI 퀵 동기화
             for (let i = 0; i < 4; i++) {
                 const btn = document.getElementById(`slotBtn${i}`);
                 if (i < player.equippedSkillIds.length) {
@@ -307,8 +289,7 @@
                     btn.innerHTML = `${sk.name}<br><span style="font-size:8px; color:#93c5fd;">MP ${sk.mp} (Lv.${sk.lv})</span>`;
                     btn.disabled = (player.mp < sk.mp || player.isTrance);
                 } else {
-                    btn.innerHTML = "[비어있음]";
-                    btn.disabled = true;
+                    btn.innerHTML = "[비어있음]"; btn.disabled = true;
                 }
             }
         }
@@ -327,19 +308,16 @@
             }
         }
 
-        // 🌟 로그라이크 특성 무작위 설계 보상 매커니즘
         function triggerLevelChoice() {
             const container = document.getElementById("levelChoices");
             container.innerHTML = "";
-            
             const pool = [
-                { text: "🏹 유도 마법 화살 (자동으로 적을 추적하는 투사체 발사)", action: () => { player.arrowLevel++; }},
-                { text: "💥 불안정한 과부하 (적 처치 시 연쇄 폭발 발생)", action: () => { player.overloadLevel++; }},
-                { text: "🌀 가디언 표창 강화 (회전 칼날 스탯 전면 가산)", action: () => { player.shuriken.count++; player.shuriken.radius += 1; player.shuriken.orbitRadius += 8; player.shuriken.dmg += 2; }},
-                { text: "🛡️ 전자기 방어막 활성화 및 범위 확장", action: () => { player.shield.active = true; player.shield.radius += 14; player.shield.dmg += 1; }},
-                { text: "🔮 마력 싱크 (이동 및 정지 시 마나 재생 증가)", action: () => { player.stats.mpRegen += 0.015; }}
+                { text: "🏹 유도 마법 화살 (자동 추적 투사체 강화)", action: () => { player.arrowLevel++; }},
+                { text: "💥 불안정한 과부하 (처치 시 폭발 기믹 강화)", action: () => { player.overloadLevel++; }},
+                { text: "🌀 가디언 표창 강화 (회전 구체 확장)", action: () => { player.shuriken.count++; player.shuriken.radius += 1; player.shuriken.orbitRadius += 8; player.shuriken.dmg += 2; }},
+                { text: "🛡️ 전자기 방어막 범위 확장", action: () => { player.shield.active = true; player.shield.radius += 14; player.shield.dmg += 1; }},
+                { text: "🔮 마력 싱크 (마나 재생 증가)", action: () => { player.stats.mpRegen += 0.015; }}
             ];
-
             let shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, 3);
             shuffled.forEach(choice => {
                 let btn = document.createElement("button"); btn.className = "choice-btn"; btn.innerText = choice.text;
@@ -349,7 +327,6 @@
             document.getElementById("levelModal").style.display = "flex";
         }
 
-        // 🎒 슬롯 기반 액티브 스킬 트리거 변환기
         function useSlotSkill(slotIdx) {
             if (slotIdx >= player.equippedSkillIds.length) return;
             let id = player.equippedSkillIds[slotIdx];
@@ -359,7 +336,7 @@
             if (sk.type === "trance") {
                 if (monsters.length === 0) return;
                 player.mp -= sk.mp; player.isTrance = true;
-                let duration = 5000 + (sk.lv * 400); // 레벨별 지속시간 증가 증가
+                let duration = 5000 + (sk.lv * 400); 
                 let startTime = Date.now();
                 let interval = setInterval(() => {
                     if (Date.now() - startTime >= duration || player.hp <= 0 || monsters.length === 0) {
@@ -371,17 +348,12 @@
                     triggerDamage(target, dmg, "#f59e0b");
                 }, 220);
             } 
-            else if (sk.type === "zeus") {
-                player.mp -= sk.mp; player.speedZeusTimer = 300 + (sk.lv * 60);
-            } 
-            else if (sk.type === "berserk") {
-                player.mp -= sk.mp; player.berserkTimer = 360 + (sk.lv * 60);
-            } 
+            else if (sk.type === "zeus") { player.mp -= sk.mp; player.speedZeusTimer = 300 + (sk.lv * 60); } 
+            else if (sk.type === "berserk") { player.mp -= sk.mp; player.berserkTimer = 360 + (sk.lv * 60); } 
             else if (sk.type === "blizzard") {
-                player.mp -= sk.mp; player.blizzardTimer = 180 + (sk.lv * 40); // 적 동결 쿨다운 타이머프레임
+                player.mp -= sk.mp; player.blizzardTimer = 180 + (sk.lv * 40); 
                 monsters.forEach(m => {
-                    let dmg = 10 + (sk.lv * 5);
-                    m.hp -= dmg; m.frozen = true; m.frozenTimer = player.blizzardTimer;
+                    let dmg = 10 + (sk.lv * 5); m.hp -= dmg; m.frozen = true; m.frozenTimer = player.blizzardTimer;
                     damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 10, text: `❄️ ${dmg}`, color: "#60a5fa", time: 30 });
                 });
             }
@@ -393,12 +365,13 @@
             damageNumbers.push({ worldX: target.worldX, worldY: target.worldY - 14, text: `${dmg}`, color: color, time: 22 });
             if (target.hp <= 0) {
                 droppedGolds.push({ worldX: target.worldX, worldY: target.worldY, value: Math.floor(Math.random() * 3) + 2 });
-                player.exp += target.isBoss ? 20 : 3;
                 
-                // 과부하 폭발 기믹 메커니즘 연산
-                if (player.overloadLevel > 0) {
-                    triggerExplosion(target.worldX, target.worldY);
-                }
+                // 📈 폭주 모드 시 경험치 2배 부스트 적용
+                let xpGain = target.isBoss ? 20 : 3;
+                if (rushWaveTimer > 0) xpGain *= 2; 
+
+                player.exp += xpGain;
+                if (player.overloadLevel > 0) triggerExplosion(target.worldX, target.worldY);
                 checkLevelUp();
             }
         }
@@ -406,17 +379,10 @@
         function triggerExplosion(wx, wy) {
             let expRadius = 50 + (player.overloadLevel * 10);
             let expDmg = 6 + (player.overloadLevel * 4);
-            
-            // 파티클 시각 효과 연출 추가
-            for(let i=0; i<8; i++) {
-                particles.push({ worldX: wx, worldY: wy, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, time: 20 });
-            }
-
+            for(let i=0; i<8; i++) particles.push({ worldX: wx, worldY: wy, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, time: 20 });
             monsters.forEach(m => {
-                let dist = Math.sqrt((m.worldX - wx)**2 + (m.worldY - wy)**2);
-                if (dist < expRadius) {
-                    m.hp -= expDmg;
-                    damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 12, text: `💥 ${expDmg}`, color: "#ef4444", time: 20 });
+                if (Math.sqrt((m.worldX - wx)**2 + (m.worldY - wy)**2) < expRadius) {
+                    m.hp -= expDmg; damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 12, text: `💥 ${expDmg}`, color: "#f97316", time: 20 });
                 }
             });
         }
@@ -425,30 +391,34 @@
             gameTick++;
             if (player.hp <= 0 || document.getElementById("levelModal").style.display === "flex") return;
 
-            // ⚠️ 스케일링 핵심 루프: 45초마다 폭주 모드 연산
-            if (gameTick % 2700 === 0) { rushWaveTimer = 600; } // 10초 폭주
+            if (gameTick % 2700 === 0) { rushWaveTimer = 600; } 
             if (rushWaveTimer > 0) rushWaveTimer--;
 
-            // 레벨 비례 몬스터 스탯 스케일링 계수 계산
-            let levelScale = 1.0 + (player.level - 1) * 0.15;
+            // ❤️ 일정 시간 비전투 시 자동 체력 회복 메커니즘 (4초 = 240프레임 무피격)
+            if (gameTick - player.lastDamagedTick >= 240) {
+                if (gameTick % 45 === 0) { // 0.75초 주기로 자동 회복 작동
+                    let maxHp = player.maxHp + player.stats.hpBonus;
+                    if (player.hp < maxHp) {
+                        player.hp = Math.min(maxHp, player.hp + 2);
+                        damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 15, text: "+2 Regen", color: "#34d399", time: 20 });
+                    }
+                }
+            }
 
-            // 1. 신속 / 광폭 지속시간 차감
+            let levelScale = 1.0 + (player.level - 1) * 0.15;
             let currentSpeed = player.speed;
             if (player.speedZeusTimer > 0) {
                 currentSpeed *= 1.7; player.speedZeusTimer--;
                 if (player.speedZeusTimer % 24 === 0) {
                     let zeusSk = player.skills.find(s => s.type === "zeus");
                     monsters.forEach(m => {
-                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 110) {
-                            triggerDamage(m, 3 + zeusSk.lv, "#60a5fa");
-                        }
+                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 110) triggerDamage(m, 3 + zeusSk.lv, "#60a5fa");
                     });
                 }
             }
             if (player.berserkTimer > 0) player.berserkTimer--;
             if (player.blizzardTimer > 0) player.blizzardTimer--;
 
-            // 2. 물리 벡터 좌표 이동 (멈춰도 적과 스킬 속도는 느려지지 않음)
             let moveX = joystickInput.x; let moveY = joystickInput.y;
             if (keys["w"] || keys["arrowup"]) moveY = -1;
             if (keys["s"] || keys["arrowdown"]) moveY = 1;
@@ -465,40 +435,25 @@
             camera.x += (player.worldX - canvas.width / 2 - camera.x) * 0.1;
             camera.y += (player.worldY - canvas.height / 2 - camera.y) * 0.1;
 
-            // 3. 🏹 유도 마법 화살 발사 메커니즘 (정지 여부와 무관하게 실시간 작동)
             if (player.arrowLevel > 0) {
                 player.magicArrowTimer++;
-                let fireRate = Math.max(20, 60 - (player.arrowLevel * 5));
-                if (player.magicArrowTimer >= fireRate && monsters.length > 0) {
+                if (player.magicArrowTimer >= Math.max(20, 60 - (player.arrowLevel * 5)) && monsters.length > 0) {
                     player.magicArrowTimer = 0;
-                    projectiles.push({
-                        worldX: player.worldX, worldY: player.worldY,
-                        speed: 4.5, dmg: 5 + (player.arrowLevel * 3),
-                        target: monsters[0] // 가장 가까운 개체 타겟팅 추적
-                    });
+                    projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 4.5, dmg: 5 + (player.arrowLevel * 3), target: monsters[0] });
                 }
             }
 
-            // 투사체 이동 및 정밀 충돌 처리
             for(let i=projectiles.length-1; i>=0; i--) {
                 let p = projectiles[i];
                 if (!monsters.includes(p.target) || p.target.hp <= 0) { projectiles.splice(i, 1); continue; }
-                
-                let dx = p.target.worldX - p.worldX; let dy = p.target.worldY - p.worldY;
-                let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 8) {
-                    triggerDamage(p.target, p.dmg, "#c084fc");
-                    projectiles.splice(i, 1);
-                } else {
-                    p.worldX += (dx / dist) * p.speed; p.worldY += (dy / dist) * p.speed;
-                }
+                let dx = p.target.worldX - p.worldX; let dy = p.target.worldY - p.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 8) { triggerDamage(p.target, p.dmg, "#c084fc"); projectiles.splice(i, 1); } 
+                else { p.worldX += (dx / dist) * p.speed; p.worldY += (dy / dist) * p.speed; }
             }
 
-            // 파티클 소멸 체크
             particles.forEach(p => { p.worldX += p.vx; p.worldY += p.vy; p.time--; });
             particles = particles.filter(p => p.time > 0);
 
-            // 4. 🌀 회전 표창 및 🛡️ 방어막 연산 (실시간 독립 구동)
             if (player.shuriken.count > 0) {
                 player.shuriken.angle += player.shuriken.speed;
                 for (let i = 0; i < player.shuriken.count; i++) {
@@ -517,14 +472,11 @@
                 player.shield.tickTimer++;
                 if (player.shield.tickTimer % 20 === 0) {
                     monsters.forEach(m => {
-                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < player.shield.radius) {
-                            triggerDamage(m, player.shield.dmg, "#3b82f6");
-                        }
+                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < player.shield.radius) triggerDamage(m, player.shield.dmg, "#3b82f6");
                     });
                 }
             }
 
-            // 자석 동기화
             for(let i=droppedGolds.length-1; i>=0; i--) {
                 let g = droppedGolds[i];
                 let dx = player.worldX - g.worldX; let dy = player.worldY - g.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
@@ -534,52 +486,58 @@
                 }
             }
 
-            // 5. ⚠️ 보스 및 일반 몬스터 주기별 가변 무한 스폰 루프
             let maxSpawnCount = rushWaveTimer > 0 ? 14 : 6;
             if (monsters.length < maxSpawnCount && gameTick % 30 === 0) {
-                let isBossSpawn = (gameTick % 1200 === 0); // 특정 주기마다 보스 강림
+                let isBossSpawn = (gameTick % 1200 === 0);
                 let angle = Math.random() * Math.PI * 2;
-                
                 if (isBossSpawn) {
                     monsters.push({
                         worldX: player.worldX + Math.cos(angle) * 320, worldY: player.worldY + Math.sin(angle) * 320,
-                        name: "👑 보스 타이탄", color: "#f43f5e", hp: 160 * levelScale, maxHp: 160 * levelScale,
-                        atk: 10 * levelScale, radius: 24, speed: 0.35, attackCooldown: 0, isBoss: true
+                        name: "👑 보스", color: "#f43f5e", hp: 160 * levelScale, maxHp: 160 * levelScale, atk: 10 * levelScale, radius: 24, speed: 0.35, attackCooldown: 0, isBoss: true
                     });
                 } else {
                     let seed = Math.random();
                     let mType = { name: "슬라임", color: "#22c55e", hp: 14, atk: 1, radius: 10, speed: 0.5 };
                     if(seed > 0.7) mType = { name: "오크", color: "#f97316", hp: 35, atk: 3, radius: 14, speed: 0.4 };
-                    
-                    // 폭주 웨이브 시 몬스터 이동속도 소폭 가산 가산
                     let waveSpeedBonus = rushWaveTimer > 0 ? 0.4 : 0;
-
                     monsters.push({
                         worldX: player.worldX + Math.cos(angle) * 340, worldY: player.worldY + Math.sin(angle) * 340,
-                        name: mType.name, color: mType.color, hp: mType.hp * levelScale, maxHp: mType.hp * levelScale,
-                        atk: mType.atk * levelScale, radius: mType.radius, speed: mType.speed + waveSpeedBonus, attackCooldown: 0, isBoss: false
+                        name: mType.name, color: mType.color, hp: mType.hp * levelScale, maxHp: mType.hp * levelScale, atk: mType.atk * levelScale, radius: mType.radius, speed: mType.speed + waveSpeedBonus, attackCooldown: 0, isBoss: false
                     });
                 }
             }
 
-            // 몬스터 AI 역추적 무빙 교환 연산
             monsters.forEach(m => {
-                if (m.frozen) {
-                    m.frozenTimer--; if(m.frozenTimer <= 0) m.frozen = false; return; // 동결 상태 시 정지 정지
-                }
+                if (m.frozen) { m.frozenTimer--; if(m.frozenTimer <= 0) m.frozen = false; return; }
                 let dx = player.worldX - m.worldX; let dy = player.worldY - m.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist > 5 && !player.isTrance) { m.worldX += (dx / dist) * m.speed; m.worldY += (dy / dist) * m.speed; }
 
                 if (dist < player.radius + m.radius) {
                     if (m.attackCooldown <= 0) {
-                        player.hp = Math.max(0, player.hp - m.atk);
+                        player.lastDamagedTick = gameTick; // 피격 시점 동기화(자동회복 유예 리셋)
+
+                        // 🛡️ 무아지경 피해 감소 공식 조율 (기본 80%, 최대 만렙 시 100% 면역 완전 무적)
+                        let finalDamage = m.atk;
+                        if (player.isTrance) {
+                            let tranceSk = player.skills.find(s => s.type === "trance");
+                            let reductionRate = 0.80 + (tranceSk.lv * 0.04); // 레벨당 4% 추가 차감
+                            if (reductionRate > 1.0) reductionRate = 1.0;
+                            finalDamage = finalDamage * (1 - reductionRate);
+                        }
+
+                        player.hp = Math.max(0, player.hp - finalDamage);
                         let finalAtk = player.baseAtk + player.stats.atkBonus;
                         if (player.berserkTimer > 0) finalAtk *= 2.5;
 
                         triggerDamage(m, finalAtk, "#ffffff");
                         m.attackCooldown = 45;
 
-                        damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${Math.ceil(m.atk)}`, color: "#ef4444", time: 20 });
+                        if (finalDamage > 0) {
+                            damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${Math.ceil(finalDamage)}`, color: "#ef4444", time: 20 });
+                        } else {
+                            damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: "🛡️ 무적", color: "#38bdf8", time: 18 });
+                        }
+
                         if (player.berserkTimer > 0) player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + finalAtk * 0.3);
                     }
                 }
@@ -594,7 +552,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save(); ctx.translate(-camera.x, -camera.y);
 
-            // 배경 그리드 렌더링
             ctx.strokeStyle = rushWaveTimer > 0 ? "#2d1616" : "#131316"; ctx.lineWidth = 1;
             let startGridX = Math.floor(camera.x / 40) * 40 - 40;
             let startGridY = Math.floor(camera.y / 40) * 40 - 40;
@@ -605,36 +562,25 @@
                 ctx.beginPath(); ctx.moveTo(startGridX, y); ctx.lineTo(startGridX + canvas.width + 80, y); ctx.stroke();
             }
 
-            // 코인 드롭 유닛들
             droppedGolds.forEach(g => { ctx.fillStyle = "#eab308"; ctx.beginPath(); ctx.arc(g.worldX, g.worldY, 4, 0, Math.PI * 2); ctx.fill(); });
 
-            // 몬스터 개체 드로잉 (보스는 크라운 텍스트 마크)
             monsters.forEach(m => {
-                ctx.fillStyle = m.frozen ? "#60a5fa" : m.color;
-                ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
-                
+                ctx.fillStyle = m.frozen ? "#60a5fa" : m.color; ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = "#1f1f23"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24, 3);
                 ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
-                if (m.isBoss) { ctx.fillStyle = "#fff"; ctx.font = "bold 9px sans-serif"; ctx.fillText("👑 BOSS", m.worldX - 16, m.worldY - m.radius - 10); }
             });
 
-            // 투사체 렌더링
             projectiles.forEach(p => { ctx.fillStyle = "#c084fc"; ctx.beginPath(); ctx.arc(p.worldX, p.worldY, 3, 0, Math.PI * 2); ctx.fill(); });
-            
-            // 연쇄 과부하 파티클 드로잉
             particles.forEach(p => { ctx.fillStyle = "#f97316"; ctx.beginPath(); ctx.arc(p.worldX, p.worldY, 2, 0, Math.PI * 2); ctx.fill(); });
 
-            // 전기 방어막 서클 드로잉
             if (player.shield.active) {
                 ctx.strokeStyle = "rgba(59, 130, 246, 0.2)"; ctx.lineWidth = 2;
                 ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.shield.radius, 0, Math.PI * 2); ctx.stroke();
             }
 
-            // 플레이어 그리기
             ctx.fillStyle = player.isTrance ? "#f59e0b" : "#10b981";
             ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius, 0, Math.PI * 2); ctx.fill();
 
-            // 가디언 표창 드로잉
             if (player.shuriken.count > 0) {
                 for (let i = 0; i < player.shuriken.count; i++) {
                     let finalAngle = player.shuriken.angle + (i * (Math.PI * 2 / player.shuriken.count));
@@ -643,7 +589,6 @@
                 }
             }
 
-            // 플로팅 대미지 수치 드로잉
             for (let i = damageNumbers.length - 1; i >= 0; i--) {
                 let d = damageNumbers[i]; ctx.fillStyle = d.color; ctx.font = "bold 11px sans-serif";
                 ctx.fillText(d.text, d.worldX - 5, d.worldY); d.worldY -= 0.6; d.time--;
