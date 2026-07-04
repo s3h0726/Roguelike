@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>오픈 월드 로그라이크 (모바일 프로토타입)</title>
+    <title>오픈월드 로그라이크 - 액션 강화판</title>
     <style>
         body {
             background-color: #222;
@@ -15,28 +15,53 @@
             justify-content: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* 모바일 스크롤 방지 */
-            user-select: none; /* 텍스트 선택 방지 */
+            overflow: hidden;
+            user-select: none;
         }
-        h1 {
-            font-size: 1.2rem;
-            margin: 10px 0;
+        h1 { font-size: 1.2rem; margin: 5px 0; }
+        
+        .status-panel {
+            display: flex;
+            justify-content: space-between;
+            width: 95vw;
+            max-width: 600px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        .log-box {
+            width: 95vw;
+            max-width: 600px;
+            height: 60px;
+            background-color: #111;
+            border: 1px solid #555;
+            padding: 5px;
+            overflow-y: auto;
+            font-size: 11px;
+            color: #00ff00;
+            margin-top: 5px;
         }
         canvas {
             border: 2px solid #fff;
             background-color: #111;
-            max-width: 95vw; /* 모바일 화면에 맞춤 */
-            max-height: 50vh;
+            max-width: 95vw;
+            max-height: 45vh;
         }
-        /* 모바일 가상 패드 스타일 */
+        .controls-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 10px;
+        }
         .dpad {
-            margin-top: 20px;
             display: grid;
-            grid-template-columns: repeat(3, 60px);
-            grid-template-rows: repeat(3, 60px);
-            gap: 10px;
+            grid-template-columns: repeat(3, 50px);
+            grid-template-rows: repeat(3, 50px);
+            gap: 5px;
         }
-        .dpad button {
+        .dpad button, .skill-btn {
             background-color: #444;
             color: white;
             border: 2px solid #888;
@@ -46,32 +71,56 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            touch-action: manipulation; /* 모바일 더블탭 줌 방지 */
+            touch-action: manipulation;
         }
-        .dpad button:active {
-            background-color: #666;
+        .dpad button:active, .skill-btn:active { background-color: #666; }
+        .dpad .empty { visibility: hidden; }
+        
+        .skill-btn {
+            width: 80px;
+            height: 80px;
+            background-color: #800;
+            border-color: #f55;
+            font-size: 14px;
+            flex-direction: column;
+            gap: 5px;
         }
-        .dpad .empty {
-            visibility: hidden;
+        .skill-btn:disabled {
+            background-color: #333;
+            border-color: #555;
+            color: #777;
         }
     </style>
 </head>
 <body>
 
-    <h1>Mobile Roguelike Prototype</h1>
+    <h1>Action Roguelike RPG</h1>
+    
+    <div class="status-panel">
+        <div>❤️ HP: <span id="pHp">50</span>/50 | ⚔️ ATK: <span id="pAtk">5</span> (+<span id="wAtk">0</span>)</div>
+        <div>🔮 상태: <span id="pState" style="color: #0f0; font-weight:bold;">일반</span></div>
+    </div>
+
     <canvas id="gameCanvas" width="600" height="400"></canvas>
     
-    <div class="dpad">
-        <div class="empty"></div>
-        <button id="btnUp">▲</button>
-        <div class="empty"></div>
+    <div id="gameLog" class="log-box">무한한 오픈월드에 진입했습니다. [무아지경] 준비 완료!</div>
+
+    <div class="controls-wrapper">
+        <div class="dpad">
+            <div class="empty"></div>
+            <button id="btnUp">▲</button>
+            <div class="empty"></div>
+            <button id="btnLeft">◀</button>
+            <div class="empty"></div>
+            <button id="btnRight">▶</button>
+            <div class="empty"></div>
+            <button id="btnDown">▼</button>
+        </div>
         
-        <button id="btnLeft">◀</button>
-        <div class="empty"></div>
-        <button id="btnRight">▶</button>
-        
-        <div class="empty"></div>
-        <button id="btnDown">▼</button>
+        <button id="btnUltimate" class="skill-btn">
+            <span>🔥</span>
+            <span>무아지경</span>
+        </button>
     </div>
 
     <script>
@@ -79,68 +128,303 @@
         const ctx = canvas.getContext("2d");
 
         const TILE_SIZE = 40;
-        const COLS = canvas.width / TILE_SIZE; // 15
-        const ROWS = canvas.height / TILE_SIZE; // 10
+        const COLS = canvas.width / TILE_SIZE; 
+        const ROWS = canvas.height / TILE_SIZE; 
 
-        let player = { x: 1, y: 1 };
-        let worldMap = [];
+        // 플레이어 스탯 및 상태 관리
+        let player = { 
+            x: 7, y: 5, hp: 50, maxHp: 50, baseAtk: 5,
+            weapon: { name: "맨손", atk: 0 },
+            isTrance: false, tranceTicks: 0 // 무아지경 지속 타이머
+        };
 
-        // 맵 생성
-        for (let r = 0; r < ROWS; r++) {
-            let row = [];
-            for (let c = 0; c < COLS; c++) {
-                if (r === 0 || r === ROWS - 1 || c === 0 || c === COLS - 1) {
-                    row.push(1);
-                } else if (Math.random() < 0.15 && !(c === 1 && r === 1)) {
-                    row.push(1);
-                } else {
-                    row.push(0);
-                }
-            }
-            worldMap.push(row);
+        let chunks = {};
+        let chunkMonsters = {};
+
+        // 주스(Juice) 애니메이션 효과를 위한 카메라/이펙트 변수
+        let cameraShake = { x: 0, y: 0, duration: 0 };
+        let flashOverlay = { color: "", duration: 0 };
+        let damageNumbers = []; // 타격 데미지 둥둥 뜨는 텍스트 이펙트
+
+        function addLog(message) {
+            const logBox = document.getElementById("gameLog");
+            logBox.innerHTML += `<br>${message}`;
+            logBox.scrollTop = logBox.scrollHeight;
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        function updateUI() {
+            document.getElementById("pHp").innerText = player.hp;
+            document.getElementById("pAtk").innerText = player.baseAtk;
+            document.getElementById("wAtk").innerText = player.weapon.atk;
+            
+            const stateEl = document.getElementById("pState");
+            if (player.isTrance) {
+                stateEl.innerText = `무아지경 (${player.tranceTicks})`;
+                stateEl.style.color = "#ff3333";
+            } else {
+                stateEl.innerText = "일반";
+                stateEl.style.color = "#00ff00";
+            }
+        }
 
-            // 맵 그리기
+        function getOrCreateChunk(cx, cy) {
+            const key = `${cx},${cy}`;
+            if (chunks[key]) return chunks[key];
+
+            let mapData = [];
+            for (let r = 0; r < ROWS; r++) {
+                let row = [];
+                for (let c = 0; c < COLS; c++) {
+                    if (cx === 0 && cy === 0 && c === 7 && r === 5) row.push(0);
+                    else row.push(Math.random() < 0.12 ? 1 : 0);
+                }
+                mapData.push(row);
+            }
+            chunks[key] = mapData;
+
+            let monsters = [];
+            const monsterCount = Math.floor(Math.random() * 2) + 2; // 적 2~3마리 스폰
+            for (let i = 0; i < monsterCount; i++) {
+                let mx = Math.floor(Math.random() * COLS);
+                let my = Math.floor(Math.random() * ROWS);
+                if (mapData[my][mx] === 0 && !(cx === 0 && cy === 0 && mx === 7 && my === 5)) {
+                    monsters.push({ x: mx, y: my, name: "고블린", hp: 12, maxHp: 12, atk: 4 });
+                }
+            }
+            chunkMonsters[key] = monsters;
+            return mapData;
+        }
+
+        function getPlayerState() {
+            let chunkX = Math.floor(player.x / COLS);
+            let chunkY = Math.floor(player.y / ROWS);
+            let localX = (player.x % COLS + COLS) % COLS;
+            let localY = (player.y % ROWS + ROWS) % ROWS;
+            return { chunkX, chunkY, localX, localY };
+        }
+
+        // 화면 렌더링 루프 (애니메이션 반영을 위해 requestAnimationFrame 구조 변경)
+        function renderLoop() {
+            // 카메라 흔들림 계산
+            if (cameraShake.duration > 0) {
+                cameraShake.x = (Math.random() - 0.5) * 8;
+                cameraShake.y = (Math.random() - 0.5) * 8;
+                cameraShake.duration--;
+            } else {
+                cameraShake.x = 0;
+                cameraShake.y = 0;
+            }
+
+            ctx.save();
+            ctx.translate(cameraShake.x, cameraShake.y); // 카메라 흔들림 적용
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const state = getPlayerState();
+            const currentChunkKey = `${state.chunkX},${state.chunkY}`;
+            const currentMap = getOrCreateChunk(state.chunkX, state.chunkY);
+            const monsters = chunkMonsters[currentChunkKey] || [];
+
+            // 1. 타일맵 렌더링
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
-                    if (worldMap[r][c] === 1) {
-                        ctx.fillStyle = "#555";
-                    } else {
-                        ctx.fillStyle = "#222";
-                    }
+                    ctx.fillStyle = currentMap[r][c] === 1 ? "#555" : "#222";
                     ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                     ctx.strokeStyle = "#333";
                     ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
                 }
             }
 
-            // 플레이어 그리기
-            ctx.fillStyle = "#00ff00";
+            // 2. 몬스터 렌더링
+            monsters.forEach(monster => {
+                ctx.fillStyle = "#ff5555";
+                ctx.font = "bold 18px monospace";
+                ctx.textAlign = "center";
+                ctx.fillText("M", monster.x * TILE_SIZE + TILE_SIZE / 2, monster.y * TILE_SIZE + TILE_SIZE / 2 + 5);
+                
+                // 체력바
+                ctx.fillStyle = "#ff0000";
+                ctx.fillRect(monster.x * TILE_SIZE + 5, monster.y * TILE_SIZE + 2, TILE_SIZE - 10, 4);
+                ctx.fillStyle = "#00ff00";
+                ctx.fillRect(monster.x * TILE_SIZE + 5, monster.y * TILE_SIZE + 2, (TILE_SIZE - 10) * (monster.hp / monster.maxHp), 4);
+            });
+
+            // 3. 플레이어 렌더링
+            ctx.fillStyle = player.isTrance ? "#ffcc00" : "#00ff00"; // 무아지경 상태에선 황금빛 폭발
             ctx.beginPath();
-            ctx.arc(
-                player.x * TILE_SIZE + TILE_SIZE / 2, 
-                player.y * TILE_SIZE + TILE_SIZE / 2, 
-                TILE_SIZE / 3, 0, Math.PI * 2
-            );
+            ctx.arc(state.localX * TILE_SIZE + TILE_SIZE / 2, state.localY * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 3, 0, Math.PI * 2);
             ctx.fill();
+
+            // 4. 데미지 수치 플로팅 이펙트 처리
+            for (let i = damageNumbers.length - 1; i >= 0; i--) {
+                let dmg = damageNumbers[i];
+                ctx.fillStyle = dmg.color;
+                ctx.font = "bold 16px monospace";
+                ctx.fillText(dmg.text, dmg.x, dmg.y);
+                dmg.y -= 1; // 위로 둥둥 보정
+                dmg.duration--;
+                if (dmg.duration <= 0) damageNumbers.splice(i, 1);
+            }
+
+            ctx.restore(); // 카메라 셋업 초기화
+
+            // 5. 피격/타격 플래시 오버레이 효과
+            if (flashOverlay.duration > 0) {
+                ctx.fillStyle = flashOverlay.color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                flashOverlay.duration--;
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+
+        // 주스 효과 발동기 (타격감 연출 패키지)
+        function triggerHitJuice(x, y, text, isCrit = false) {
+            cameraShake.duration = 10; // 카메라 흔들기 프레임수
+            flashOverlay.color = isCrit ? "rgba(255, 200, 0, 0.15)" : "rgba(255, 0, 0, 0.1)";
+            flashOverlay.duration = 4;
+            
+            damageNumbers.push({
+                x: x * TILE_SIZE + TILE_SIZE / 2 + (Math.random() - 0.5) * 10,
+                y: y * TILE_SIZE + 10,
+                text: text,
+                color: isCrit ? "#ffcc00" : "#ff5555",
+                duration: 30
+            });
+        }
+
+        // 몬스터 AI: 턴마다 플레이어 방향으로 추적 이동
+        function moveMonstersAI(monsters, currentMap, localX, localY) {
+            monsters.forEach(m => {
+                if (Math.random() < 0.4) return; // 40% 확률로 몬스터 행동 쉼 (밸런스 조절)
+                
+                let dx = Math.sign(localX - m.x);
+                let dy = Math.sign(localY - m.y);
+
+                // 대각선 이동 방지 및 축 분리 추적
+                let nextX = m.x + (dx !== 0 ? dx : 0);
+                let nextY = m.y + (dx === 0 ? dy : 0);
+
+                // 벽 충돌 방지 및 플레이어와 겹치지 않는 경우에만 한 칸 이동
+                if (currentMap[nextY] && currentMap[nextY][nextX] === 0 && !(nextX === localX && nextY === localY)) {
+                    // 다른 몬스터와 겹침 방지
+                    if (!monsters.some(other => other !== m && other.x === nextX && other.y === nextY)) {
+                        m.x = nextX;
+                        m.y = nextY;
+                    }
+                }
+            });
         }
 
         function movePlayer(dx, dy) {
-            let nextX = player.x + dx;
-            let nextY = player.y + dy;
+            if (player.hp <= 0 || player.isTrance) return; // 사망 상태 혹은 무아지경 중에는 조작 불능
 
-            if (worldMap[nextY] && worldMap[nextY][nextX] === 0) {
-                player.x = nextX;
-                player.y = nextY;
+            let nextGlobalX = player.x + dx;
+            let nextGlobalY = player.y + dy;
+
+            let state = getPlayerState();
+            let nextChunkX = Math.floor(nextGlobalX / COLS);
+            let nextChunkY = Math.floor(nextGlobalY / ROWS);
+            let nextLocalX = (nextGlobalX % COLS + COLS) % COLS;
+            let nextLocalY = (nextGlobalY % ROWS + ROWS) % ROWS;
+
+            const targetMap = getOrCreateChunk(nextChunkX, nextChunkY);
+            if (targetMap[nextLocalY][nextLocalX] === 1) return;
+
+            const targetChunkKey = `${nextChunkX},${nextChunkY}`;
+            let monsters = chunkMonsters[targetChunkKey] || [];
+            let mIdx = monsters.findIndex(m => m.x === nextLocalX && m.y === nextLocalY);
+
+            // 1. 플레이어가 적과 충돌 시 일반 공격
+            if (mIdx !== -1) {
+                let monster = monsters[mIdx];
+                const dmg = player.baseAtk + player.weapon.atk;
+                monster.hp -= dmg;
+                
+                // [적들의 반응]: 충돌 공격 시 적을 한 칸 뒤로 밀어냄 (넉백 시스템)
+                let kbX = monster.x + dx;
+                let kbY = monster.y + dy;
+                if (targetMap[kbY] && targetMap[kbY][kbX] === 0 && !monsters.some(m => m.x === kbX && m.y === kbY)) {
+                    monster.x = kbX;
+                    monster.y = kbY;
+                }
+
+                triggerHitJuice(monster.x, monster.y, `-${dmg}`);
+                addLog(`⚔️ ${monster.name}에게 ${dmg}의 피해를 주었습니다!`);
+
+                if (monster.hp <= 0) {
+                    addLog(`🎉 ${monster.name}를 처치했습니다.`);
+                    monsters.splice(mIdx, 1);
+                } else {
+                    // 적 반격
+                    const mDmg = monster.atk;
+                    player.hp -= mDmg;
+                    if (player.hp <= 0) { player.hp = 0; addLog("💀 GAME OVER"); }
+                }
+            } else {
+                // 단순 이동 시 전역 좌표 업데이트
+                player.x = nextGlobalX;
+                player.y = nextGlobalY;
             }
-            draw();
+
+            // 플레이어 행동이 끝날 때마다 적 AI 구동
+            const curState = getPlayerState();
+            if (nextChunkX === curState.chunkX && nextChunkY === curState.chunkY) {
+                moveMonstersAI(monsters, targetMap, curState.localX, curState.localY);
+            }
+
+            updateUI();
         }
 
-        // 1. 키보드 입력 (PC 테스트용)
+        // 궁극기: 무아지경 매커니즘 시뮬레이터 구동
+        function activateTrance() {
+            if (player.hp <= 0 || player.isTrance) return;
+
+            player.isTrance = true;
+            player.tranceTicks = 12; // 총 12회 연속 자동 공격 매 타임 실행 예정
+            document.getElementById("btnUltimate").disabled = true;
+            addLog("🔥 [궁극기] 무아지경 발동! 제어력을 잃고 폭주합니다!");
+
+            // 공격 속도 강화를 고속 자동 실행 타이머 간격(250ms)으로 구현
+            let tranceInterval = setInterval(() => {
+                if (player.hp <= 0 || player.tranceTicks <= 0) {
+                    clearInterval(tranceInterval);
+                    player.isTrance = false;
+                    document.getElementById("btnUltimate").disabled = false;
+                    addLog("✨ 무아지경 상태가 해제되어 정상으로 돌아왔습니다.");
+                    updateUI();
+                    return;
+                }
+
+                const state = getPlayerState();
+                const currentChunkKey = `${state.chunkX},${state.chunkY}`;
+                let monsters = chunkMonsters[currentChunkKey] || [];
+
+                if (monsters.length > 0) {
+                    // 최단 거리에 있는 유효 타겟 검색 및 자율 추적 공격
+                    let target = monsters[0];
+                    let tDmg = (player.baseAtk + player.weapon.atk) * 2; // 무아지경 상태 공격력 2배 가중치
+                    target.hp -= tDmg;
+                    
+                    triggerHitJuice(target.x, target.y, `💥CRIT ${tDmg}`, true);
+                    addLog(`⚡ 무아지경 연타!! 인근 적에게 ${tDmg} 크리티컬 가공할 연격 진행 중!`);
+
+                    if (target.hp <= 0) {
+                        monsters.shift();
+                        addLog(`🎉 폭주 공격으로 적이 분쇄되었습니다!`);
+                    }
+                } else {
+                    addLog("🌀 주변에 적이 없어 허공에 난무를 펼칩니다!");
+                    cameraShake.duration = 5;
+                }
+
+                player.tranceTicks--;
+                updateUI();
+            }, 250); // 0.25초당 1대씩 무아지경 광폭 난사
+        }
+
+        // 입력 바인딩 관리
         window.addEventListener("keydown", (e) => {
+            if (e.key === " " || e.key.toLowerCase() === "r") { activateTrance(); return; }
             switch(e.key.toLowerCase()) {
                 case "arrowup": case "w": movePlayer(0, -1); break;
                 case "arrowdown": case "s": movePlayer(0, 1); break;
@@ -149,16 +433,11 @@
             }
         });
 
-        // 2. 터치 버튼 입력 (모바일용)
-        // 모바일에서는 'touchstart' 이벤트를 써야 반응 속도가 빠릅니다.
         const addTouchPointer = (elementId, dx, dy) => {
             const btn = document.getElementById(elementId);
-            const handlePress = (e) => {
-                e.preventDefault(); // 기본 스크롤 등 방지
-                movePlayer(dx, dy);
-            };
-            btn.addEventListener("touchstart", handlePress);
-            btn.addEventListener("mousedown", handlePress); // PC 마우스 클릭도 대응
+            const handlePress = (e) => { e.preventDefault(); movePlayer(dx, dy); };
+            btn.addEventListener("touchstart", handlePress, { passive: false });
+            btn.addEventListener("mousedown", handlePress);
         };
 
         addTouchPointer("btnUp", 0, -1);
@@ -166,7 +445,18 @@
         addTouchPointer("btnLeft", -1, 0);
         addTouchPointer("btnRight", 1, 0);
 
-        draw();
+        document.getElementById("btnUltimate").addEventListener("click", (e) => {
+            e.preventDefault();
+            activateTrance();
+        });
+        document.getElementById("btnUltimate").addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            activateTrance();
+        });
+
+        getOrCreateChunk(0, 0);
+        updateUI();
+        renderLoop(); // 고성능 그래픽 애니메이션 루프 가동
     </script>
 </body>
 </html>
