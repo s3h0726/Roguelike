@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>오픈월드 로그라이크 - 액션 강화판</title>
+    <title>오픈월드 로그라이크 RPG - 하이엔드 액션판</title>
     <style>
+        :root {
+            --bg-color: #121214;
+            --panel-color: #1a1a1e;
+            --border-color: #2d2d34;
+            --text-color: #e1e1e6;
+            --hp-color: #ff5555;
+            --mp-color: #3399ff;
+            --trance-color: #ffaa00;
+        }
+
         body {
-            background-color: #222;
-            color: #fff;
-            font-family: monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,109 +28,221 @@
             overflow: hidden;
             user-select: none;
         }
-        h1 { font-size: 1.2rem; margin: 5px 0; }
+
+        h1 {
+            font-size: 1.4rem;
+            margin: 10px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255,255,255,0.1);
+        }
         
+        /* 세련된 UI 패널 시스템 */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 95vw;
+            max-width: 620px;
+        }
+
         .status-panel {
             display: flex;
+            flex-direction: column;
+            width: 100%;
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+
+        .stat-row {
+            display: flex;
             justify-content: space-between;
-            width: 95vw;
-            max-width: 600px;
-            background-color: #333;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 5px;
-            font-size: 12px;
+            align-items: center;
+            margin-bottom: 8px;
         }
-        .log-box {
-            width: 95vw;
-            max-width: 600px;
-            height: 60px;
-            background-color: #111;
-            border: 1px solid #555;
-            padding: 5px;
-            overflow-y: auto;
+
+        /* 프로페셔널한 게이지 바 */
+        .bar-container {
+            position: relative;
+            width: 45%;
+            height: 18px;
+            background-color: #222;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #444;
+        }
+        .bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.1s ease;
+        }
+        .bar-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
             font-size: 11px;
-            color: #00ff00;
-            margin-top: 5px;
+            font-weight: bold;
+            line-height: 18px;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
         }
+
+        /* 스킬트리 UI 인터페이스 */
+        .skill-tree {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: var(--panel-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+        }
+        .skill-node {
+            background-color: #252529;
+            border: 1px solid #444;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .skill-node.unlocked {
+            border-color: var(--trance-color);
+            background-color: #3a2a00;
+        }
+
         canvas {
-            border: 2px solid #fff;
-            background-color: #111;
-            max-width: 95vw;
-            max-height: 45vh;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background-color: #0d0d0f;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            max-width: 100%;
+            height: auto;
         }
+
+        .log-box {
+            width: 100%;
+            height: 65px;
+            background-color: #09090b;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #a1a1aa;
+            margin-top: 8px;
+            box-sizing: border-box;
+        }
+
         .controls-wrapper {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            margin-top: 10px;
+            width: 100%;
+            margin-top: 12px;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
+
         .dpad {
             display: grid;
-            grid-template-columns: repeat(3, 50px);
-            grid-template-rows: repeat(3, 50px);
-            gap: 5px;
+            grid-template-columns: repeat(3, 52px);
+            grid-template-rows: repeat(3, 52px);
+            gap: 6px;
         }
-        .dpad button, .skill-btn {
-            background-color: #444;
-            color: white;
-            border: 2px solid #888;
-            border-radius: 10px;
+        .dpad button, .action-btn {
+            background: linear-gradient(145deg, #2b2b32, #1e1e24);
+            color: #fff;
+            border: 1px solid #454550;
+            border-radius: 14px;
             font-size: 18px;
             font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
             touch-action: manipulation;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .dpad button:active, .skill-btn:active { background-color: #666; }
+        .dpad button:active, .action-btn:active {
+            background: #1a1a20;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);
+        }
         .dpad .empty { visibility: hidden; }
         
-        .skill-btn {
-            width: 80px;
-            height: 80px;
-            background-color: #800;
-            border-color: #f55;
-            font-size: 14px;
+        .action-btn {
+            width: 85px;
+            height: 85px;
+            background: linear-gradient(145deg, #aa0000, #770000);
+            border-color: #ff4444;
+            font-size: 13px;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
+            border-radius: 50%;
         }
-        .skill-btn:disabled {
-            background-color: #333;
-            border-color: #555;
-            color: #777;
+        .action-btn:disabled {
+            background: #222 !important;
+            border-color: #444 !important;
+            color: #555;
         }
     </style>
 </head>
 <body>
 
-    <h1>Action Roguelike RPG</h1>
-    
-    <div class="status-panel">
-        <div>❤️ HP: <span id="pHp">50</span>/50 | ⚔️ ATK: <span id="pAtk">5</span> (+<span id="wAtk">0</span>)</div>
-        <div>🔮 상태: <span id="pState" style="color: #0f0; font-weight:bold;">일반</span></div>
-    </div>
-
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
-    
-    <div id="gameLog" class="log-box">무한한 오픈월드에 진입했습니다. [무아지경] 준비 완료!</div>
-
-    <div class="controls-wrapper">
-        <div class="dpad">
-            <div class="empty"></div>
-            <button id="btnUp">▲</button>
-            <div class="empty"></div>
-            <button id="btnLeft">◀</button>
-            <div class="empty"></div>
-            <button id="btnRight">▶</button>
-            <div class="empty"></div>
-            <button id="btnDown">▼</button>
-        </div>
+    <div class="game-container">
+        <h1>Annihilation World</h1>
         
-        <button id="btnUltimate" class="skill-btn">
-            <span>🔥</span>
-            <span>무아지경</span>
-        </button>
+        <div class="status-panel">
+            <div class="stat-row">
+                <div class="bar-container">
+                    <div id="hpFill" class="bar-fill" style="background-color: var(--hp-color);"></div>
+                    <div class="bar-text">HP <span id="pHp">50</span>/50</div>
+                </div>
+                <div class="bar-container">
+                    <div id="mpFill" class="bar-fill" style="background-color: var(--mp-color);"></div>
+                    <div class="bar-text">MP <span id="pMp">30</span>/30</div>
+                </div>
+            </div>
+            <div class="stat-row" style="font-size: 12px; color: #a1a1aa; margin-bottom: 0;">
+                <div>⚔️ ATK: <span id="pAtk">6</span> | 🌟 SP: <span id="pSp">0</span></div>
+                <div>🔮 상태: <span id="pState" style="color: #00ff00; font-weight:bold;">정상</span></div>
+            </div>
+        </div>
+
+        <div class="skill-tree">
+            <div id="sk1" class="skill-node" onclick="learnSkill(1)">⚡ 영격 (ATK+3)<br>[SP 1 필요]</div>
+            <div id="sk2" class="skill-node" onclick="learnSkill(2)">🌀 명상 (MAX MP+15)<br>[SP 1 필요]</div>
+            <div id="sk3" class="skill-node" onclick="learnSkill(3)">🔥 무아지경 해금<br>[SP 2 필요]</div>
+        </div>
+
+        <canvas id="gameCanvas" width="600" height="400"></canvas>
+        
+        <div id="gameLog" class="log-box">환영합니다. 몬스터를 처치해 레벨업(SP 획득)을 하세요.</div>
+
+        <div class="controls-wrapper">
+            <div class="dpad">
+                <div class="empty"></div>
+                <button id="btnUp">▲</button>
+                <div class="empty"></div>
+                <button id="btnLeft">◀</button>
+                <div class="empty"></div>
+                <button id="btnRight">▶</button>
+                <div class="empty"></div>
+                <button id="btnDown">▼</button>
+            </div>
+            
+            <button id="btnUltimate" class="action-btn" disabled>
+                <span>🔥</span>
+                <span>무아지경</span>
+                <span style="font-size: 9px; color: #ffaa00;">MP 15</span>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -131,20 +253,21 @@
         const COLS = canvas.width / TILE_SIZE; 
         const ROWS = canvas.height / TILE_SIZE; 
 
-        // 플레이어 스탯 및 상태 관리
+        // 시스템 상태 확장
         let player = { 
-            x: 7, y: 5, hp: 50, maxHp: 50, baseAtk: 5,
-            weapon: { name: "맨손", atk: 0 },
-            isTrance: false, tranceTicks: 0 // 무아지경 지속 타이머
+            x: 7, y: 5, 
+            hp: 50, maxHp: 50, 
+            mp: 30, maxMp: 30,
+            baseAtk: 6, 
+            sp: 0, // 스킬 포인트
+            skills: { sharpAttack: false, deepMeditation: false, ultimateTrance: false },
+            isTrance: false
         };
 
         let chunks = {};
         let chunkMonsters = {};
-
-        // 주스(Juice) 애니메이션 효과를 위한 카메라/이펙트 변수
         let cameraShake = { x: 0, y: 0, duration: 0 };
-        let flashOverlay = { color: "", duration: 0 };
-        let damageNumbers = []; // 타격 데미지 둥둥 뜨는 텍스트 이펙트
+        let damageNumbers = [];
 
         function addLog(message) {
             const logBox = document.getElementById("gameLog");
@@ -152,18 +275,47 @@
             logBox.scrollTop = logBox.scrollHeight;
         }
 
+        // 스킬 습득 시스템
+        function learnSkill(id) {
+            if (id === 1 && player.sp >= 1 && !player.skills.sharpAttack) {
+                player.sp -= 1; player.skills.sharpAttack = true; player.baseAtk += 3;
+                document.getElementById("sk1").classList.add("unlocked");
+                addLog("⚡ [영격] 특성을 마스터했습니다! 공격력이 3 증가합니다.");
+            } else if (id === 2 && player.sp >= 1 && !player.skills.deepMeditation) {
+                player.sp -= 1; player.skills.deepMeditation = true; player.maxMp += 15; player.mp += 15;
+                document.getElementById("sk2").classList.add("unlocked");
+                addLog("🌀 [명상] 특성을 마스터했습니다! 최대 마나가 15 증가합니다.");
+            } else if (id === 3 && player.sp >= 2 && !player.skills.ultimateTrance) {
+                player.sp -= 2; player.skills.ultimateTrance = true;
+                document.getElementById("sk3").classList.add("unlocked");
+                document.getElementById("btnUltimate").disabled = false;
+                addLog("🔥 궁극기 [무아지경] 비기를 해금했습니다! 이제 전투 시 사용할 수 있습니다.");
+            }
+            updateUI();
+        }
+
         function updateUI() {
             document.getElementById("pHp").innerText = player.hp;
+            document.getElementById("pMp").innerText = player.mp;
             document.getElementById("pAtk").innerText = player.baseAtk;
-            document.getElementById("wAtk").innerText = player.weapon.atk;
+            document.getElementById("pSp").innerText = player.sp;
             
+            // 게이지바 계산 및 동적 반영
+            document.getElementById("hpFill").style.width = `${(player.hp / player.maxHp) * 100}%`;
+            document.getElementById("mpFill").style.width = `${(player.mp / player.maxMp) * 100}%`;
+
             const stateEl = document.getElementById("pState");
             if (player.isTrance) {
-                stateEl.innerText = `무아지경 (${player.tranceTicks})`;
-                stateEl.style.color = "#ff3333";
+                stateEl.innerText = "무아지경 상태!";
+                stateEl.style.color = "var(--trance-color)";
             } else {
-                stateEl.innerText = "일반";
+                stateEl.innerText = "정상";
                 stateEl.style.color = "#00ff00";
+            }
+
+            // 스킬 해금 상태에 따른 궁극기 버튼 활성화 제어
+            if(player.skills.ultimateTrance && !player.isTrance) {
+                document.getElementById("btnUltimate").disabled = (player.mp < 15);
             }
         }
 
@@ -176,19 +328,20 @@
                 let row = [];
                 for (let c = 0; c < COLS; c++) {
                     if (cx === 0 && cy === 0 && c === 7 && r === 5) row.push(0);
-                    else row.push(Math.random() < 0.12 ? 1 : 0);
+                    // 인게임 디자인 개선: 내부 벽 발생 빈도를 줄여 시인성 확보
+                    else row.push(Math.random() < 0.08 ? 1 : 0);
                 }
                 mapData.push(row);
             }
             chunks[key] = mapData;
 
             let monsters = [];
-            const monsterCount = Math.floor(Math.random() * 2) + 2; // 적 2~3마리 스폰
-            for (let i = 0; i < monsterCount; i++) {
+            const count = Math.floor(Math.random() * 2) + 2;
+            for (let i = 0; i < count; i++) {
                 let mx = Math.floor(Math.random() * COLS);
                 let my = Math.floor(Math.random() * ROWS);
                 if (mapData[my][mx] === 0 && !(cx === 0 && cy === 0 && mx === 7 && my === 5)) {
-                    monsters.push({ x: mx, y: my, name: "고블린", hp: 12, maxHp: 12, atk: 4 });
+                    monsters.push({ x: mx, y: my, name: "어둠의 정령", hp: 15, maxHp: 15, atk: 5 });
                 }
             }
             chunkMonsters[key] = monsters;
@@ -203,120 +356,88 @@
             return { chunkX, chunkY, localX, localY };
         }
 
-        // 화면 렌더링 루프 (애니메이션 반영을 위해 requestAnimationFrame 구조 변경)
+        // 고도화된 그래픽 프레임 렌더링
         function renderLoop() {
-            // 카메라 흔들림 계산
             if (cameraShake.duration > 0) {
-                cameraShake.x = (Math.random() - 0.5) * 8;
-                cameraShake.y = (Math.random() - 0.5) * 8;
+                cameraShake.x = (Math.random() - 0.5) * 10;
+                cameraShake.y = (Math.random() - 0.5) * 10;
                 cameraShake.duration--;
-            } else {
-                cameraShake.x = 0;
-                cameraShake.y = 0;
-            }
+            } else { cameraShake.x = 0; cameraShake.y = 0; }
 
             ctx.save();
-            ctx.translate(cameraShake.x, cameraShake.y); // 카메라 흔들림 적용
-
+            ctx.translate(cameraShake.x, cameraShake.y);
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             const state = getPlayerState();
             const currentChunkKey = `${state.chunkX},${state.chunkY}`;
             const currentMap = getOrCreateChunk(state.chunkX, state.chunkY);
             const monsters = chunkMonsters[currentChunkKey] || [];
 
-            // 1. 타일맵 렌더링
+            // 1. 네온 격자 테두리 및 딥 사이버 타일 스타일링
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c < COLS; c++) {
-                    ctx.fillStyle = currentMap[r][c] === 1 ? "#555" : "#222";
-                    ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    ctx.strokeStyle = "#333";
-                    ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    if (currentMap[r][c] === 1) {
+                        ctx.fillStyle = "#2d2d35"; // 네온 테두리형 벽면
+                        ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    } else {
+                        ctx.strokeStyle = "#16161a";
+                        ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+                    }
                 }
             }
 
-            // 2. 몬스터 렌더링
-            monsters.forEach(monster => {
-                ctx.fillStyle = "#ff5555";
-                ctx.font = "bold 18px monospace";
-                ctx.textAlign = "center";
-                ctx.fillText("M", monster.x * TILE_SIZE + TILE_SIZE / 2, monster.y * TILE_SIZE + TILE_SIZE / 2 + 5);
+            // 2. 몬스터 렌더링 수정 (다크 엘리먼트 감성)
+            monsters.forEach(m => {
+                ctx.fillStyle = "#ff4444";
+                ctx.beginPath();
+                ctx.arc(m.x * TILE_SIZE + TILE_SIZE / 2, m.y * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 3.5, 0, Math.PI * 2);
+                ctx.fill();
                 
-                // 체력바
-                ctx.fillStyle = "#ff0000";
-                ctx.fillRect(monster.x * TILE_SIZE + 5, monster.y * TILE_SIZE + 2, TILE_SIZE - 10, 4);
-                ctx.fillStyle = "#00ff00";
-                ctx.fillRect(monster.x * TILE_SIZE + 5, monster.y * TILE_SIZE + 2, (TILE_SIZE - 10) * (monster.hp / monster.maxHp), 4);
+                // 체력 바 연출 고도화
+                ctx.fillStyle = "#333";
+                ctx.fillRect(m.x * TILE_SIZE + 6, m.y * TILE_SIZE + 2, TILE_SIZE - 12, 3);
+                ctx.fillStyle = "#ff4444";
+                ctx.fillRect(m.x * TILE_SIZE + 6, m.y * TILE_SIZE + 2, (TILE_SIZE - 12) * (m.hp / m.maxHp), 3);
             });
 
-            // 3. 플레이어 렌더링
-            ctx.fillStyle = player.isTrance ? "#ffcc00" : "#00ff00"; // 무아지경 상태에선 황금빛 폭발
+            // 3. 플레이어 물리 움직임 이펙트 (무아지경 시 잔영 이펙트 포함)
+            ctx.fillStyle = player.isTrance ? "rgba(255, 170, 0, 0.9)" : "#00ffaa";
+            ctx.shadowColor = player.isTrance ? "#ffaa00" : "#00ffaa";
+            ctx.shadowBlur = player.isTrance ? 15 : 5;
+            
             ctx.beginPath();
-            ctx.arc(state.localX * TILE_SIZE + TILE_SIZE / 2, state.localY * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 3, 0, Math.PI * 2);
+            ctx.arc(state.localX * TILE_SIZE + TILE_SIZE / 2, state.localY * TILE_SIZE + TILE_SIZE / 2, TILE_SIZE / 2.8, 0, Math.PI * 2);
             ctx.fill();
+            ctx.shadowBlur = 0; // 섀도우 초기화
 
-            // 4. 데미지 수치 플로팅 이펙트 처리
+            // 4. 데미지 플로팅 피드백
             for (let i = damageNumbers.length - 1; i >= 0; i--) {
                 let dmg = damageNumbers[i];
                 ctx.fillStyle = dmg.color;
-                ctx.font = "bold 16px monospace";
+                ctx.font = "italic bold 15px sans-serif";
                 ctx.fillText(dmg.text, dmg.x, dmg.y);
-                dmg.y -= 1; // 위로 둥둥 보정
+                dmg.y -= 1.2;
                 dmg.duration--;
                 if (dmg.duration <= 0) damageNumbers.splice(i, 1);
             }
 
-            ctx.restore(); // 카메라 셋업 초기화
-
-            // 5. 피격/타격 플래시 오버레이 효과
-            if (flashOverlay.duration > 0) {
-                ctx.fillStyle = flashOverlay.color;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                flashOverlay.duration--;
-            }
-
+            ctx.restore();
             requestAnimationFrame(renderLoop);
         }
 
-        // 주스 효과 발동기 (타격감 연출 패키지)
-        function triggerHitJuice(x, y, text, isCrit = false) {
-            cameraShake.duration = 10; // 카메라 흔들기 프레임수
-            flashOverlay.color = isCrit ? "rgba(255, 200, 0, 0.15)" : "rgba(255, 0, 0, 0.1)";
-            flashOverlay.duration = 4;
-            
+        function triggerHitEffect(x, y, text, isCrit = false) {
+            cameraShake.duration = 8;
             damageNumbers.push({
-                x: x * TILE_SIZE + TILE_SIZE / 2 + (Math.random() - 0.5) * 10,
-                y: y * TILE_SIZE + 10,
+                x: x * TILE_SIZE + 10,
+                y: y * TILE_SIZE,
                 text: text,
-                color: isCrit ? "#ffcc00" : "#ff5555",
-                duration: 30
-            });
-        }
-
-        // 몬스터 AI: 턴마다 플레이어 방향으로 추적 이동
-        function moveMonstersAI(monsters, currentMap, localX, localY) {
-            monsters.forEach(m => {
-                if (Math.random() < 0.4) return; // 40% 확률로 몬스터 행동 쉼 (밸런스 조절)
-                
-                let dx = Math.sign(localX - m.x);
-                let dy = Math.sign(localY - m.y);
-
-                // 대각선 이동 방지 및 축 분리 추적
-                let nextX = m.x + (dx !== 0 ? dx : 0);
-                let nextY = m.y + (dx === 0 ? dy : 0);
-
-                // 벽 충돌 방지 및 플레이어와 겹치지 않는 경우에만 한 칸 이동
-                if (currentMap[nextY] && currentMap[nextY][nextX] === 0 && !(nextX === localX && nextY === localY)) {
-                    // 다른 몬스터와 겹침 방지
-                    if (!monsters.some(other => other !== m && other.x === nextX && other.y === nextY)) {
-                        m.x = nextX;
-                        m.y = nextY;
-                    }
-                }
+                color: isCrit ? "#ffaa00" : "#ff4444",
+                duration: 25
             });
         }
 
         function movePlayer(dx, dy) {
-            if (player.hp <= 0 || player.isTrance) return; // 사망 상태 혹은 무아지경 중에는 조작 불능
+            if (player.hp <= 0 || player.isTrance) return;
 
             let nextGlobalX = player.x + dx;
             let nextGlobalY = player.y + dy;
@@ -334,97 +455,87 @@
             let monsters = chunkMonsters[targetChunkKey] || [];
             let mIdx = monsters.findIndex(m => m.x === nextLocalX && m.y === nextLocalY);
 
-            // 1. 플레이어가 적과 충돌 시 일반 공격하기
             if (mIdx !== -1) {
-                let monster = monsters[mIdx];
-                const dmg = player.baseAtk + player.weapon.atk;
-                monster.hp -= dmg;
-                
-                // [적들의 반응]: 충돌 공격 시 적을 한 칸 뒤로 밀어냄 (넉백 시스템)
-                let kbX = monster.x + dx;
-                let kbY = monster.y + dy;
-                if (targetMap[kbY] && targetMap[kbY][kbX] === 0 && !monsters.some(m => m.x === kbX && m.y === kbY)) {
-                    monster.x = kbX;
-                    monster.y = kbY;
-                }
+                let m = monsters[mIdx];
+                m.hp -= player.baseAtk;
+                triggerHitEffect(m.x, m.y, `-${player.baseAtk}`);
 
-                triggerHitJuice(monster.x, monster.y, `-${dmg}`);
-                addLog(`⚔️ ${monster.name}에게 ${dmg}의 피해를 주었습니다!`);
-
-                if (monster.hp <= 0) {
-                    addLog(`🎉 ${monster.name}를 처치했습니다.`);
+                if (m.hp <= 0) {
+                    addLog(`💀 적을 완파했습니다! 스킬 포인트(SP)를 1 획득합니다.`);
+                    player.sp += 1; // 몬스터 처치 시 무조건 스킬 스탯 제공
                     monsters.splice(mIdx, 1);
                 } else {
-                    // 적 반격
-                    const mDmg = monster.atk;
-                    player.hp -= mDmg;
-                    if (player.hp <= 0) { player.hp = 0; addLog("💀 GAME OVER"); }
+                    player.hp = Math.max(0, player.hp - m.atk);
                 }
             } else {
-                // 단순 이동 시 전역 좌표 업데이트
                 player.x = nextGlobalX;
                 player.y = nextGlobalY;
+                
+                // 걸어 다닐 때 자연 마나 재생 유도
+                if (player.mp < player.maxMp && Math.random() < 0.3) player.mp = Math.min(player.maxMp, player.mp + 1);
             }
-
-            // 플레이어 행동이 끝날 때마다 적 AI 구동
-            const curState = getPlayerState();
-            if (nextChunkX === curState.chunkX && nextChunkY === curState.chunkY) {
-                moveMonstersAI(monsters, targetMap, curState.localX, curState.localY);
-            }
-
             updateUI();
         }
 
-        // 궁극기: 무아지경 매커니즘 시뮬레이터 구동
-        function activateTrance() {
-            if (player.hp <= 0 || player.isTrance) return;
+        // 🔥 [무아지경] 핵심 연출: 컨트롤러 불능 상태에서 실제로 적을 추적하며 대시 기동 진행
+        function activateUltimateTrance() {
+            if (!player.skills.ultimateTrance || player.mp < 15 || player.isTrance) return;
 
+            player.mp -= 15;
             player.isTrance = true;
-            player.tranceTicks = 12; // 총 12회 연속 자동 공격 매 타임 실행 예정
-            document.getElementById("btnUltimate").disabled = true;
-            addLog("🔥 [궁극기] 무아지경 발동! 제어력을 잃고 폭주합니다!");
+            updateUI();
+            addLog("🔥 [무아지경] 개방! 플레이어 캐릭터가 적을 인지하여 스스로 고속 추격을 시작합니다!");
 
-            // 공격 속도 강화를 고속 자동 실행 타이머 간격(250ms)으로 구현
-            let tranceInterval = setInterval(() => {
-                if (player.hp <= 0 || player.tranceTicks <= 0) {
-                    clearInterval(tranceInterval);
-                    player.isTrance = false;
-                    document.getElementById("btnUltimate").disabled = false;
-                    addLog("✨ 무아지경 상태가 해제되어 정상으로 돌아왔습니다.");
-                    updateUI();
-                    return;
-                }
-
+            let attackCount = 8; // 총 8회 고속 베기 추적 기동 수행
+            let tranceTimer = setInterval(() => {
                 const state = getPlayerState();
                 const currentChunkKey = `${state.chunkX},${state.chunkY}`;
                 let monsters = chunkMonsters[currentChunkKey] || [];
+                const currentMap = getOrCreateChunk(state.chunkX, state.chunkY);
 
-                if (monsters.length > 0) {
-                    // 최단 거리에 있는 유효 타겟 검색 및 자율 추적 공격
+                if (monsters.length > 0 && attackCount > 0) {
                     let target = monsters[0];
-                    let tDmg = (player.baseAtk + player.weapon.atk) * 2; // 무아지경 상태 공격력 2배 가중치
-                    target.hp -= tDmg;
                     
-                    triggerHitJuice(target.x, target.y, `💥CRIT ${tDmg}`, true);
-                    addLog(`⚡ 무아지경 연타!! 인근 적에게 ${tDmg} 크리티컬 가공할 연격 진행 중!`);
+                    // 1. 계산원리: 몬스터의 인접 타일 빈 공간으로 플레이어 좌표가 실제로 바뀜 (눈에 뵈는 무빙)
+                    let diffX = Math.sign(target.x - state.localX);
+                    let diffY = Math.sign(target.y - state.localY);
+                    
+                    let newLocalX = state.localX + diffX;
+                    let newLocalY = state.localY + diffY;
+
+                    // 동적 위치 물리 갱신을 주도하여 눈에 보임 처리 유도
+                    if (currentMap[newLocalY] && currentMap[newLocalY][newLocalX] === 0) {
+                        player.x = state.chunkX * COLS + newLocalX;
+                        player.y = state.chunkY * ROWS + newLocalY;
+                    }
+
+                    // 2. 공격 효과 처리
+                    let dmg = Math.floor(player.baseAtk * 1.8);
+                    target.hp -= dmg;
+                    triggerHitEffect(target.x, target.y, `⚡TRANCE ${dmg}`, true);
 
                     if (target.hp <= 0) {
+                        addLog(`✨ 무아지경 참격으로 적 소멸! SP 1 획득.`);
+                        player.sp += 1;
                         monsters.shift();
-                        addLog(`🎉 폭주 공격으로 적이 분쇄되었습니다!`);
                     }
+                    attackCount--;
                 } else {
-                    addLog("🌀 주변에 적이 없어 허공에 난무를 펼칩니다!");
-                    cameraShake.duration = 5;
+                    attackCount = 0; // 더 이상 적이 없으면 종료 조치
                 }
 
-                player.tranceTicks--;
-                updateUI();
-            }, 250); // 0.25초당 1대씩 무아지경 광폭 난사
+                if (attackCount <= 0 || player.hp <= 0) {
+                    clearInterval(tranceTimer);
+                    player.isTrance = false;
+                    addLog("✨ 무아지경 광폭화 폭주가 진정되었습니다.");
+                    updateUI();
+                }
+            }, 180); // 0.18초 간격으로 잔영처럼 실제 무빙 추적 타격 진행
         }
 
-        // 입력 바인딩 관리
+        // 컨트롤 바인딩
         window.addEventListener("keydown", (e) => {
-            if (e.key === " " || e.key.toLowerCase() === "r") { activateTrance(); return; }
+            if (e.key === " " || e.key.toLowerCase() === "r") { activateUltimateTrance(); return; }
             switch(e.key.toLowerCase()) {
                 case "arrowup": case "w": movePlayer(0, -1); break;
                 case "arrowdown": case "s": movePlayer(0, 1); break;
@@ -435,28 +546,18 @@
 
         const addTouchPointer = (elementId, dx, dy) => {
             const btn = document.getElementById(elementId);
-            const handlePress = (e) => { e.preventDefault(); movePlayer(dx, dy); };
-            btn.addEventListener("touchstart", handlePress, { passive: false });
-            btn.addEventListener("mousedown", handlePress);
+            btn.addEventListener("touchstart", (e) => { e.preventDefault(); movePlayer(dx, dy); }, { passive: false });
+            btn.addEventListener("mousedown", (e) => { e.preventDefault(); movePlayer(dx, dy); });
         };
+        addTouchPointer("btnUp", 0, -1); addTouchPointer("btnDown", 0, 1);
+        addTouchPointer("btnLeft", -1, 0); addTouchPointer("btnRight", 1, 0);
 
-        addTouchPointer("btnUp", 0, -1);
-        addTouchPointer("btnDown", 0, 1);
-        addTouchPointer("btnLeft", -1, 0);
-        addTouchPointer("btnRight", 1, 0);
-
-        document.getElementById("btnUltimate").addEventListener("click", (e) => {
-            e.preventDefault();
-            activateTrance();
-        });
-        document.getElementById("btnUltimate").addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            activateTrance();
-        });
+        document.getElementById("btnUltimate").addEventListener("click", activateUltimateTrance);
+        document.getElementById("btnUltimate").addEventListener("touchstart", (e) => { e.preventDefault(); activateUltimateTrance(); });
 
         getOrCreateChunk(0, 0);
         updateUI();
-        renderLoop(); // 고성능 그래픽 애니메이션 루프 가동
+        renderLoop();
     </script>
 </body>
 </html>
