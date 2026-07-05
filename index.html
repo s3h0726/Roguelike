@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>로그라이크 딥 테크트리 RPG</title>
+    <title>로그라이크 딥 테크트리 RPG - 수치 시각화 버전</title>
     <style>
         :root {
             --bg-color: #070709;
@@ -88,7 +88,7 @@
                 </div>
                 <div class="bar-container">
                     <div id="mpFill" class="bar-fill" style="background-color: var(--mp-color);"></div>
-                    <div class="bar-text">MP <span id="pMp">30</span>/30</div>
+                    <div class="bar-text">MP <span id="pMp">30</span>/<span id="pMaxMp">30</span></div>
                 </div>
             </div>
             <div class="exp-container">
@@ -156,7 +156,6 @@
             speed: 1.8, level: 1, exp: 0, maxExp: 12, sp: 0, gold: 0,
             isTrance: false, speedZeusTimer: 0, berserkTimer: 0, blizzardTimer: 0,
             
-            // 돌진 모션 내부 제어용 변수
             rushTargetX: null, rushTargetY: null, rushSpeed: 12,
 
             lastDamagedTick: 0, 
@@ -167,27 +166,22 @@
             magicArrowTimer: 0, arrowLevel: 0, 
             overloadLevel: 0, 
 
-            // 🌲 4개 계열의 선행 규칙 3단계 구조 데이터화
             skills: [
-                // 1계열: 무아지경 트리 (돌진 모션 상속 규정)
                 { id: 10, name: "🌱 [기초] 집중 호흡", lv: 0, maxLv: 5, mp: 8, desc: "기본 공격 대미지 10% 보정 및 선행 확보", type: "passive", parentId: null, motion: "dash" },
                 { id: 11, name: "🌿 [숙련] 잔상 베기", lv: 0, maxLv: 5, mp: 10, desc: "돌진 반경 내 적 치명타율 보정", type: "passive", parentId: 10, motion: "dash" },
                 { id: 12, name: "🌳 [비기] 쾌속 난무", lv: 0, maxLv: 5, mp: 12, desc: "돌진 속도 및 난무 범위 가산", type: "passive", parentId: 11, motion: "dash" },
-                { id: 0,  name: "🔥 [최상급] 무아지경", lv: 0, maxLv: 5, mp: 15, desc: "돌진 연속 연타 및 피해 감소 50%~90%", type: "trance", parentId: 12, motion: "dash" },
+                { id: 0,  name: "🔥 [최상급] 무아지경", lv: 0, maxLv: 5, mp: 15, desc: "돌진 거리 비례 추가 피해 및 피감 50%~90%", type: "trance", parentId: 12, motion: "dash" },
 
-                // 2계열: 신속신벌 트리
                 { id: 20, name: "🌱 [기초] 정전기 축전", lv: 0, maxLv: 5, mp: 6, desc: "이동속도 5% 가산 패시브", type: "passive", parentId: null },
                 { id: 21, name: "🌿 [숙련] 도전 기동", lv: 0, maxLv: 5, mp: 9, desc: "낙뢰 발생 간격 10% 단축 보정", type: "passive", parentId: 20 },
                 { id: 22, name: "🌳 [비기] 전뇌 합일", lv: 0, maxLv: 5, mp: 11, desc: "낙뢰 타격 계수 추가 강화", type: "passive", parentId: 21 },
                 { id: 1,  name: "⚡ [최상급] 신속신벌", lv: 0, maxLv: 5, mp: 12, desc: "속도 대폭 증가 및 이동 궤적 낙뢰 발사", type: "zeus", parentId: 22 },
 
-                // 3계열: 성광폭화 트리
                 { id: 30, name: "🌱 [기초] 투지 각성", lv: 0, maxLv: 5, mp: 7, desc: "공격 시 흡혈량 2% 기본 부여", type: "passive", parentId: null },
                 { id: 31, name: "🌿 [숙련] 피의 서약", lv: 0, maxLv: 5, mp: 10, desc: "폭화 지속시간 1초 연장 패시브", type: "passive", parentId: 30 },
                 { id: 32, name: "🌳 [비기] 불멸 격노", lv: 0, maxLv: 5, mp: 12, desc: "광폭화 중 공격력 20% 추가 증폭", type: "passive", parentId: 31 },
                 { id: 2,  name: "🩸 [최상급] 성광폭화", lv: 0, maxLv: 5, mp: 14, desc: "공격력 폭증 및 모든 타격 흡혈 전환", type: "berserk", parentId: 32 },
 
-                // 4계열: 절대영도 트리
                 { id: 40, name: "🌱 [기초] 냉기 응축", lv: 0, maxLv: 5, mp: 8, desc: "동결된 적 방어력 10% 감소 효과", type: "passive", parentId: null },
                 { id: 41, name: "🌿 [숙련] 서리 파편", lv: 0, maxLv: 5, mp: 11, desc: "동결 소멸 시 추가 파편 피해 적용", type: "passive", parentId: 40 },
                 { id: 42, name: "🌳 [비기] 영도 제어", lv: 0, maxLv: 5, mp: 13, desc: "절대영도 동결 범위 20% 광역화", type: "passive", parentId: 41 },
@@ -226,7 +220,6 @@
         function openShopModal() { closeModals(); document.getElementById("shopModal").style.display = "flex"; }
         function openTreeModal() { closeModals(); renderTreeSkills(); document.getElementById("treeModal").style.display = "flex"; }
 
-        // 선행 스킬 트레이싱 알고리즘 검증 함수
         function isSkillUnlocked(sk) {
             if (sk.parentId === null) return true;
             let parent = player.skills.find(s => s.id === sk.parentId);
@@ -291,6 +284,7 @@
             document.getElementById("pHp").innerText = Math.ceil(player.hp);
             document.getElementById("pMaxHp").innerText = totalMaxHp;
             document.getElementById("pMp").innerText = Math.floor(player.mp);
+            document.getElementById("pMaxMp").innerText = player.maxMp;
             document.getElementById("pLv").innerText = player.level;
             document.getElementById("pSp").innerText = player.sp;
             document.getElementById("pGold").innerText = player.gold;
@@ -323,8 +317,7 @@
 
         function checkLevelUp() {
             if (player.exp >= player.maxExp) {
-                player.exp -= player.maxExp; player.level++; 
-                player.sp += 3; // 💰 레벨업 시 스킬 포인트 지급량 1에서 3으로 대폭 상향 증가
+                player.exp -= player.maxExp; player.level++; player.sp += 3;
                 player.maxExp = Math.floor(player.maxExp * 1.3) + 6;
                 triggerLevelChoice();
             }
@@ -363,11 +356,21 @@
                         player.rushTargetX = null; player.rushTargetY = null; updateUI(); return;
                     }
                     let target = monsters[Math.floor(Math.random() * monsters.length)];
-                    // 🏃 직접 고정 좌표 이동 방식을 배제하고 돌진 목적지 벡터 지정
+                    
+                    // 📏 돌진 시작 거리 비례 연산 추가
+                    let dx = target.worldX - player.worldX;
+                    let dy = target.worldY - player.worldY;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // 거리가 멀수록 보너스 배수 적용 (최소 1배 ~ 거리당 가산)
+                    let distanceMultiplier = 1.0 + (distance / 200); 
+
                     player.rushTargetX = target.worldX; player.rushTargetY = target.worldY;
 
-                    let dmg = Math.floor((player.baseAtk + player.stats.atkBonus) * (1.2 + sk.lv * 0.3));
-                    triggerDamage(target, dmg, "#f59e0b");
+                    let baseDmg = Math.floor((player.baseAtk + player.stats.atkBonus) * (1.2 + sk.lv * 0.3));
+                    let finalDmg = Math.floor(baseDmg * distanceMultiplier);
+
+                    triggerDamage(target, finalDmg, distanceMultiplier > 1.5 ? "#f43f5e" : "#f59e0b");
                 }, 250);
             } 
             else if (sk.type === "zeus") { player.mp -= sk.mp; player.speedZeusTimer = 300 + (sk.lv * 60); } 
@@ -416,7 +419,6 @@
             let levelScale = 1.0 + (player.level - 1) * 0.15;
             let currentSpeed = player.speed;
 
-            // 🏃 무아지경 최상급 스킬 활성화 시 돌진(Rush) 제어 보간 엔진 
             if (player.isTrance && player.rushTargetX !== null) {
                 let rdx = player.rushTargetX - player.worldX;
                 let rdy = player.rushTargetY - player.worldY;
@@ -503,12 +505,11 @@
                 if (dist < player.radius + m.radius && m.attackCooldown <= 0) {
                     player.lastDamagedTick = gameTick;
 
-                    // 🛡️ 무아지경 피해 감소식 동적 매핑 (50% ~ 90% 한계치 조율 완료)
                     let finalDamage = m.atk;
                     if (player.isTrance) {
                         let tranceSk = player.skills.find(s => s.type === "trance");
-                        let reductionRate = 0.50 + (tranceSk.lv * 0.08); // 레벨당 8%씩 복리 형태 누적 가산
-                        if (reductionRate > 0.90) reductionRate = 0.90; // 최대 90% 상한 제한
+                        let reductionRate = 0.50 + (tranceSk.lv * 0.08); 
+                        if (reductionRate > 0.90) reductionRate = 0.90; 
                         finalDamage = finalDamage * (1 - reductionRate);
                     }
 
@@ -536,10 +537,20 @@
 
             droppedGolds.forEach(g => { ctx.fillStyle = "#eab308"; ctx.beginPath(); ctx.arc(g.worldX, g.worldY, 4, 0, Math.PI * 2); ctx.fill(); });
 
+            // 📊 몬스터 HP 수치 바 정밀 렌더링 파트
             monsters.forEach(m => {
                 ctx.fillStyle = m.frozen ? "#60a5fa" : m.color; ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = "#1f1f23"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24, 3);
-                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 12, m.worldY - m.radius - 6, 24 * (m.hp / m.maxHp), 3);
+                
+                // 배경 바
+                ctx.fillStyle = "#1f1f23"; ctx.fillRect(m.worldX - 22, m.worldY - m.radius - 8, 44, 5);
+                // 잔량 바
+                ctx.fillStyle = "#ef4444"; ctx.fillRect(m.worldX - 22, m.worldY - m.radius - 8, 44 * (m.hp / m.maxHp), 5);
+                
+                // 0/0 형태의 수치 강제 주입
+                ctx.fillStyle = "#ffffff";
+                ctx.font = "bold 7px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText(`${Math.ceil(m.hp)}/${Math.ceil(m.maxHp)}`, m.worldX, m.worldY - m.radius - 11);
             });
 
             projectiles.forEach(p => { ctx.fillStyle = "#c084fc"; ctx.beginPath(); ctx.arc(p.worldX, p.worldY, 3, 0, Math.PI * 2); ctx.fill(); });
@@ -547,7 +558,6 @@
 
             if (player.shield.active) { ctx.strokeStyle = "rgba(59, 130, 246, 0.2)"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.shield.radius, 0, Math.PI * 2); ctx.stroke(); }
 
-            // 돌진 궤적 스킨 이펙트화
             ctx.fillStyle = player.isTrance ? "rgba(245, 158, 11, 0.8)" : "#10b981";
             ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius, 0, Math.PI * 2); ctx.fill();
 
@@ -558,6 +568,7 @@
                 }
             }
 
+            ctx.textAlign = "left"; // 데미지 텍스트 정렬 리셋
             for (let i = damageNumbers.length - 1; i >= 0; i--) {
                 let d = damageNumbers[i]; ctx.fillStyle = d.color; ctx.font = "bold 11px sans-serif"; ctx.fillText(d.text, d.worldX - 5, d.worldY); d.worldY -= 0.6; d.time--; if (d.time <= 0) damageNumbers.splice(i, 1);
             }
