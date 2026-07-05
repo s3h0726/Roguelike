@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>핵앤슬래시 얼티메이트 인피니티 RPG</title>
+    <title>핵앤슬래시 인피니트 카오스 에덴</title>
     <style>
         :root {
             --bg-color: #030305;
             --panel-color: #08080a;
-            --border-color: #181820;
+            --border-color: #1c1c24;
             --text-color: #f4f4f5;
-            --hp-color: #e11d48;
-            --mp-color: #2563eb;
+            --hp-color: #f43f5e;
+            --mp-color: #3b82f6;
             --exp-color: #10b981;
         }
 
@@ -30,34 +30,34 @@
         }
         .bar-row { display: flex; justify-content: space-between; margin-bottom: 3px; }
         .bar-container {
-            position: relative; width: 49%; height: 18px; background-color: #0f0f13; border-radius: 4px; overflow: hidden;
+            position: relative; width: 49%; height: 20px; background-color: #0d0d12; border-radius: 4px; overflow: hidden;
             border: 1px solid #27272a;
         }
         .bar-fill { height: 100%; width: 100%; transition: width 0.05s ease; }
-        .bar-text { position: absolute; width: 100%; text-align: center; font-size: 11px; font-weight: 900; line-height: 18px; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .bar-text { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 11px; font-weight: 900; line-height: 20px; color: #ffffff; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; z-index: 5; }
         
-        .exp-container { position: relative; width: 100%; height: 6px; background-color: #0f0f13; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
-        .info-row { display: flex; justify-content: space-between; font-size: 10px; color: #a1a1aa; }
+        .exp-container { position: relative; width: 100%; height: 6px; background-color: #0d0d12; border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+        .info-row { display: flex; justify-content: space-between; font-size: 10px; color: #a1a1aa; align-items: center; }
 
-        canvas { border: 1px solid var(--border-color); border-radius: 8px; background-color: #010102; width: 100%; max-height: 28vh; height: auto; }
+        canvas { border: 1px solid var(--border-color); border-radius: 8px; background-color: #010103; width: 100%; max-height: 28vh; height: auto; }
 
         .control-panel {
             display: flex; width: 100%; justify-content: space-between; align-items: center; margin-top: 4px; gap: 6px;
         }
         .joystick-zone {
-            width: 80px; height: 80px; background: #121216; border: 2px solid #27272a; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
+            width: 80px; height: 80px; background: #111115; border: 2px solid #27272a; border-radius: 50%; position: relative; display: flex; align-items: center; justify-content: center;
         }
-        .joystick-stick { width: 32px; height: 32px; background: #3a3a40; border-radius: 50%; position: absolute; }
+        .joystick-stick { width: 32px; height: 32px; background: #3e3e44; border-radius: 50%; position: absolute; }
 
         .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 58%; }
         .action-btn {
-            padding: 2px; font-size: 9px; font-weight: bold; background-color: #121216; border: 1px solid #27272a; color: #fff; border-radius: 6px; height: 38px;
+            padding: 2px; font-size: 9px; font-weight: bold; background-color: #111115; border: 1px solid #27272a; color: #fff; border-radius: 6px; height: 38px;
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .action-btn:disabled { opacity: 0.2; color: #3a3a40; }
+        .action-btn:disabled { opacity: 0.2; color: #3e3e44; }
 
         .sub-nav { display: flex; width: 100%; gap: 4px; margin-top: 4px; }
-        .nav-btn { flex: 1; padding: 6px; font-size: 10px; font-weight: bold; background-color: #121216; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; }
+        .nav-btn { flex: 1; padding: 6px; font-size: 10px; font-weight: bold; background-color: #111115; border: 1px solid var(--border-color); color: #fff; border-radius: 4px; }
 
         .modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -69,13 +69,13 @@
         }
         .modal-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #fbbf24; }
         .choice-btn {
-            width: 100%; padding: 9px; margin: 4px 0; background-color: #121216;
+            width: 100%; padding: 9px; margin: 4px 0; background-color: #111115;
             border: 1px solid #27272a; color: white; border-radius: 6px; font-size: 11px; text-align: left;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .skill-node { border-left: 3px solid #2563eb; padding-left: 6px; margin: 4px 0; }
-        .node-locked { opacity: 0.3; background-color: #060608; border-left-color: #444; }
-        .equip-indicator { font-size: 9px; padding: 2px 4px; border-radius: 3px; background: #059669; color: white; }
+        .skill-node { border-left: 3px solid #3b82f6; padding-left: 6px; margin: 4px 0; }
+        .node-locked { opacity: 0.3; background-color: #050507; border-left-color: #444; }
+        .equip-indicator { font-size: 9px; padding: 2px 4px; border-radius: 3px; background: #10b981; color: white; }
     </style>
 </head>
 <body>
@@ -85,11 +85,11 @@
             <div class="bar-row">
                 <div class="bar-container">
                     <div id="hpFill" class="bar-fill" style="background-color: var(--hp-color);"></div>
-                    <div class="bar-text"><span id="pUiHp">0/0</span></div>
+                    <div class="bar-text" id="pUiHp">0/0</div>
                 </div>
                 <div class="bar-container">
                     <div id="mpFill" class="bar-fill" style="background-color: var(--mp-color);"></div>
-                    <div class="bar-text"><span id="pUiMp">0/0</span></div>
+                    <div class="bar-text" id="pUiMp">0/0</div>
                 </div>
             </div>
             <div class="exp-container">
@@ -97,15 +97,17 @@
             </div>
             <div class="info-row">
                 <div>🌟 Lv.<span id="pLv">1</span> (<span id="pSp">0</span> SP) | 💰 <span id="pGold">0</span> G</div>
-                <div>💀 전장 상태: <span id="pWaveState" style="font-weight:900;">안정 전역</span></div>
+                <div style="font-size: 9px; color: #60a5fa;" id="saveIndicator">💾 자동 저장 완료</div>
+                <div>💀 상태: <span id="pWaveState" style="font-weight:900;">안정 정역</span></div>
             </div>
         </div>
 
         <canvas id="gameCanvas" width="600" height="380"></canvas>
         
         <div class="sub-nav">
-            <button class="nav-btn" onclick="openTreeModal()">🌲 각성 액티브 스킬 트리 개방</button>
-            <button class="nav-btn" onclick="openShopModal()">🛒 차원 스탯 상점</button>
+            <button class="nav-btn" onclick="openTreeModal()">🌲 각성 스킬 연구/장착</button>
+            <button class="nav-btn" onclick="openShopModal()">🛒 스탯 상점</button>
+            <button class="nav-btn" style="background:#7f1d1d; max-width:65px;" onclick="resetData()">♻️ 초기화</button>
         </div>
 
         <div class="control-panel">
@@ -124,14 +126,14 @@
 
     <div id="levelModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">🌌 심연의 각성 (랜덤 무작위 능력치 획득)</div>
+            <div class="modal-title">🌌 심연의 오벨리스크 축복 선택</div>
             <div id="levelChoices"></div>
         </div>
     </div>
 
     <div id="treeModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">🌲 계층형 시전식 액티브 스킬 공학실</div>
+            <div class="modal-title">🌲 시전형 스킬 커스터마이징 연구소</div>
             <div id="treeSkillContainer"></div>
             <button class="choice-btn" style="text-align:center; background:#27272a; justify-content:center; margin-top:8px;" onclick="closeModals()">❌ 전장 복귀</button>
         </div>
@@ -139,9 +141,9 @@
 
     <div id="shopModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">🛒 코인 재화 스탯 상점</div>
-            <button class="choice-btn" onclick="buyShop(1)"><span>⚔️ 영구 공격력 고정 증가 +3</span> <span>15G</span></button>
-            <button class="choice-btn" onclick="buyShop(2)"><span>❤️ 영구 최대 체력 고정 증가 +15</span> <span>20G</span></button>
+            <div class="modal-title">🛒 시공 스탯 강화 상점</div>
+            <button class="choice-btn" onclick="buyShop(1)"><span>⚔️ 영구 공격력 고정 가산 +3</span> <span>15G</span></button>
+            <button class="choice-btn" onclick="buyShop(2)"><span>❤️ 영구 최대 체력 고정 가산 +15</span> <span>20G</span></button>
             <button class="choice-btn" style="text-align:center; background:#27272a; justify-content:center;" onclick="closeModals()">❌ 닫기</button>
         </div>
     </div>
@@ -152,10 +154,10 @@
 
         let player = { 
             worldX: 300, worldY: 200, radius: 13,
-            hp: 60, maxHp: 60, mp: 40, maxMp: 40, baseAtk: 9,
+            hp: 60, maxHp: 60, mp: 40, maxMp: 40, baseAtk: 10,
             speed: 1.9, level: 1, exp: 0, maxExp: 12, sp: 0, gold: 0,
             
-            isTrance: false, speedZeusTimer: 0, berserkTimer: 0, blizzardTimer: 0,
+            isTrance: false, tranceTimer: 0, speedZeusTimer: 0, berserkTimer: 0, blizzardTimer: 0,
             rushTargetX: null, rushTargetY: null, rushSpeed: 16,
 
             lastDamagedTick: 0, 
@@ -167,38 +169,79 @@
             overloadLevel: 0, chainLightningLevel: 0, giantSizeLevel: 0, thornLevel: 0,
 
             skills: [
-                { id: 10, name: "🌱 [시전] 집중 호흡", lv: 0, maxLv: 5, mp: 3, desc: "바라보는 방향으로 초고속 돌진하며 경로 상 적 강타", type: "active_dash", parentId: null },
-                { id: 11, name: "🌿 [시전] 잔상 베기", lv: 0, maxLv: 5, mp: 5, desc: "근처 임의의 대상을 추적해 다중 쾌속 가르기 연출", type: "active_slash", parentId: 10 },
-                { id: 12, name: "🌳 [시전] 쾌속 난무", lv: 0, maxLv: 5, mp: 8, desc: "자신을 중심으로 화면 가득 회오리 칼날 파티클 방출", type: "active_dance", parentId: 11 },
-                { id: 0,  name: "🔥 [최상급] 무아지경", lv: 0, maxLv: 5, mp: 14, desc: "초거리 비례 대미지를 입히는 잔상 학살극 난사 메커니즘", type: "trance", parentId: 12 },
+                { id: 10, name: "🌱 [시전] 집중 호흡", lv: 0, maxLv: 5, mp: 3, desc: "이동 방향으로 순간 가속 대시 돌진하며 충돌 물리 대미지 선사", type: "active_dash", parentId: null },
+                { id: 11, name: "🌿 [시전] 잔상 베기", lv: 0, maxLv: 5, mp: 5, desc: "범위 내 무작위 적을 추적하여 초고속 2연 연속 참격 격발", type: "active_slash", parentId: 10 },
+                { id: 12, name: "🌳 [시전] 쾌속 난무", lv: 0, maxLv: 5, mp: 8, desc: "자신의 주위 전방위에 무수한 폭풍 칼날 잔상 파티클 방출", type: "active_dance", parentId: 11 },
+                { id: 0,  name: "🔥 [최상급] 무아지경", lv: 0, maxLv: 5, mp: 14, desc: "폭발적인 연속 거리 비례 초강력 돌격 난무 상태 진입", type: "trance", parentId: 12 },
 
-                { id: 20, name: "🌱 [시전] 정전기 축전", lv: 0, maxLv: 5, mp: 3, desc: "가장 가까운 대상에게 푸른빛 유도 낙뢰 1줄기 투하", type: "active_zap", parentId: null },
-                { id: 21, name: "🌿 [시전] 도전 기동", lv: 0, maxLv: 5, mp: 6, desc: "십자 방향으로 관통하는 일렉트릭 전하 미사일 격발", type: "active_spark", parentId: 20 },
-                { id: 22, name: "🌳 [시전] 전뇌 합일", lv: 0, maxLv: 5, mp: 9, desc: "주변 광범위 적들에게 연쇄 고전압 쇼크 충격파 부여", type: "active_wave", parentId: 21 },
-                { id: 1,  name: "⚡ [최상급] 천벌강림", lv: 0, maxLv: 5, mp: 12, desc: "이동 경로 및 전장에 뇌격 폭풍을 무차별 포격", type: "zeus", parentId: 22 },
+                { id: 20, name: "🌱 [시전] 정전기 축전", lv: 0, maxLv: 5, mp: 3, desc: "근방 타겟의 머리 위에 푸른빛 단일 유도 낙뢰 강하", type: "active_zap", parentId: null },
+                { id: 21, name: "🌿 [시전] 도전 기동", lv: 0, maxLv: 5, mp: 6, desc: "사방 십자 각도로 뻗어나가는 전기 전하 미사일 사출", type: "active_spark", parentId: 20 },
+                { id: 22, name: "🌳 [시전] 전뇌 합일", lv: 0, maxLv: 5, mp: 9, desc: "화면 내 적 전체를 일시에 감전시키는 마그네틱 전자기장", type: "active_wave", parentId: 21 },
+                { id: 1,  name: "⚡ [최상급] 천벌강림", lv: 0, maxLv: 5, mp: 12, desc: "발걸음마다 뇌격 폭풍 포격을 바닥에 쏟아붓는 버프 발동", type: "zeus", parentId: 22 },
 
-                { id: 30, name: "🌱 [시전] 투지 각성", lv: 0, maxLv: 5, mp: 4, desc: "전방으로 적을 관통하는 고속 혈액 탄환 발사 및 흡혈", type: "active_blood", parentId: null },
-                { id: 31, name: "🌿 [시전] 피의 서약", lv: 0, maxLv: 5, mp: 7, desc: "체력을 일부 소모해 사방으로 혈화 폭발을 전개", type: "active_curse", parentId: 30 },
-                { id: 32, name: "🌳 [시전] 불멸 격노", lv: 0, maxLv: 5, mp: 10, desc: "화면에 거대한 가시 지면 분출 연출을 일으켜 다중 타격", type: "active_spike", parentId: 31 },
-                { id: 2,  name: "🩸 [최상급] 칠흑멸계", lv: 0, maxLv: 5, mp: 14, desc: "진홍빛 블러드 웨이브를 지속 발산하여 적들의 넋을 흡수", type: "berserk", parentId: 32 },
+                { id: 30, name: "🌱 [시전] 투지 각성", lv: 0, maxLv: 5, mp: 4, desc: "적을 관통하며 플레이어 생명력을 채우는 고속 혈탄 투사", type: "active_blood", parentId: null },
+                { id: 31, name: "🌿 [시전] 피의 서약", lv: 0, maxLv: 5, mp: 7, desc: "자신의 체력을 4 깎아 광범위 불꽃 블러드 익스플로전 전개", type: "active_curse", parentId: 30 },
+                { id: 32, name: "🌳 [시전] 불멸 격노", lv: 0, maxLv: 5, mp: 10, desc: "지면에서 어둠의 혈각 가시 융기를 발생시켜 대량 학살", type: "active_spike", parentId: 31 },
+                { id: 2,  name: "🩸 [최상급] 칠흑멸계", lv: 0, maxLv: 5, mp: 14, desc: "진홍빛 영혼 흡수 파동이 지속적으로 전장을 쓸어버림", type: "berserk", parentId: 32 },
 
-                { id: 40, name: "🌱 [시전] 냉기 응축", lv: 0, maxLv: 5, mp: 4, desc: "주위 적들의 발을 잠시 묶는 서릿발 가시를 솟구침", type: "active_ice", parentId: null },
-                { id: 41, name: "🌿 [시전] 서리 파편", lv: 0, maxLv: 5, mp: 7, desc: "부딪히면 파편으로 갈라지는 고드름 4발 전방위 투사", type: "active_shard", parentId: 40 },
-                { id: 42, name: "🌳 [시전] 영도 제어", lv: 0, maxLv: 5, mp: 11, desc: "자신 주변의 대상을 일시 동작 정지(빙결) 상태로 고정", type: "active_freeze", parentId: 41 },
-                { id: 3,  name: "❄️ [최상급] 절대영도: 심연", lv: 0, maxLv: 5, mp: 15, desc: "화면 내 전체 몬스터 강제 동결 및 빙쇄 대폭발 카타르시스", type: "blizzard", parentId: 42 }
+                { id: 40, name: "🌱 [시전] 냉기 응축", lv: 0, maxLv: 5, mp: 4, desc: "타겟 적의 위치에 얼음 기둥을 소환해 이속을 봉쇄", type: "active_ice", parentId: null },
+                { id: 41, name: "🌿 [시전] 서리 파편", lv: 0, maxLv: 5, mp: 7, desc: "부딪치면 산산조각 나는 날카로운 고드름 투사체 4방 발사", type: "active_shard", parentId: 40 },
+                { id: 42, name: "🌳 [시전] 영도 제어", lv: 0, maxLv: 5, mp: 11, desc: "자신 주변 일정 반경 내 모든 몹을 즉시 빙결 정지 유도", type: "active_freeze", parentId: 41 },
+                { id: 3,  name: "❄️ [최상급] 절대영도: 심연", lv: 0, maxLv: 5, mp: 15, desc: "전체 화면 결빙 후 산산조각 내는 하이엔드 얼음 대폭발", type: "blizzard", parentId: 42 }
             ],
             equippedSkillIds: [] 
         };
 
         let camera = { x: 0, y: 0 }; let monsters = []; let droppedGolds = []; let damageNumbers = []; let projectiles = []; let particles = [];   
-        let keys = {}; let joystickInput = { x: 0, y: 0 }; let joystickActive = false; let gameTick = 0;
-        let lastAutoAttack = 0; // 평타 주기 관리용
-        
-        // 🔄 3단계 순환형 폭주 시스템 시스템 제어 변수
+        let keys = {}; let joystickInput = { x: 0, y: 0 }; let joystickActive = false; let gameTick = 0; let lastAutoAttack = 0;
         let waveTimer = 0; let waveMode = 0; // 0:안정, 1:폭주, 2:광폭화, 3:카오스
 
-        const zone = document.getElementById("joystickZone"); const stick = document.getElementById("joystickStick");
+        // 💾 [저장/불러오기 데이터 가공 장치]
+        function saveData() {
+            const saveObj = {
+                level: player.level, exp: player.exp, maxExp: player.maxExp, sp: player.sp, gold: player.gold,
+                baseAtk: player.baseAtk, maxHp: player.maxHp, maxMp: player.maxMp, stats: player.stats,
+                skills: player.skills.map(s => ({ id: s.id, lv: s.lv })),
+                equippedSkillIds: player.equippedSkillIds,
+                arrowLevel: player.arrowLevel, overloadLevel: player.overloadLevel, chainLightningLevel: player.chainLightningLevel,
+                giantSizeLevel: player.giantSizeLevel, thornLevel: player.thornLevel, shuriken: player.shuriken, shield: player.shield
+            };
+            localStorage.setItem("HnS_Infinite_Save", JSON.stringify(saveObj));
+            const ind = document.getElementById("saveIndicator");
+            ind.innerText = "💾 자동 저장 완료"; ind.style.color = "#10b981";
+        }
 
+        function loadData() {
+            const raw = localStorage.getItem("HnS_Infinite_Save");
+            if (!raw) return;
+            try {
+                const d = JSON.parse(raw);
+                player.level = d.level || 1; player.exp = d.exp || 0; player.maxExp = d.maxExp || 12;
+                player.sp = d.sp !== undefined ? d.sp : 0; player.gold = d.gold || 0;
+                player.baseAtk = d.baseAtk || 10; player.maxHp = d.maxHp || 60; player.maxMp = d.maxMp || 40;
+                if (d.stats) player.stats = d.stats;
+                if (d.skills) {
+                    d.skills.forEach(savedSkill => {
+                        let target = player.skills.find(s => s.id === savedSkill.id);
+                        if (target) target.lv = savedSkill.lv;
+                    });
+                }
+                player.equippedSkillIds = d.equippedSkillIds || [];
+                player.arrowLevel = d.arrowLevel || 0; player.overloadLevel = d.overloadLevel || 0;
+                player.chainLightningLevel = d.chainLightningLevel || 0; player.giantSizeLevel = d.giantSizeLevel || 0;
+                player.thornLevel = d.thornLevel || 0;
+                if (d.shuriken) player.shuriken = d.shuriken; if (d.shield) player.shield = d.shield;
+                player.hp = player.maxHp + player.stats.hpBonus;
+            } catch(e) { console.error("세이브 로드 오류, 리셋 실행", e); }
+        }
+
+        function resetData() {
+            if (confirm("정말로 모든 성장을 초기화하고 재시작하시겠습니까?")) {
+                localStorage.removeItem("HnS_Infinite_Save"); window.location.reload();
+            }
+        }
+
+        const zone = document.getElementById("joystickZone"); const stick = document.getElementById("joystickStick");
         function handleJoystick(ex, ey) {
             const rect = zone.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2; const centerY = rect.top + rect.height / 2;
@@ -243,9 +286,9 @@
                     </div>
                     <div style="font-size:10px; color:#a1a1aa; margin:2px 0;">${sk.desc}</div>
                     <div style="display:flex; gap:6px; margin-top:4px; width:100%;">
-                        <button onclick="upgradeSkill(${sk.id}, event)" ${unlocked ? "" : "disabled"} style="font-size:9px; background:${unlocked ? '#2563eb' : '#444'}; border:none; color:white; padding:3px 6px; border-radius:3px;">연구 레벨업 (1 SP)</button>
+                        <button onclick="upgradeSkill(${sk.id}, event)" ${unlocked ? "" : "disabled"} style="font-size:9px; background:${unlocked ? '#3b82f6' : '#444'}; border:none; color:white; padding:3px 6px; border-radius:3px;">연구 강화 (1 SP)</button>
                         <button onclick="toggleEquipSkill(${sk.id}, event)" ${unlocked && sk.lv > 0 ? "" : "disabled"} style="font-size:9px; background:#111; border:1px solid #444; color:white; padding:3px 6px; border-radius:3px;">
-                            ${isEquipped ? "❌ 슬롯 해제" : "➕ 하단 슬롯 장착"}
+                            ${isEquipped ? "❌ 슬롯 제거" : "➕ 액티브 등록"}
                         </button>
                         ${isEquipped ? '<span class="equip-indicator">장착됨</span>' : ''}
                     </div>
@@ -257,7 +300,7 @@
         function upgradeSkill(id, e) {
             e.stopPropagation(); let sk = player.skills.find(s => s.id === id);
             if (!isSkillUnlocked(sk)) return;
-            if (player.sp >= 1 && sk.lv < sk.maxLv) { player.sp--; sk.lv++; renderTreeSkills(); updateUI(); }
+            if (player.sp >= 1 && sk.lv < sk.maxLv) { player.sp--; sk.lv++; renderTreeSkills(); updateUI(); saveData(); }
         }
 
         function toggleEquipSkill(id, e) {
@@ -266,16 +309,17 @@
             let idx = player.equippedSkillIds.indexOf(id);
             if (idx > -1) { player.equippedSkillIds.splice(idx, 1); } 
             else {
-                if (player.equippedSkillIds.length >= 4) { alert("스킬 슬롯은 최대 4개입니다!"); return; }
+                if (player.equippedSkillIds.length >= 4) { alert("액티브 등록 슬롯은 최대 4개입니다."); return; }
                 player.equippedSkillIds.push(id);
             }
-            renderTreeSkills(); updateUI();
+            renderTreeSkills(); updateUI(); saveData();
         }
 
         function updateUI() {
             let totalMaxHp = player.maxHp + player.stats.hpBonus;
-            document.getElementById("pUiHp").innerText = `${Math.ceil(player.hp)}/${totalMaxHp}`;
-            document.getElementById("pUiMp").innerText = `${Math.floor(player.mp)}/${player.maxMp}`;
+            // 📊 0/0 수치 가시성 극대화 보정
+            document.getElementById("pUiHp").innerText = `${Math.ceil(player.hp)} / ${totalMaxHp}`;
+            document.getElementById("pUiMp").innerText = `${Math.floor(player.mp)} / ${player.maxMp}`;
             document.getElementById("pLv").innerText = player.level;
             document.getElementById("pSp").innerText = player.sp;
             document.getElementById("pGold").innerText = player.gold;
@@ -285,16 +329,16 @@
             document.getElementById("expFill").style.width = `${(player.exp / player.maxExp) * 100}%`;
 
             const waveEl = document.getElementById("pWaveState");
-            if (waveMode === 1) { waveEl.innerText = `🔥 폭주전장 (XP 2배!)`; waveEl.style.color = "#ef4444"; }
+            if (waveMode === 1) { waveEl.innerText = `🔥 폭주전장 (XP 2배!)`; waveEl.style.color = "#f43f5e"; }
             else if (waveMode === 2) { waveEl.innerText = `🩸 광폭화 (XP 4배!! 보스X2)`; waveEl.style.color = "#b91c1c"; }
-            else if (waveMode === 3) { waveEl.innerText = `🌌 카오스 에덴 (XP 8배!!! 보스X3)`; waveEl.style.color = "#a855f7"; }
-            else { waveEl.innerText = "안정 전역"; waveEl.style.color = "#10b981"; }
+            else if (waveMode === 3) { waveEl.innerText = `🌌 카오스 에덴 (XP 8배!!! 보스X3)`; waveEl.style.color = "#c084fc"; }
+            else { waveEl.innerText = "안정 정역"; waveEl.style.color = "#10b981"; }
 
             for (let i = 0; i < 4; i++) {
                 const btn = document.getElementById(`slotBtn${i}`);
                 if (i < player.equippedSkillIds.length) {
                     let sk = player.skills.find(s => s.id === player.equippedSkillIds[i]);
-                    btn.innerHTML = `${sk.name.split("] ")[1]}<br><span style="font-size:8px; color:#93c5fd;">MP ${sk.mp}</span>`;
+                    btn.innerHTML = `${sk.name.split("] ")[1]}<br><span style="font-size:8px; color:#93c5fd;">MP ${sk.mp} (Lv.${sk.lv})</span>`;
                     btn.disabled = (player.mp < sk.mp || player.isTrance);
                 } else { btn.innerHTML = "[비어있음]"; btn.disabled = true; }
             }
@@ -303,35 +347,35 @@
         function buyShop(type) {
             if (type === 1 && player.gold >= 15) { player.gold -= 15; player.stats.atkBonus += 3; }
             else if (type === 2 && player.gold >= 20) { player.gold -= 20; player.stats.hpBonus += 15; player.hp += 15; }
-            updateUI();
+            updateUI(); saveData();
         }
 
         function checkLevelUp() {
             if (player.exp >= player.maxExp) {
                 player.exp -= player.maxExp; player.level++; player.sp += 3;
-                player.maxExp = Math.floor(player.maxExp * 1.35) + 6;
-                triggerLevelChoice();
+                player.maxExp = Math.floor(player.maxExp * 1.32) + 6;
+                triggerLevelChoice(); saveData();
             }
         }
 
         function triggerLevelChoice() {
             const container = document.getElementById("levelChoices"); container.innerHTML = "";
             const pool = [
-                { text: "🏹 유도 마법 화살 발사 체계 강화", action: () => { player.arrowLevel++; }},
-                { text: "💥 불안정한 과부하 연쇄 지점 폭발 설계", action: () => { player.overloadLevel++; }},
-                { text: "🌀 가디언 오빗 표창 개체 가산 확장", action: () => { player.shuriken.count++; player.shuriken.radius += 1; player.shuriken.orbitRadius += 8; player.shuriken.dmg += 2; }},
-                { text: "🛡️ 전자기 전방위 에어 서라운드 방어막 가동", action: () => { player.shield.active = true; player.shield.radius += 14; player.shield.dmg += 1; }},
-                { text: "⚡ 전율의 연쇄 스파크 번개 고정 특성 주입", action: () => { player.chainLightningLevel++; }},
-                { text: "🧬 거대화 타이탄 피지컬 (피격 증가 및 공격력 +15%)", action: () => { player.giantSizeLevel++; player.radius += 1.5; player.stats.atkBonus += 4; }},
-                { text: "🩸 고정 반사 대미지형 스파이크 가시 갑옷 장착", action: () => { player.thornLevel++; }},
-                { text: "✨ 시공 왜곡 가산 (경험치 고정 획득 효율 20% 상승)", action: () => { player.expBoostLevel++; }},
-                { text: "🎯 아수라 심안 개안 (치명타 확률 7% 고정 가산)", action: () => { player.stats.critChance += 0.07; }},
-                { text: "🎭 사운드 메아리 조율 (액티브 스킬 10% 확률로 2연속 투사)", action: () => { player.stats.doubleCast += 0.1; }}
+                { text: "🏹 유도 마법 화살 투사 개체 강화", action: () => { player.arrowLevel++; }},
+                { text: "💥 불안정한 사망 지점 연쇄 과부하 폭발", action: () => { player.overloadLevel++; }},
+                { text: "🌀 위성 궤도 가디언 표창 한계 수량 돌파", action: () => { player.shuriken.count++; player.shuriken.radius += 1; player.shuriken.orbitRadius += 8; player.shuriken.dmg += 2; }},
+                { text: "🛡️ 전자기 전방위 충격파 배리어 실드 장착", action: () => { player.shield.active = true; player.shield.radius += 14; player.shield.dmg += 1; }},
+                { text: "⚡ 전율의 일렉트릭 연쇄 번개 파장 전개", action: () => { player.chainLightningLevel++; }},
+                { text: "🧬 거대화 타이탄 피지컬 육체화 (공격력 +5 가산)", action: () => { player.giantSizeLevel++; player.radius += 1.5; player.stats.atkBonus += 5; }},
+                { text: "🩸 고정 스파이크 피의 가시 반사 갑옷 구축", action: () => { player.thornLevel++; }},
+                { text: "✨ 공간 왜곡 필드 왜곡 (경험치 상시 보너스 +20%)", action: () => { player.stats.expBoostLevel++; }},
+                { text: "🎯 아수라 아수라 심안 개안 (크리티컬 확률 7% 증가)", action: () => { player.stats.critChance += 0.07; }},
+                { text: "🎭 영혼 메아리 수렴 (시전 스킬 10% 확률로 2중 사출)", action: () => { player.stats.doubleCast += 0.1; }}
             ];
             let shuffled = pool.sort(() => 0.5 - Math.random()).slice(0, 4);
             shuffled.forEach(choice => {
                 let btn = document.createElement("button"); btn.className = "choice-btn"; btn.innerText = choice.text;
-                btn.onclick = () => { choice.action(); closeModals(); updateUI(); }; container.appendChild(btn);
+                btn.onclick = () => { choice.action(); closeModals(); updateUI(); saveData(); }; container.appendChild(btn);
             });
             document.getElementById("levelModal").style.display = "flex";
         }
@@ -342,16 +386,11 @@
             if (player.mp < sk.mp || player.isTrance) return;
 
             player.mp -= sk.mp;
-
-            let castCount = 1;
-            if (Math.random() < player.stats.doubleCast) {
-                castCount = 2;
-                damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 32, text: "🎭 메아리 복사 격발!", color: "#c084fc", time: 30 });
+            let castCount = Math.random() < player.stats.doubleCast ? 2 : 1;
+            if (castCount === 2) {
+                damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 32, text: "🎭 스킬 2중 분신 메아리!", color: "#c084fc", time: 30 });
             }
-
-            for (let c = 0; c < castCount; c++) {
-                executeCoreSkill(sk);
-            }
+            for (let c = 0; c < castCount; c++) { executeCoreSkill(sk); }
             updateUI();
         }
 
@@ -359,10 +398,8 @@
             let baseAtk = player.baseAtk + player.stats.atkBonus;
 
             if (sk.type === "active_dash") {
-                // 입력 방향 또는 바라보는 축으로 순간 가속
-                let mx = joystickInput.x !== 0 ? joystickInput.x : 1;
-                let my = joystickInput.y !== 0 ? joystickInput.y : 0;
-                player.worldX += (mx * 65); player.worldY += (my * 65);
+                let mx = joystickInput.x !== 0 ? joystickInput.x : 1; let my = joystickInput.y !== 0 ? joystickInput.y : 0;
+                player.worldX += (mx * 70); player.worldY += (my * 70);
                 monsters.forEach(m => {
                     if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 70) triggerDamage(m, baseAtk * 1.6, "#ffffff");
                 });
@@ -370,9 +407,7 @@
             }
             else if (sk.type === "active_slash") {
                 if (monsters.length > 0) {
-                    let m = monsters[Math.floor(Math.random()*monsters.length)];
-                    triggerDamage(m, baseAtk * 1.9, "#f43f5e");
-                    for(let i=0; i<5; i++) particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, time: 10, color: "#e11d48" });
+                    let m = monsters[Math.floor(Math.random()*monsters.length)]; triggerDamage(m, baseAtk * 1.9, "#f43f5e");
                 }
             }
             else if (sk.type === "active_dance") {
@@ -380,104 +415,76 @@
                     let ang = (Math.PI*2/14)*i;
                     particles.push({ worldX: player.worldX, worldY: player.worldY, vx: Math.cos(ang)*6, vy: Math.sin(ang)*6, time: 18, color: "#10b981" });
                 }
-                monsters.forEach(m => {
-                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 95) triggerDamage(m, baseAtk * 1.3, "#34d399");
-                });
+                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 100) triggerDamage(m, baseAtk * 1.3, "#34d399"); });
             }
             else if (sk.type === "active_zap") {
                 if(monsters.length > 0) {
-                    let m = monsters[0]; triggerDamage(m, baseAtk * 2.2, "#67e8f9");
-                    for(let i=0; i<8; i++) particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*2, vy: -Math.random()*5, time: 15, color: "#06b6d4" });
+                    let m = monsters[0]; triggerDamage(m, baseAtk * 2.3, "#67e8f9");
                 }
             }
             else if (sk.type === "active_spark") {
                 for(let i=0; i<4; i++) {
                     let ang = (Math.PI/2)*i;
-                    projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 6.5, dmg: baseAtk * 1.4, target: monsters[Math.floor(Math.random()*monsters.length)] || {worldX: player.worldX+Math.cos(ang)*120, worldY:player.worldY+Math.sin(ang)*120, hp:9999} });
+                    projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 7, dmg: baseAtk * 1.4, target: monsters[Math.floor(Math.random()*monsters.length)] || {worldX: player.worldX+Math.cos(ang)*120, worldY:player.worldY+Math.sin(ang)*120, hp:9999} });
                 }
             }
             else if (sk.type === "active_wave") {
                 monsters.forEach(m => {
-                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 115) {
-                        triggerDamage(m, baseAtk * 2.3, "#22d3ee");
-                        for(let i=0; i<3; i++) particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*4, vy: (Math.random()-0.5)*4, time: 12, color: "#e0f2fe" });
-                    }
+                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 120) triggerDamage(m, baseAtk * 2.4, "#22d3ee");
                 });
             }
             else if (sk.type === "active_blood") {
                 if(monsters.length > 0) {
                     let m = monsters[Math.floor(Math.random()*monsters.length)];
-                    triggerDamage(m, baseAtk * 1.5, "#f43f5e"); player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + 3);
+                    triggerDamage(m, baseAtk * 1.5, "#ef4444"); player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + 4);
                 }
             }
             else if (sk.type === "active_curse") {
                 player.hp = Math.max(1, player.hp - 4);
-                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 105) triggerDamage(m, baseAtk * 2.6, "#991b1b"); });
+                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 110) triggerDamage(m, baseAtk * 2.7, "#991b1b"); });
             }
             else if (sk.type === "active_spike") {
                 monsters.forEach(m => {
-                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 135) {
-                        triggerDamage(m, baseAtk * 2.9, "#dc2626");
-                        particles.push({ worldX: m.worldX, worldY: m.worldY, vx: 0, vy: -5, time: 15, color: "#7f1d1d" });
-                    }
+                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 140) triggerDamage(m, baseAtk * 3.0, "#dc2626");
                 });
             }
             else if (sk.type === "active_ice") {
-                if(monsters.length > 0) { let m = monsters[0]; m.frozen = true; m.frozenTimer = 65; triggerDamage(m, baseAtk*1.6, "#3b82f6"); }
+                if(monsters.length > 0) { let m = monsters[0]; m.frozen = true; m.frozenTimer = 70; triggerDamage(m, baseAtk*1.6, "#3b82f6"); }
             }
             else if (sk.type === "active_shard") {
                 monsters.forEach(m => {
-                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 125) {
-                        triggerDamage(m, baseAtk*1.7, "#60a5fa");
-                        particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5, time: 15, color: "#dbeafe" });
-                    }
+                    if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 130) triggerDamage(m, baseAtk*1.7, "#60a5fa");
                 });
             }
             else if (sk.type === "active_freeze") {
-                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 145) { m.frozen = true; m.frozenTimer = 95; } });
+                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 150) { m.frozen = true; m.frozenTimer = 100; } });
             }
             
-            // 🔥 최상급 각성기 연출
-            else if (sk.type === "trance") {
-                if (monsters.length === 0) return; player.isTrance = true;
-                let duration = 5000 + (sk.lv * 400); let startTime = Date.now();
-                let interval = setInterval(() => {
-                    if (Date.now() - startTime >= duration || player.hp <= 0 || monsters.length === 0) {
-                        clearInterval(interval); player.isTrance = false; player.rushTargetX = null; player.rushTargetY = null; updateUI(); return;
-                    }
-                    let target = monsters[Math.floor(Math.random() * monsters.length)];
-                    let distance = Math.sqrt((target.worldX - player.worldX)**2 + (target.worldY - player.worldY)**2);
-                    let distanceMultiplier = 1.0 + (distance / 180);
-
-                    player.rushTargetX = target.worldX; player.rushTargetY = target.worldY;
-                    let finalDmg = Math.floor(baseAtk * (1.3 + sk.lv * 0.3) * distanceMultiplier);
-                    if (Math.random() < player.stats.critChance) { finalDmg *= 2; triggerDamage(target, finalDmg, "#f43f5e"); }
-                    else { triggerDamage(target, finalDmg, "#fbbf24"); }
-
-                    for(let i=0; i<8; i++) particles.push({ worldX: player.worldX, worldY: player.worldY, vx: (Math.random()-0.5)*9, vy: (Math.random()-0.5)*9, time: 14, color: "#fbbf24" });
-                }, 190);
-            } 
+            // 🐛 버프식 안전 연산으로 전환하여 프리징 버그 타파
+            else if (sk.type === "trance") { player.isTrance = true; player.tranceTimer = 260 + (sk.lv * 30); } 
             else if (sk.type === "zeus") { player.speedZeusTimer = 320 + (sk.lv * 60); } 
             else if (sk.type === "berserk") { player.berserkTimer = 380 + (sk.lv * 60); } 
             else if (sk.type === "blizzard") {
                 player.blizzardTimer = 220 + (sk.lv * 40);
                 monsters.forEach(m => {
-                    let dmg = 25 + (sk.lv * 7); m.hp -= dmg; m.frozen = true; m.frozenTimer = player.blizzardTimer;
+                    let dmg = 30 + (sk.lv * 8); m.hp -= dmg; m.frozen = true; m.frozenTimer = player.blizzardTimer;
                     damageNumbers.push({ worldX: m.worldX, worldY: m.worldY - 10, text: `❄️ 심연박쇄 ${dmg}`, color: "#38bdf8", time: 35 });
-                    for(let i=0; i<8; i++) particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, time: 20, color: "#60a5fa" });
                 });
             }
         }
 
         function triggerDamage(target, dmg, color) {
+            if (!target || target.hp <= 0) return;
+            if (Math.random() < player.stats.critChance) { dmg *= 2; color = "#fbbf24"; }
             target.hp -= dmg; damageNumbers.push({ worldX: target.worldX, worldY: target.worldY - 14, text: `${Math.floor(dmg)}`, color: color, time: 22 });
+            
             if (target.hp <= 0) {
                 let rGold = Math.floor(Math.random() * 3) + 2; 
-                if (target.name.includes("미믹")) rGold *= 6; // 미믹 코인 보너스
-                if (waveMode === 3) rGold *= 4;
+                if (target.name.includes("미믹")) rGold *= 7; if (waveMode === 3) rGold *= 4;
                 droppedGolds.push({ worldX: target.worldX, worldY: target.worldY, value: rGold });
                 
-                let xpGain = target.isBoss ? 40 : 3;
+                // 📈 [경험치 획득량 대폭 버프 조정] 기본 3에서 -> 10으로 고정 상향
+                let xpGain = target.isBoss ? 80 : 10;
                 if (waveMode === 1) xpGain *= 2; 
                 if (waveMode === 2) xpGain *= 4; 
                 if (waveMode === 3) xpGain *= 8;
@@ -490,15 +497,18 @@
         }
 
         function triggerExplosion(wx, wy) {
-            let expRadius = 55 + (player.overloadLevel * 12); let expDmg = 8 + (player.overloadLevel * 4);
-            for(let i=0; i<12; i++) particles.push({ worldX: wx, worldY: wy, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, time: 18, color: "#ea580c" });
+            let expRadius = 60 + (player.overloadLevel * 12); let expDmg = 10 + (player.overloadLevel * 4);
+            for(let i=0; i<10; i++) particles.push({ worldX: wx, worldY: wy, vx: (Math.random()-0.5)*7, vy: (Math.random()-0.5)*7, time: 16, color: "#ea580c" });
             monsters.forEach(m => { if (Math.sqrt((m.worldX - wx)**2 + (m.worldY - wy)**2) < expRadius) triggerDamage(m, expDmg, "#f97316"); });
         }
 
         function updateGame() {
             gameTick++; if (player.hp <= 0 || document.getElementById("levelModal").style.display === "flex") return;
 
-            // 🚨 3단계 대순환 가중치 폭주 전환부 (1200틱 간격 판정)
+            // 5초 간격 상시 자동 세이브 트리거
+            if (gameTick % 300 === 0) { saveData(); }
+
+            // 폭주 순환 주기 타이머
             if (gameTick % 1200 === 0) {
                 let roll = Math.random();
                 if (roll < 0.60) { waveMode = 1; waveTimer = 450; }
@@ -508,42 +518,41 @@
             }
             if (waveTimer > 0) { waveTimer--; if (waveTimer <= 0) waveMode = 0; }
 
-            // 체력 자동 회복 루프
             if (gameTick % 45 === 0) {
                 let maxHp = player.maxHp + player.stats.hpBonus;
                 if (player.hp < maxHp) player.hp = Math.min(maxHp, player.hp + 2);
             }
 
-            // 🎯 [공격 안되던 현상 해결]: 상시 자동 기본 발사 평타 엔진
-            if (gameTick - lastAutoAttack >= 30 && monsters.length > 0) {
+            // 상시 오토 타겟팅 기본 평타 공격 메커니즘
+            if (gameTick - lastAutoAttack >= 28 && monsters.length > 0) {
                 lastAutoAttack = gameTick;
                 let closestM = null; let minDist = 9999;
                 monsters.forEach(m => {
                     let d = Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2);
                     if (d < minDist) { minDist = d; closestM = m; }
                 });
-                if (closestM && minDist < 250) {
-                    projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 7, dmg: (player.baseAtk + player.stats.atkBonus) * 0.8, target: closestM });
+                if (closestM && minDist < 260) {
+                    projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 7.5, dmg: (player.baseAtk + player.stats.atkBonus) * 0.8, target: closestM });
                 }
             }
 
             let levelScale = 1.0 + (player.level - 1) * 0.15; let currentSpeed = player.speed;
 
-            if (player.isTrance && player.rushTargetX !== null) {
-                let rdx = player.rushTargetX - player.worldX; let rdy = player.rushTargetY - player.worldY;
-                let rdist = Math.sqrt(rdx*rdx + rdy*rdy);
-                if (rdist > 6) { player.worldX += (rdx / rdist) * player.rushSpeed; player.worldY += (rdy / rdist) * player.rushSpeed; }
+            // 🐛 무아지경 프레임 단위 안전 분산 구현 (프리징 요인 영구 소멸)
+            if (player.isTrance) {
+                player.tranceTimer--; if (player.tranceTimer <= 0) player.isTrance = false;
+                if (gameTick % 12 === 0 && monsters.length > 0) {
+                    let target = monsters[Math.floor(Math.random() * monsters.length)];
+                    player.worldX = target.worldX + (Math.random()-0.5)*15; player.worldY = target.worldY + (Math.random()-0.5)*15;
+                    triggerDamage(target, (player.baseAtk + player.stats.atkBonus) * 1.8, "#fbbf24");
+                }
             }
 
             if (player.speedZeusTimer > 0) {
                 currentSpeed *= 1.8; player.speedZeusTimer--;
-                let zeusSk = player.skills.find(s => s.type === "zeus");
                 if (gameTick % 5 === 0) {
                     monsters.forEach(m => {
-                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 165) {
-                            triggerDamage(m, 5 + zeusSk.lv * 2, "#67e8f9");
-                            particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (Math.random()-0.5)*4, vy: -4, time: 12, color: "#06b6d4" });
-                        }
+                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 165) triggerDamage(m, 6, "#67e8f9");
                     });
                 }
             }
@@ -551,13 +560,9 @@
             if (player.berserkTimer > 0) {
                 player.berserkTimer--;
                 if (gameTick % 8 === 0) {
-                    let bsk = player.skills.find(s => s.type === "berserk");
-                    let pulseRadius = 135 + (bsk.lv * 15);
                     monsters.forEach(m => {
-                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < pulseRadius) {
-                            let bDmg = 6 + bsk.lv * 3; triggerDamage(m, bDmg, "#f43f5e");
-                            player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + (bDmg * 0.25));
-                            particles.push({ worldX: m.worldX, worldY: m.worldY, vx: (player.worldX - m.worldX)*0.12, vy: (player.worldY - m.worldY)*0.12, time: 14, color: "#991b1b" });
+                        if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < 140) {
+                            triggerDamage(m, 8, "#f43f5e"); player.hp = Math.min(player.maxHp + player.stats.hpBonus, player.hp + 1.2);
                         }
                     });
                 }
@@ -579,14 +584,14 @@
             if (player.arrowLevel > 0) {
                 player.magicArrowTimer++;
                 if (player.magicArrowTimer >= Math.max(14, 55 - (player.arrowLevel * 5)) && monsters.length > 0) {
-                    player.magicArrowTimer = 0; projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 5.5, dmg: 6 + (player.arrowLevel * 3), target: monsters[Math.floor(Math.random()*monsters.length)] });
+                    player.magicArrowTimer = 0; projectiles.push({ worldX: player.worldX, worldY: player.worldY, speed: 6, dmg: 7 + (player.arrowLevel * 3), target: monsters[Math.floor(Math.random()*monsters.length)] });
                 }
             }
 
             if (player.chainLightningLevel > 0 && gameTick % 55 === 0 && monsters.length > 0) {
                 let count = 0; let currentChainTarget = monsters[0];
                 while(currentChainTarget && count < player.chainLightningLevel + 2) {
-                    triggerDamage(currentChainTarget, 4 + player.chainLightningLevel * 2, "#a5f3fc"); count++;
+                    triggerDamage(currentChainTarget, 5 + player.chainLightningLevel * 2, "#a5f3fc"); count++;
                     currentChainTarget = monsters[Math.floor(Math.random() * monsters.length)];
                 }
             }
@@ -594,7 +599,7 @@
             for(let i=projectiles.length-1; i>=0; i--) {
                 let p = projectiles[i]; if (!monsters.includes(p.target) || p.target.hp <= 0) { projectiles.splice(i, 1); continue; }
                 let dx = p.target.worldX - p.worldX; let dy = p.target.worldY - p.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 9) { triggerDamage(p.target, p.dmg, "#e9d5ff"); projectiles.splice(i, 1); } else { p.worldX += (dx / dist) * p.speed; p.worldY += (dy / dist) * p.speed; }
+                if (dist < 10) { triggerDamage(p.target, p.dmg, "#e9d5ff"); projectiles.splice(i, 1); } else { p.worldX += (dx / dist) * p.speed; p.worldY += (dy / dist) * p.speed; }
             }
 
             particles.forEach(p => { p.worldX += p.vx; p.worldY += p.vy; p.time--; }); particles = particles.filter(p => p.time > 0);
@@ -604,12 +609,12 @@
                 for (let i = 0; i < player.shuriken.count; i++) {
                     let finalAngle = player.shuriken.angle + (i * (Math.PI * 2 / player.shuriken.count));
                     let sx = player.worldX + Math.cos(finalAngle) * player.shuriken.orbitRadius; let sy = player.worldY + Math.sin(finalAngle) * player.shuriken.orbitRadius;
-                    monsters.forEach(m => { if (Math.sqrt((m.worldX - sx)**2 + (m.worldY - sy)**2) < m.radius + player.shuriken.radius) { m.hp -= 0.15; if (Math.random() < 0.05) triggerDamage(m, player.shuriken.dmg, "#e4e4e7"); } });
+                    monsters.forEach(m => { if (Math.sqrt((m.worldX - sx)**2 + (m.worldY - sy)**2) < m.radius + player.shuriken.radius) { m.hp -= 0.15; if (Math.random() < 0.04) triggerDamage(m, player.shuriken.dmg, "#e4e4e7"); } });
                 }
             }
 
             if (player.shield.active && player.shield.tickTimer++ % 20 === 0) {
-                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < player.shield.radius) triggerDamage(m, player.shield.dmg, "#2563eb"); });
+                monsters.forEach(m => { if (Math.sqrt((m.worldX - player.worldX)**2 + (m.worldY - player.worldY)**2) < player.shield.radius) triggerDamage(m, player.shield.dmg, "#3b82f6"); });
             }
 
             for(let i=droppedGolds.length-1; i>=0; i--) {
@@ -617,37 +622,41 @@
                 if (dist < player.stats.magnetRange) { g.worldX += (dx / dist) * 4; g.worldY += (dy / dist) * 4; if (dist < player.radius + 6) { player.gold += g.value; droppedGolds.splice(i, 1); } }
             }
 
-            // 👾 몬스터 및 보스 다양화 생성 엔진
+            // 👾 몬스터 풀 대거 다양화 확장 엔진 파트
             let spawnRateMultiplier = waveMode === 1 ? 1.5 : (waveMode === 2 ? 2.0 : (waveMode === 3 ? 2.5 : 1.0));
-            let maxSpawnCount = Math.floor(8 * spawnRateMultiplier);
+            let maxSpawnCount = Math.floor(9 * spawnRateMultiplier);
 
             if (monsters.length < maxSpawnCount && gameTick % 24 === 0) {
                 let angle = Math.random() * Math.PI * 2;
-                let isBossSpawn = (gameTick % 850 === 0);
+                let isBossSpawn = (gameTick % 800 === 0);
                 let statMultiplier = waveMode === 1 ? 1.5 : (waveMode === 2 ? 2.0 : (waveMode === 3 ? 3.0 : 1.0));
 
                 let finalColor = "#10b981"; 
-                if (waveMode === 1) finalColor = "#f43f5e"; // 폭주 (밝은 빨강)
-                else if (waveMode === 2) finalColor = "#991b1b"; // 광폭화 (짙은 빨강)
-                else if (waveMode === 3) finalColor = "#a855f7"; // 카오스 (붉은 보라)
+                if (waveMode === 1) finalColor = "#f43f5e"; 
+                else if (waveMode === 2) finalColor = "#991b1b"; 
+                else if (waveMode === 3) finalColor = "#a855f7"; 
 
                 if (isBossSpawn) {
                     let bossCount = waveMode === 2 ? 2 : (waveMode === 3 ? 3 : 1);
                     const bossPool = [
-                        { name: "👑 골렘가디언", rad: 26, spd: 0.35, hp: 170 },
-                        { name: "👑 가고일로드", rad: 22, spd: 0.65, hp: 130 },
-                        { name: "👑 카오스아바타", rad: 25, spd: 0.45, hp: 210 }
+                        { name: "👑 고성능골렘", rad: 26, spd: 0.35, hp: 180 },
+                        { name: "👑 지옥가고일", rad: 22, spd: 0.65, hp: 140 },
+                        { name: "👑 카오스마왕", rad: 25, spd: 0.45, hp: 220 },
+                        { name: "👑 데스나이트", rad: 24, spd: 0.55, hp: 190 }
                     ];
-                    let chosenBoss = bossPool[Math.floor(Math.random() * bossPool.length)];
+                    let bType = bossPool[Math.floor(Math.random() * bossPool.length)];
                     for (let b = 0; b < bossCount; b++) {
-                        monsters.push({ worldX: player.worldX + Math.cos(angle + b)*310, worldY: player.worldY + Math.sin(angle + b)*310, name: chosenBoss.name, color: finalColor, hp: chosenBoss.hp * levelScale * statMultiplier, maxHp: chosenBoss.hp * levelScale * statMultiplier, atk: 13 * levelScale * statMultiplier, radius: chosenBoss.rad, speed: chosenBoss.spd, attackCooldown: 0, isBoss: true });
+                        monsters.push({ worldX: player.worldX + Math.cos(angle + b)*310, worldY: player.worldY + Math.sin(angle + b)*310, name: bType.name, color: finalColor, hp: bType.hp * levelScale * statMultiplier, maxHp: bType.hp * levelScale * statMultiplier, atk: 14 * levelScale * statMultiplier, radius: bType.rad, speed: bType.spd, attackCooldown: 0, isBoss: true });
                     }
                 } else {
                     let poolSeed = Math.random();
-                    let mType = { name: "슬라임", radius: 10, speed: 0.5, hp: 15 };
-                    if(poolSeed > 0.75) mType = { name: "오크전사", radius: 14, speed: 0.4, hp: 36 };
-                    else if(poolSeed > 0.50) mType = { name: "고스트", radius: 11, speed: 0.85, hp: 12 };
-                    else if(poolSeed > 0.35) mType = { name: "미믹상자", radius: 12, speed: 0.3, hp: 20 }; // 보너스 유닛
+                    // 👾 몬스터군 다각화 배치
+                    let mType = { name: "슬라임", radius: 10, speed: 0.5, hp: 16 };
+                    if(poolSeed > 0.82) mType = { name: "오크전사", radius: 14, speed: 0.4, hp: 38 };
+                    else if(poolSeed > 0.66) mType = { name: "고스트섀도", radius: 11, speed: 0.88, hp: 14 };
+                    else if(poolSeed > 0.50) mType = { name: "미믹상자", radius: 12, speed: 0.3, hp: 22 };
+                    else if(poolSeed > 0.33) mType = { name: "해골궁수", radius: 12, speed: 0.55, hp: 20 };
+                    else if(poolSeed > 0.16) mType = { name: "빙결슬라임", radius: 13, speed: 0.45, hp: 28 };
 
                     monsters.push({ worldX: player.worldX + Math.cos(angle)*330, worldY: player.worldY + Math.sin(angle)*330, name: mType.name, color: finalColor, hp: mType.hp * levelScale * statMultiplier, maxHp: mType.hp * levelScale * statMultiplier, atk: 3 * levelScale * statMultiplier, radius: mType.radius, speed: mType.speed, attackCooldown: 0, isBoss: false });
                 }
@@ -656,14 +665,12 @@
             monsters.forEach(m => {
                 if (m.frozen) { m.frozenTimer--; if(m.frozenTimer <= 0) m.frozen = false; return; }
                 let dx = player.worldX - m.worldX; let dy = player.worldY - m.worldY; let dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist > 5 && !player.isTrance) { m.worldX += (dx / dist) * m.speed; m.worldY += (dy / dist) * m.speed; }
+                if (dist > 5) { m.worldX += (dx / dist) * m.speed; m.worldY += (dy / dist) * m.speed; }
 
                 if (dist < player.radius + m.radius && m.attackCooldown <= 0) {
-                    player.lastDamagedTick = gameTick;
-                    let finalDamage = m.atk;
-                    player.hp = Math.max(0, player.hp - finalDamage); m.attackCooldown = 45;
-                    damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${Math.ceil(finalDamage)}`, color: "#ef4444", time: 20 });
-                    if (player.thornLevel > 0) triggerDamage(m, player.thornLevel * 6, "#e4e4e7");
+                    player.hp = Math.max(0, player.hp - m.atk); m.attackCooldown = 45;
+                    damageNumbers.push({ worldX: player.worldX, worldY: player.worldY - 12, text: `-${Math.ceil(m.atk)}`, color: "#ef4444", time: 20 });
+                    if (player.thornLevel > 0) triggerDamage(m, player.thornLevel * 7, "#e4e4e7");
                 }
                 if (m.attackCooldown > 0) m.attackCooldown--;
             });
@@ -677,7 +684,7 @@
             if (waveMode === 1) ctx.strokeStyle = "#450a0a"; 
             else if (waveMode === 2) ctx.strokeStyle = "#7f1d1d";
             else if (waveMode === 3) ctx.strokeStyle = "#3b0764";
-            else ctx.strokeStyle = "#111115";
+            else ctx.strokeStyle = "#13131a";
             
             ctx.lineWidth = 1;
             let startGridX = Math.floor(camera.x / 40) * 40 - 40; let startGridY = Math.floor(camera.y / 40) * 40 - 40;
@@ -689,7 +696,7 @@
             monsters.forEach(m => {
                 ctx.fillStyle = m.frozen ? "#60a5fa" : m.color; ctx.beginPath(); ctx.arc(m.worldX, m.worldY, m.radius, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = "#111115"; ctx.fillRect(m.worldX - 22, m.worldY - m.radius - 8, 44, 5);
-                ctx.fillStyle = "#e11d48"; ctx.fillRect(m.worldX - 22, m.worldY - m.radius - 8, 44 * (m.hp / m.maxHp), 5);
+                ctx.fillStyle = "#f43f5e"; ctx.fillRect(m.worldX - 22, m.worldY - m.radius - 8, 44 * (m.hp / m.maxHp), 5);
                 ctx.fillStyle = "#ffffff"; ctx.font = "bold 7px sans-serif"; ctx.textAlign = "center";
                 ctx.fillText(`${m.name} [${Math.ceil(m.hp)}]`, m.worldX, m.worldY - m.radius - 11);
             });
@@ -697,13 +704,12 @@
             projectiles.forEach(p => { ctx.fillStyle = "#c084fc"; ctx.beginPath(); ctx.arc(p.worldX, p.worldY, 3.5, 0, Math.PI * 2); ctx.fill(); });
             particles.forEach(p => { ctx.fillStyle = p.color || "#fb923c"; ctx.beginPath(); ctx.arc(p.worldX, p.worldY, 2.5, 0, Math.PI * 2); ctx.fill(); });
 
-            if (player.shield.active) { ctx.strokeStyle = "rgba(37, 99, 235, 0.25)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.shield.radius, 0, Math.PI * 2); ctx.stroke(); }
+            if (player.shield.active) { ctx.strokeStyle = "rgba(59, 130, 246, 0.25)"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.shield.radius, 0, Math.PI * 2); ctx.stroke(); }
 
-            if (player.isTrance) ctx.fillStyle = "rgba(251, 191, 36, 0.95)";
+            if (player.isTrance) ctx.fillStyle = "#fbbf24";
             else if (player.berserkTimer > 0) ctx.fillStyle = "#991b1b";
             else if (player.speedZeusTimer > 0) ctx.fillStyle = "#06b6d4";
             else ctx.fillStyle = "#10b981";
-            
             ctx.beginPath(); ctx.arc(player.worldX, player.worldY, player.radius, 0, Math.PI * 2); ctx.fill();
 
             if (player.shuriken.count > 0) {
@@ -724,6 +730,8 @@
         window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
         window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
 
+        // 구동 준비 단계 로드
+        loadData();
         gameLoop();
     </script>
 </body>
