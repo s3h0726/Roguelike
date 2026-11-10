@@ -1,60 +1,53 @@
-export const COLS = 8;
-export const ROWS = 4;
-export const MAX_BENCH = 8;
-export const MAX_ROUND = 30;
-
-export const TRAITS = {
-  Celestial: { color:'#ffd38d', icon:'✦', description:'All allies gain a shield and an opening damage surge.', levels:[2,4] },
-  Void: { color:'#c18aff', icon:'◈', description:'Allies steal life when dealing damage.', levels:[2,4] },
-  Ember: { color:'#ff795e', icon:'♨', description:'Attacks ignite enemies for damage over time.', levels:[2,4] },
-  Storm: { color:'#79ddff', icon:'ϟ', description:'Every third allied hit calls down chain lightning.', levels:[2,4] },
-  Arcane: { color:'#b7a6ff', icon:'✺', description:'Abilities charge faster and strike harder.', levels:[2,4] },
-  Iron: { color:'#a0e6d2', icon:'⬡', description:'Allies gain armor and extra maximum health.', levels:[2,4] },
+export const ARENA = { width: 46, height: 30 };
+export const CLASSES = [
+  {id:'void', name:'VOID REAVER', subtitle:'Close-range devastation', icon:'◆', color:'#ab70ff', hp:145, speed:8.1, atk:23, rate:0.53, range:13, starter:'nova', desc:'A cursed blade that detonates the void.'},
+  {id:'storm', name:'STORM HERALD', subtitle:'Lightning & mobility', icon:'ϟ', color:'#58ddff', hp:110, speed:9.4, atk:19, rate:0.36, range:17, starter:'chain', desc:'Hunt with storms; never stand still.'},
+  {id:'solar', name:'SOLAR SERAPH', subtitle:'Explosive celestial magic', icon:'✦', color:'#ffbc63', hp:120, speed:8.6, atk:21, rate:0.47, range:16, starter:'meteor', desc:'Call stars down upon the battlefield.'}
+];
+export const ABILITIES = {
+  nova:{name:'VOID NOVA',color:'#ae7bff',desc:'Unleash a devastating radial shockwave.',cd:8},
+  chain:{name:'CHAIN LIGHTNING',color:'#6ce9ff',desc:'Arc electricity between several enemies.',cd:3.7},
+  meteor:{name:'STARFALL',color:'#ffb55c',desc:'Summon a blazing meteor at a target.',cd:6.5},
+  orbit:{name:'ASTRAL BLADES',color:'#ff71d5',desc:'Spectral blades orbit and slice enemies.',cd:0},
+  beam:{name:'CELESTIAL LANCE',color:'#a7f6ff',desc:'Pierce enemies with a focused laser.',cd:5.5},
+  frost:{name:'ABSOLUTE ZERO',color:'#87adff',desc:'Freeze nearby threats in an icy blast.',cd:10}
 };
-
-// unit ability type drives both combat logic and unique FX in renderer.
-export const UNITS = [
-  {id:'aether',name:'Aether Knight',title:'The First Light',icon:'♜',traits:['Celestial','Iron'],role:'Tank',cost:1,hp:235,atk:14,armor:7,speed:1.0,range:62,mana:90,ability:'shield',abilityName:'Astral Bulwark',color:'#ffe0a5'},
-  {id:'nova',name:'Nova Ranger',title:'Stellar Marksman',icon:'➶',traits:['Celestial','Storm'],role:'Ranger',cost:1,hp:146,atk:23,armor:2,speed:1.26,range:310,mana:72,ability:'volley',abilityName:'Starfall Volley',color:'#8ad9ff'},
-  {id:'cinder',name:'Cinder Witch',title:'Infernal Scholar',icon:'♨',traits:['Ember','Arcane'],role:'Mage',cost:1,hp:145,atk:18,armor:1,speed:1.0,range:270,mana:72,ability:'meteor',abilityName:'Meteor Descent',color:'#ff9b6f'},
-  {id:'rune',name:'Runic Sentinel',title:'Silent Bastion',icon:'⬡',traits:['Iron','Arcane'],role:'Tank',cost:1,hp:258,atk:11,armor:10,speed:.85,range:65,mana:75,ability:'fortify',abilityName:'Runic Fortress',color:'#8ee6c7'},
-  {id:'tempest',name:'Tempest Monk',title:'Thunder Dancer',icon:'ϟ',traits:['Storm','Iron'],role:'Fighter',cost:2,hp:201,atk:20,armor:5,speed:1.45,range:66,mana:60,ability:'chain',abilityName:'Thunder Cascade',color:'#7bdcff'},
-  {id:'stalker',name:'Void Stalker',title:'The Silent Edge',icon:'◈',traits:['Void','Storm'],role:'Assassin',cost:2,hp:158,atk:30,armor:2,speed:1.6,range:66,mana:58,ability:'dash',abilityName:'Shadow Sever',color:'#be8aff'},
-  {id:'priest',name:'Solar Priest',title:'Keeper of Dawn',icon:'☼',traits:['Celestial','Arcane'],role:'Support',cost:2,hp:174,atk:13,armor:3,speed:1.02,range:265,mana:65,ability:'heal',abilityName:'Dawn Benediction',color:'#ffe08f'},
-  {id:'duelist',name:'Blaze Duelist',title:'Sword of Ash',icon:'⚔',traits:['Ember','Iron'],role:'Fighter',cost:2,hp:196,atk:27,armor:4,speed:1.42,range:62,mana:65,ability:'spin',abilityName:'Phoenix Waltz',color:'#ff746d'},
-  {id:'oracle',name:'Dusk Oracle',title:'Prophet of the Rift',icon:'☾',traits:['Void','Arcane'],role:'Mage',cost:3,hp:159,atk:26,armor:2,speed:1.05,range:295,mana:85,ability:'vortex',abilityName:'Event Horizon',color:'#c196ff'},
-  {id:'gunner',name:'Meteor Gunner',title:'The Railbreaker',icon:'⌁',traits:['Ember','Storm'],role:'Ranger',cost:3,hp:173,atk:37,armor:2,speed:.88,range:340,mana:78,ability:'beam',abilityName:'Helios Railgun',color:'#ffad70'},
-  {id:'colossus',name:'Abyss Colossus',title:'Monolith of Night',icon:'♟',traits:['Void','Iron'],role:'Tank',cost:3,hp:390,atk:23,armor:11,speed:.7,range:70,mana:100,ability:'slam',abilityName:'Graviton Crush',color:'#aa92f9'},
-  {id:'seraph',name:'Eclipse Seraph',title:'Bearer of Judgment',icon:'✧',traits:['Celestial','Void'],role:'Legendary',cost:4,hp:249,atk:44,armor:5,speed:1.2,range:300,mana:105,ability:'apocalypse',abilityName:'Astral Annihilation',color:'#f5d9ff'},
-  {id:'devourer',name:'Star Devourer',title:'The Last Horizon',icon:'✹',traits:['Void','Ember'],role:'Legendary',cost:4,hp:290,atk:40,armor:6,speed:.95,range:270,mana:100,ability:'supernova',abilityName:'Celestial Collapse',color:'#ff8bb6'},
-  {id:'conductor',name:'Sky Conductor',title:'The Living Current',icon:'⌘',traits:['Storm','Arcane'],role:'Mage',cost:3,hp:178,atk:29,armor:2,speed:1.15,range:290,mana:64,ability:'chain',abilityName:'Ion Cataclysm',color:'#84dfff'}
+export const UPGRADES = [
+  {id:'nova',kind:'ability',name:'VOID NOVA',desc:'Shockwave radius and damage increase',tier:'RARE',color:'#b28aff'},
+  {id:'chain',kind:'ability',name:'CHAIN LIGHTNING',desc:'More arcs, higher electrical damage',tier:'RARE',color:'#62e3ff'},
+  {id:'meteor',kind:'ability',name:'STARFALL',desc:'Rain greater meteors from the sky',tier:'RARE',color:'#ffbd66'},
+  {id:'orbit',kind:'ability',name:'ASTRAL BLADES',desc:'Add orbiting blades around your hero',tier:'RARE',color:'#ffa1e0'},
+  {id:'beam',kind:'ability',name:'CELESTIAL LANCE',desc:'A penetrating beam of astral light',tier:'EPIC',color:'#bceaff'},
+  {id:'frost',kind:'ability',name:'ABSOLUTE ZERO',desc:'Freeze and shatter surrounding enemies',tier:'EPIC',color:'#9cb5ff'},
+  {id:'damage',kind:'stat',name:'RUIN',desc:'+18% attack damage',tier:'COMMON',color:'#ff8a97'},
+  {id:'haste',kind:'stat',name:'QUICKEN',desc:'+15% attack speed',tier:'COMMON',color:'#93f5da'},
+  {id:'vitality',kind:'stat',name:'VITAL SURGE',desc:'+26 max HP and heal 26 HP',tier:'COMMON',color:'#ff9c9e'},
+  {id:'stride',kind:'stat',name:'PHASE STEP',desc:'+10% movement speed',tier:'COMMON',color:'#6ff3dc'},
+  {id:'crit',kind:'stat',name:'FATEBREAKER',desc:'+8% critical strike chance',tier:'RARE',color:'#ffca69'},
+  {id:'shield',kind:'stat',name:'ASTRAL BULWARK',desc:'+20 regenerating shield capacity',tier:'RARE',color:'#9bb8ff'},
+  {id:'cooldown',kind:'stat',name:'TEMPORAL SHIFT',desc:'Abilities recharge 10% faster',tier:'RARE',color:'#ba9cff'},
+  {id:'magnet',kind:'stat',name:'GRAVITY WELL',desc:'Expand XP collection radius',tier:'COMMON',color:'#adfca1'}
 ];
-export const UNIT_BY_ID = Object.fromEntries(UNITS.map(u=>[u.id,u]));
 export const RELICS = [
-  {id:'comet',name:'Comet Engine',icon:'☄',rarity:'RARE',desc:'All allied attacks deal +20% damage.',mods:{atk:0.20}},
-  {id:'aegis',name:'Titan Heart',icon:'♥',rarity:'RARE',desc:'All allied units gain +30% maximum HP.',mods:{hp:0.30}},
-  {id:'mana',name:'Infinite Circuit',icon:'✺',rarity:'RARE',desc:'Abilities charge 40% faster.',mods:{mana:0.40}},
-  {id:'blaze',name:'Ashen Crown',icon:'♨',rarity:'EPIC',desc:'Burns deal +80% damage and last longer.',mods:{burn:0.80}},
-  {id:'crown',name:'Crown of Stars',icon:'✦',rarity:'EPIC',desc:'Celestial units strike +45% harder.',mods:{celestial:0.45}},
-  {id:'gravity',name:'Gravity Well',icon:'◉',rarity:'EPIC',desc:'Abilities deal +35% area damage.',mods:{spell:0.35}},
-  {id:'fortress',name:'Adamant Shell',icon:'⬡',rarity:'RARE',desc:'All allied units gain +8 armor.',mods:{armor:8}},
-  {id:'frenzy',name:'Tempo Fracture',icon:'ϟ',rarity:'RARE',desc:'Allied attacks are 25% faster.',mods:{speed:0.25}},
-  {id:'vampire',name:'Hunger of Night',icon:'◈',rarity:'EPIC',desc:'Allies gain +20% life steal.',mods:{lifesteal:0.20}},
-  {id:'spark',name:'Thunder Echo',icon:'⌁',rarity:'EPIC',desc:'Chain lightning triggers one strike sooner.',mods:{chain:1}},
-  {id:'fortune',name:'Golden Orbit',icon:'◆',rarity:'RARE',desc:'Gain +3 bonus gold after every victory.',mods:{gold:3}},
-  {id:'spectrum',name:'Prismatic Soul',icon:'◈',rarity:'LEGENDARY',desc:'All allies gain +20% attack and +20% HP.',mods:{atk:0.20,hp:0.20}},
-  {id:'anthem',name:'War Anthem',icon:'⚔',rarity:'EPIC',desc:'Start each fight with 30 extra mana.',mods:{startMana:30}},
-  {id:'focus',name:'Astral Focus',icon:'◎',rarity:'RARE',desc:'Allies gain +15% critical chance.',mods:{crit:0.15}},
-  {id:'resonance',name:'Rift Resonance',icon:'✴',rarity:'LEGENDARY',desc:'Command Burst charges 60% faster.',mods:{burst:0.60}},
-  {id:'oracleEye',name:'Oracle Eye',icon:'☾',rarity:'RARE',desc:'Refresh the shop for free once each round.',mods:{reroll:1}}
+  {id:'blood',name:'VAMPIRIC STAR',desc:'Heal 3 HP after each 5 kills.',color:'#ff697c',rarity:'LEGENDARY'},
+  {id:'glass',name:'GLASS COSMOS',desc:'+55% damage, -20% max health.',color:'#ffb65d',rarity:'CURSED'},
+  {id:'prism',name:'PRISMATIC HEART',desc:'Every fifth attack fires a second projectile.',color:'#83ecff',rarity:'EPIC'},
+  {id:'eclipse',name:'ECLIPSE CROWN',desc:'Your Supernova charges 60% faster.',color:'#d09aff',rarity:'LEGENDARY'},
+  {id:'thorn',name:'THORNED HALO',desc:'Return 30% contact damage to enemies.',color:'#b5ff8c',rarity:'RARE'},
+  {id:'phoenix',name:'PHOENIX FEATHER',desc:'Survive one lethal blow and revive at 40% HP.',color:'#ff9055',rarity:'LEGENDARY'},
+  {id:'echo',name:'ECHO OF INFINITY',desc:'Ability cooldowns are reduced by 25%.',color:'#b6c4ff',rarity:'EPIC'},
+  {id:'lunar',name:'LUNAR AEGIS',desc:'+35 shield capacity; recover shield faster.',color:'#8cb5ff',rarity:'RARE'},
+  {id:'hunt',name:'HUNTER’S MARK',desc:'Deal +32% damage to elites and bosses.',color:'#ffd275',rarity:'RARE'},
+  {id:'celestial',name:'CELESTIAL ENGINE',desc:'Abilities deal +35% damage.',color:'#ffb7fa',rarity:'EPIC'},
+  {id:'serpent',name:'SILVER SERPENT',desc:'Gain 18% attack speed and movement speed.',color:'#a2f9e2',rarity:'RARE'},
+  {id:'gravity',name:'EVENT HORIZON',desc:'Supernova gains 45% blast radius.',color:'#be9fff',rarity:'EPIC'}
 ];
-export const STAGES = [
-  {name:'THE FIRST SPARK',affix:'Neutral Skies',kind:'normal'},
-  {name:'STATIC AWAKENING',affix:'Mana Surge',kind:'mana'},
-  {name:'ASHES OF DAWN',affix:'Solar Flare',kind:'meteor'},
-  {name:'THE FRACTURED PATH',affix:'Haste Field',kind:'haste'},
-  {name:'ECLIPSE GUARDIAN',affix:'BOSS // OBELISK',kind:'boss'}
-];
-export function stageFor(round){ const a=STAGES[(round-1)%STAGES.length];return {...a,boss:round%5===0}; }
-export function maxField(level){return Math.min(7,2+level);}
-export function weightPool(level){return UNITS.filter(u=>u.cost<=Math.min(4,1+Math.floor(level/2)));}
+export const ENEMIES = {
+  wraith:{name:'Wraith',hp:46,speed:3.0,dmg:12,r:0.65,color:'#a76aff',xp:6},
+  crawler:{name:'Crawler',hp:28,speed:4.7,dmg:8,r:0.43,color:'#fa7a9d',xp:4},
+  bulwark:{name:'Bulwark',hp:140,speed:1.9,dmg:20,r:1.02,color:'#ffb15c',xp:12},
+  specter:{name:'Specter',hp:60,speed:2.6,dmg:12,r:0.57,color:'#64eaff',xp:8},
+  bomber:{name:'Rift Bomb',hp:36,speed:3.8,dmg:19,r:0.56,color:'#ff546e',xp:7},
+  boss:{name:'THE STAR DEVOURER',hp:1450,speed:2.3,dmg:26,r:2.05,color:'#fe67c5',xp:145}
+};
+export const TIPS = ['Keep moving. Your attacks fire automatically.','Space to dash through danger. R to unleash Supernova.','Every level offers one of three build upgrades.','Defeat the stage boss to claim a relic.','Skill combinations decide how far you survive.'];
