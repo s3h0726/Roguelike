@@ -3,56 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#090d1b">
-  <meta name="description" content="Eclipse Protocol — a tactical auto-battler roguelike with explosive cosmic combat.">
-  <title>ECLIPSE PROTOCOL — Astral Autobattler</title>
+  <meta name="theme-color" content="#070916">
+  <meta name="description" content="Eclipse Protocol — a 3D cosmic action roguelike. Fight, evolve, defeat the Star Devourer.">
+  <title>ECLIPSE PROTOCOL — Reborn</title>
   <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"}}
+  </script>
 </head>
 <body>
-  <div id="app">
-    <header class="topbar">
-      <div class="brand"><span class="brand-sigil">✦</span><div><small>ASTRAL ARENA / SEASON 01</small><strong>ECLIPSE <span>PROTOCOL</span></strong></div></div>
+  <main id="app" aria-label="Eclipse Protocol game">
+    <section id="viewport" aria-label="Game world"><div class="world-vignette"></div></section>
+    <div class="hud" id="hud">
+      <header class="top-header">
+        <div class="brand"><span class="brand-mark">✦</span><div><strong>ECLIPSE <em>PROTOCOL</em></strong><small>REBORN // ROGUELIKE SURVIVAL</small></div></div>
+        <div class="top-actions"><span id="gfxStatus" class="status-pill">INIT</span><button id="qualityBtn" class="mini-btn" title="Toggle graphics quality">✧ ULTRA FX</button><button id="audioBtn" class="mini-btn" title="Toggle sound">♪ SOUND ON</button><button id="pauseBtn" class="mini-btn" title="Pause game">Ⅱ PAUSE</button></div>
+      </header>
       <div class="top-stats">
-        <div class="stat"><span>STAGE</span><b id="roundStat">01</b></div>
-        <div class="stat"><span>COMMANDER HP</span><b id="lifeStat">♥ ♥ ♥</b></div>
-        <div class="stat"><span>GOLD</span><b id="goldStat" class="gold-text">10</b></div>
-        <div class="stat"><span>LEVEL</span><b id="levelStat">1</b></div>
-        <div class="stat meta"><span>BEST STAGE</span><b id="bestStat">—</b></div>
+        <div class="run-stats">
+          <div class="eyebrow">CURRENT RIFT</div>
+          <div class="stage-line"><strong id="stageLabel">STAGE 01</strong><span id="actLabel">NEBULA DEPTHS</span></div>
+          <div class="stage-track"><span id="stageTrack"></span></div>
+          <div class="stat-line"><span>⌖ <b id="killsLabel">0</b> KILLS</span><span>✧ <b id="scoreLabel">0</b> SCORE</span><span>◈ <b id="levelLabel">1</b> LVL</span></div>
+        </div>
+        <div class="hero-stats"><div class="stat-caption"><span id="heroLabel">VOID REAVER</span><span id="hpLabel">145 / 145</span></div><div class="meter hp-meter"><span id="hpFill"></span></div><div class="meter shield-meter"><span id="shieldFill"></span></div><div class="stat-caption tiny"><span>VITALITY / ASTRAL SHIELD</span><span id="shieldLabel">0 SHIELD</span></div></div>
       </div>
-    </header>
-    <div class="game-layout">
-      <aside class="left-column">
-        <section class="panel"><div class="panel-title"><span>◆</span> SQUAD ROSTER <em id="rosterCount">0/3</em></div><div id="roster" class="roster-list"></div><div class="hint">Select a unit, then tap a blue board tile. Drag & drop also works.</div></section>
-        <section class="panel bench-section"><div class="panel-title"><span>◇</span> BENCH <em id="benchCount">0/8</em></div><div id="bench" class="bench"></div></section>
-        <section class="panel controls-panel"><div class="panel-title"><span>⚙</span> CONTROLS</div><div class="control-grid"><button id="speedBtn" class="btn quiet">⏩ 1× SPEED</button><button id="vfxBtn" class="btn quiet">✧ ULTRA FX</button><button id="soundBtn" class="btn quiet">♫ SOUND OFF</button><button id="helpBtn" class="btn quiet">? HOW TO PLAY</button></div></section>
-      </aside>
-      <main class="center-column">
-        <section class="arena-shell">
-          <div class="arena-top"><div><span class="eyebrow" id="phaseLabel">FORMATION PHASE</span><h1 id="roundTitle">THE FIRST SPARK</h1></div><div class="modifier-pill" id="modifierLabel">✦ NEUTRAL SKIES</div></div>
-          <div id="battlefield" class="battlefield" aria-label="Tactical combat board">
-            <canvas id="arenaCanvas" width="960" height="480"></canvas>
-            <div id="cellGrid" class="cell-grid" aria-label="Board placement grid"></div>
-            <div id="battleBanner" class="battle-banner" aria-live="polite"></div>
-            <div id="arenaOverlay" class="arena-overlay hidden"></div>
-            <div class="board-tag ally-tag">YOUR FORMATION</div><div class="board-tag foe-tag">ENEMY LEGION</div>
-          </div>
-          <div class="arena-bottom">
-            <div class="energy-box"><div class="energy-head"><span>✴ COMMAND BURST</span><b id="energyLabel">0%</b></div><div class="energy-track"><div id="energyFill"></div></div></div>
-            <button id="ultimateBtn" class="btn burst" disabled>✦ SUPERNOVA <kbd>SPACE</kbd></button>
-            <button id="battleBtn" class="btn primary">⚔ ENGAGE <kbd>ENTER</kbd></button>
-          </div>
-        </section>
-        <section class="shop-section panel"><div class="shop-head"><div><span class="eyebrow">THE ASTRAL BAZAAR</span><h2>RECRUIT YOUR LEGION</h2></div><div class="shop-tools"><button class="btn quiet" id="rerollBtn">↻ REROLL <b>2 G</b></button><button class="btn quiet" id="levelBtn">⬆ LEVEL UP <b>4 G</b></button><button class="btn quiet" id="lockBtn">♙ LOCK SHOP</button></div></div><div id="shop" class="shop-grid"></div><div class="shop-foot"><span id="shopNote">Collect 3 identical units to fuse them into a stronger star rank.</span><span id="synergyShort">SYNERGY READY</span></div></section>
-      </main>
-      <aside class="right-column">
-        <section class="panel synergy-panel"><div class="panel-title"><span>✧</span> ACTIVE SYNERGIES</div><div id="traits" class="traits-list"></div></section>
-        <section class="panel relic-panel"><div class="panel-title"><span>✦</span> ASTRAL RELICS <em id="relicCount">0</em></div><div id="relics" class="relic-list"></div></section>
-        <section class="panel forecast-panel"><div class="panel-title"><span>☄</span> ENEMY INTEL</div><p id="forecast" class="forecast">Prepare your squad for the coming storm.</p><div class="intel-footer"><b id="enemyCount">—</b><span>HOSTILES</span><b id="winStreak">0</b><span>WIN STREAK</span></div></section>
-      </aside>
+      <aside class="side-panel"><div class="eyebrow">BUILD SYNERGIES</div><div id="abilityTags" class="ability-tags"></div><div class="eyebrow relic-label">RELICS ACQUIRED</div><div id="relicTags" class="relic-tags"><span class="placeholder">NO RELICS YET</span></div></aside>
+      <div id="announcement" class="announcement" aria-live="polite"></div>
+      <div id="bossBanner" class="boss-banner" hidden><div><span>☠</span> THE STAR DEVOURER <span>☠</span></div><div class="boss-meter"><span id="bossHpFill"></span></div></div>
+      <div id="damageFlash" class="damage-flash"></div>
+      <div class="bottom-hud"><div class="bottom-top"><span>ASCENSION PROGRESS</span><span id="xpLabel">0 / 22 XP</span></div><div class="xp-track"><span id="xpFill"></span></div>
+        <div class="bottom-row"><div class="health-display"><span class="health-icon">✚</span><div><strong id="bottomHp">145</strong><small>HEALTH</small></div></div>
+          <div class="skill-dock" id="skillDock"></div><div class="supernova"><button id="ultBtn" class="ult-button" aria-label="Supernova ultimate"><span class="ult-orbit">✷</span><span id="ultText">SUPERNOVA</span><small id="ultHint">R · 12%</small></button></div></div>
+      </div>
+      <div class="desktop-help">W A S D MOVE <i>•</i> SPACE DASH <i>•</i> R SUPERNOVA <i>•</i> P PAUSE <i>•</i> AUTO ATTACK</div>
+      <div class="touch-controls" id="touchControls"><div id="joystick" class="joystick"><div id="joystickDot" class="joystick-dot"></div></div><div class="touch-buttons"><button id="dashBtn" class="touch-btn dash">↗<small>DASH</small></button><button id="mobileUlt" class="touch-btn ultimate">✷<small>ULT</small></button></div></div>
     </div>
-    <footer class="footer"><span>ECLIPSE PROTOCOL / V2</span><span>Strategy creates the spectacle.</span><button id="restartBtn" class="footer-reset">↺ NEW RUN</button></footer>
-  </div>
-  <div class="modal-backdrop hidden" id="modal" role="dialog" aria-modal="true"><div class="modal-card" id="modalContent"></div></div>
-  <script type="module" src="./src/app.js"></script>
+    <section id="menuOverlay" class="full-overlay"><div class="menu-backdrop"></div><div class="menu-card"><div class="menu-kicker">AN ASTRAL ACTION ROGUELIKE</div><h1>ECLIPSE <span>PROTOCOL</span></h1><p class="menu-subhead">THE STARS HAVE FALLEN.<br><strong>YOU ARE THE LAST LIGHT.</strong></p><div class="menu-rule"><span>CHOOSE YOUR ASCENDANT</span></div><div id="classChoices" class="class-grid"></div><div class="menu-bottom"><button id="startBtn" class="primary-btn">ENTER THE RIFT <span>↗</span></button><span class="key-hint">WASD · DASH · AUTOMATIC ATTACKS · SUPERNOVA</span></div></div><div class="menu-note">PROCEDURAL WAVES · INFINITE BUILD COMBINATIONS · CINEMATIC 3D VFX</div></section>
+    <section id="choiceOverlay" class="full-overlay choice-overlay hidden"><div class="modal-shell"><div id="choiceKicker" class="modal-kicker">LEVEL UP</div><h2 id="choiceTitle">CHOOSE YOUR ASCENSION</h2><p id="choiceSubtitle">The Rift offers three paths. Choose wisely.</p><div id="upgradeChoices" class="upgrade-grid"></div><div class="modal-footer">TIME IS FROZEN. YOUR CHOICE SHAPES THIS RUN.</div></div></section>
+    <section id="gameoverOverlay" class="full-overlay hidden"><div class="gameover-card"><div class="modal-kicker">THE RIFT CLAIMS ANOTHER</div><h2>YOU HAVE <span>FALLEN</span></h2><p>Every end is a spark of something greater.</p><div id="runSummary" class="summary-grid"></div><button id="againBtn" class="primary-btn">RISE AGAIN ↗</button></div></section>
+    <section id="pauseOverlay" class="full-overlay hidden"><div class="pause-card"><div class="modal-kicker">TIME SUSPENDED</div><h2>PAUSED</h2><p>The abyss awaits your return.</p><button id="resumeBtn" class="primary-btn">RESUME RUN ↗</button><button id="restartBtn" class="secondary-btn">ABANDON RUN</button></div></section>
+    <div id="toast" class="toast" role="status"></div>
+  </main>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

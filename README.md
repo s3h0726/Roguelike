@@ -1,42 +1,56 @@
-# ECLIPSE PROTOCOL — Astral Autobattler
+# ECLIPSE PROTOCOL — REBORN
 
-A browser-native **auto-battler + roguelike** with responsive tactical placement, randomized shops, 3-of-a-kind fusion, 6 faction synergies, unique unit abilities, boss waves, relic drafts, and a manually triggered cinematic supernova.
+A real-time, cosmic action **roguelike**. This rebuild replaces the previous shop-and-board autobattler with direct hero movement, automatic spellcraft, procedurally escalating enemy waves, branching level-up choices and relics.
 
-## Run locally
+## Play
 
-Use a static HTTP server (ES modules require HTTP rather than `file://`):
+- Move: **WASD** / arrow keys (mobile virtual joystick).
+- **Space** / Shift: dash with brief invulnerability.
+- **R**: trigger **Supernova** after the energy meter reaches 100%.
+- **P / Escape**: pause or resume.
+- Basic attacks and equipped skills fire **automatically**. The player makes the movement, survival, dash and ultimate decisions.
+- Each level-up pauses combat and presents **three upgrade choices**. Each stage completion presents **three relic choices**. Every fourth stage has a boss.
+- Pick one of three classes: **Void Reaver**, **Storm Herald**, **Solar Seraph**.
+
+## Graphics
+
+The primary graphics engine is **Three.js r187 (0.187.0)**, loaded as an ES module through an import map and jsDelivr CDN. It uses `WebGLRenderer`, scene lighting, geometric 3D characters, `EffectComposer`, `UnrealBloomPass`, GPU particle shader, dynamic shockwave rings, lightning arcs, meteor lances, camera shake and an enhanced Supernova ultimate.
+
+If WebGL, Three.js, or the CDN is unavailable, the game falls back to a **Canvas2D** renderer so that gameplay remains possible, including offline/local test environments. The graphics status in the top-right corner indicates which renderer is active. Set **LITE FX** on lower-end mobile devices. **3D mode requires an internet connection for the CDN on first load.**
+
+The interface and skill names are in English.
+
+## Development
+
+Run locally from a static HTTP server (ES modules are not guaranteed to load from `file://`):
 
 ```bash
-python -m http.server 8000
+python3 -m http.server 8080
+# open http://localhost:8080/
 ```
 
-Visit http://localhost:8000. For GitHub Pages, deploy the repository root from `main` and open its Pages URL.
+### File structure
 
-## How to play
+- `index.html` — UI scaffold and pinned Three.js import map
+- `styles.css` — responsive HUD, menus and mobile controls
+- `src/data.js` — classes, abilities, relics, upgrades and enemy definitions
+- `src/engine.js` — deterministic battle rules, roguelike progression, combat logic
+- `src/render3d.js` — Three.js WebGL 3D renderer and custom VFX
+- `src/fallback2d.js` — offline compatibility renderer
+- `src/main.js` — UI, inputs, pause, menus and audio
+- `tests/engine.test.js` — core game logic regression tests
 
-- Buy units from the 5-card shop, then select one on the bench and click a **blue** board tile. Drag/drop works on desktop.
-- Put resilient tanks up front and ranged units in the rear. Reposition between stages.
-- Three copies of the same unit and star tier fuse automatically; max tier is ★★★.
-- Build 2/4-unit affinities (Celestial, Void, Ember, Storm, Arcane, Iron) to unlock team bonuses.
-- Click **ENGAGE** (or Enter) to start automated battle. **SUPERNOVA** (or Space) activates once charged.
-- Every second stage won, choose one of three run-defining relics.
-- Use rerolls (2 gold), levels (4 gold), shop locks, and a 3-heart loss limit to survive. Bosses appear every fifth stage.
-- Toggle 1×/2× speed, high/low VFX, and synthesized sound from the left controls.
+### Tests
 
-## Code layout
+```bash
+npm test
+npm run check
+```
 
-| File | Responsibility |
-|---|---|
-| `index.html` | Semantic UI and layout |
-| `styles.css` | Responsive interface styling |
-| `src/data.js` | Heroes, traits, relics, stage templates |
-| `src/engine.js` | Game state, recruitment, economy, combat, skills, rounds |
-| `src/render.js` | Canvas arena, lighting, particles, telegraphs, attack effects |
-| `src/app.js` | DOM state, interactions, sound, battle loop |
-| `tests/engine.test.js` | Headless mechanics regression checks |
+## Deployment
 
-No third-party packages or external assets required. Saves only the best stage (via localStorage). Game runs are intentionally ephemeral; an earlier single-file save is not imported because the combat model is a full redesign.
+The project is static and can be deployed using **GitHub Pages** from `main` and `/`.
 
-## Credits
+## Notes
 
-Original game mechanics, code and procedural visual effects written for this project. No Minecraft mod assets are used.
+This is a fresh roguelike game mode; previous ECLIPSE autobattler run state does not migrate. No external images or assets are needed. Three.js is MIT-licensed; see https://github.com/mrdoob/three.js/blob/master/LICENSE.

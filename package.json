@@ -1,9 +1,12 @@
 {
-  "name": "eclipse-protocol",
-  "version": "2.0.0",
+  "name": "eclipse-protocol-reborn",
   "private": true,
+  "version": "2.0.0",
   "type": "module",
+  "description": "Three.js 3D cosmic action roguelike with an offline Canvas2D fallback",
   "scripts": {
-    "test": "node --test tests/*.test.js"
+    "dev": "python3 -m http.server 8080",
+    "test": "node --test tests/*.test.js",
+    "check": "node --check src/data.js && node --check src/engine.js && node --check src/render3d.js && node --check src/fallback2d.js && node --check src/main.js"
   }
 }
