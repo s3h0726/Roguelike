@@ -52,8 +52,7 @@ function tick(now){let dt=Math.min(.05,Math.max(0,(now-lastFrame)/1000));lastFra
  requestAnimationFrame(tick);
 }
 async function bootstrap(){buildMenu();bindInputs();
- try {const {ThreeBattleRenderer}=await import('./render3d.js');renderer=new ThreeBattleRenderer(dom.viewport);dom.gfx.textContent='THREE.JS 3D';dom.gfx.title='WebGL with UnrealBloomPass';}
- catch(error){console.warn('Three.js could not initialize, using compatible 2D renderer:',error);const {CanvasBattleRenderer}=await import('./fallback2d.js');renderer=new CanvasBattleRenderer(dom.viewport);dom.gfx.textContent='2D FALLBACK';dom.gfx.title='Three.js unavailable: using offline fallback';$('qualityBtn').textContent='◇ 2D MODE';}
+ const {CanvasBattleRenderer}=await import('./render2d.js');renderer=new CanvasBattleRenderer(dom.viewport);dom.gfx.textContent='2D • CANVAS';dom.gfx.title='Native cinematic 2D renderer — no WebGL or external CDN required';
  renderer.setQuality(quality);dom.hud.style.opacity=.5;requestAnimationFrame(tick);
 }
 bootstrap().catch(err=>{console.error(err);dom.gfx.textContent='ERROR';notice('Could not start the graphics engine. Reload this page.');});
