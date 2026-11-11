@@ -1,45 +1,50 @@
-# ECLIPSE PROTOCOL — 2D REBORN
+# 픽셀 코어 헌터: 코어 로그 (Pixel Core Hunter — Core Rogue)
 
-A fast, keyboard-and-touch cosmic **action roguelike** with cinematic **Canvas2D** combat effects. No WebGL, external libraries, asset downloads or CDN required.
+원본 `pixel_core_hunter_v1.zip`의 플레이어/몬스터 1:1 전투 화면, 초원 몬스터 이미지 7종, 초원 1~10층과 최종 보스, 기본 강화 4종, 스킬 10종, 3개 스킬 슬롯, 장비 4종, 자동 전투, 모바일 레이아웃을 유지하고 **로그라이크 10층 모험**으로 개편한 버전입니다.
 
-## Play
+## 실행
 
-Open the [GitHub Pages deployment](https://s3h0726.github.io/Roguelike/) (if Pages is enabled) or start a local server:
+압축을 풀고 `index.html`을 브라우저로 여세요. 외부 CDN이나 추가 설치 없이 실행됩니다. GitHub Pages 정적 호스팅도 지원합니다.
 
-```bash
-npm run dev
-```
+## 게임 진행
 
-Browse to `http://localhost:8080`.
+1. 새 모험 시작 → 1층 전투 진입.
+2. 각 층의 분기 경로에서 일반 전투, 정예 전투, 유물 보물고, 캠프, 상점, 위험 이벤트 중 하나를 선택.
+3. 전투를 완료하면 축복 3개 중 1개를 선택. 정예를 이기면 유물까지 추가 획득.
+4. 골드를 사용해 기존 기본 강화 4종과 장비 4종을 구매. 마나수정으로 스킬 10종을 성장.
+5. 기본 공격으로 코어 충전, 충전 100%에서 **코어 해방** 발동.
+6. 10층 최종 보스 **초원의 거대멧돼지** 격파 시 완주. 패배하면 모험 종료, 다음 모험을 처음부터 다시 시작.
 
-## Controls
+## 조작
 
-- **WASD / Arrow keys:** move
-- **Space / Shift:** dash (brief invulnerability)
-- **R:** Supernova ultimate, once fully charged
-- **P / Escape:** pause / resume
-- Touchscreen: drag the joystick and use the on-screen dash/ultimate controls
+- 기본 공격은 자동으로 진행. 자동 OFF 시 **A / Space / 직접 공격 버튼 / 플레이어 클릭**으로 공격 가능.
+- `1` `2` `3`: 장착 스킬 사용.
+- `Q`: 코어 해방 (코어 100%).
+- 화면의 **강화 / 스킬 / 장비 / 던전 / 기록** 탭 사용.
+- 스킬은 마나 외에 재사용 대기시간이 있습니다.
 
-The hero's normal attacks and learned skills activate automatically. Pick one of three upgrades whenever you level up and one of three unique relics upon clearing a stage. Boss appears at stage 4, then every 4 stages.
+## 시스템
 
-## Native 2D visuals
+- **축복 12종:** 공격·체력·공격 속도·마나·치명타·방어·독·흡혈·코어 충전·골드·스킬 피해·방 클리어 회복.
+- **유물 12종:** 1회 부활, 추가 번개, 고위험 고화력, 전투 진입 회복, 골드 증가 등.
+- **로그라이크 진행:** 10층 경로 선택, 전투/정예/상점/캠프/보물/이벤트/최종 보스.
+- **메타 기록:** 도전 횟수, 완주 횟수, 최고 도달 층, 메달과 기억의 가루.
+- **저장:** `localStorage`에 진행 중인 모험과 메타 기록을 자동 저장. 원본 v1 저장 키(`pixelCoreHunterV1`)는 건드리지 않습니다.
+- **자산:** 원본 7종 몬스터 PNG를 보존하고, 전투에는 배경을 투명하게 처리한 동일 몬스터 아트를 사용합니다. 게임은 CSS 이펙트 기반의 2D입니다.
 
-`src/render2d.js` is the main graphics engine, **not a fallback**. It provides parallax cosmic backgrounds, starfields, ritual arena glyphs, enemy silhouettes, motion-trail projectiles, neon damage numbers, dynamic light bloom via Canvas shadow, particle trails, spell runes, radial shockwaves, meteor strikes, electric arc paths, 2D laser beams, and a multi-stage Supernova with screen shake.
+## 파일
 
-FX setting switches between **ULTRA** and **LITE**; LITE caps particle count and pixel density for lower-power devices. 2D visuals are fully self-contained in the repository.
+- `index.html`: 기본 UI, 경로 선택 모달
+- `style.css`: 기존 픽셀 스타일 + 신규 경로/유물 UI 및 전투 이펙트
+- `roguelike.js`: 브라우저/Node 공용 순수 로그라이크 규칙
+- `game.js`: 원작 몬스터/스킬/장비 데이터와 통합 게임 로직
+- `assets/monsters/*.webp`: 원작 몬스터 아트 7종을 투명 배경 유지하고 WebP로 최적화한 게임 표시용 이미지 (원본 PNG는 사용자가 제공한 ZIP에 보존됨)
+- `tests/roguelike.test.js`: Node `node --test` 로직 테스트
 
-## Project layout
+> 기존 v1 누적 저장값과 새로운 로그라이크 런의 진행은 분리됩니다. 누적 스탯을 직접 가져오지 않고, 새 모험마다 전투 성장이 초기화됩니다.
 
-- `index.html`, `styles.css`: game shell and HUD
-- `src/data.js`: hero, abilities, enemy, upgrade and relic data
-- `src/engine.js`: deterministic game state, stage progression and combat
-- `src/render2d.js`: cinematic Canvas2D render/effects engine
-- `src/main.js`: input, menus, HUD and game loop
-- `tests/*.test.js`: game rules, 2D rendering contracts and performance guards
+## GitHub Pages 배포
 
-## Tests
+`main` 루트의 `index.html`로 실행됩니다. 별도 빌드나 외부 CDN이 필요하지 않습니다. Settings → Pages → Deploy from a branch → main/(root)를 선택하세요.
 
-```bash
-npm test
-npm run check
-```
+주의: 이전 ECLIPSE PROTOCOL과 저장 키가 다르므로 기존 기록은 자동 이전되지 않습니다.

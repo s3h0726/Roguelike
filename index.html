@@ -1,47 +1,124 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#070916">
-  <meta name="description" content="Eclipse Protocol — a cinematic 2D cosmic action roguelike. Fight, evolve, defeat the Star Devourer.">
-  <title>ECLIPSE PROTOCOL — Reborn</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>픽셀 코어 헌터: 코어 로그</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main id="app" aria-label="Eclipse Protocol game">
-    <section id="viewport" aria-label="Game world"><div class="world-vignette"></div></section>
-    <div class="hud" id="hud">
-      <header class="top-header">
-        <div class="brand"><span class="brand-mark">✦</span><div><strong>ECLIPSE <em>PROTOCOL</em></strong><small>REBORN // ROGUELIKE SURVIVAL</small></div></div>
-        <div class="top-actions"><span id="gfxStatus" class="status-pill">INIT</span><button id="qualityBtn" class="mini-btn" title="Toggle graphics quality">✧ ULTRA FX</button><button id="audioBtn" class="mini-btn" title="Toggle sound">♪ SOUND ON</button><button id="pauseBtn" class="mini-btn" title="Pause game">Ⅱ PAUSE</button></div>
-      </header>
-      <div class="top-stats">
-        <div class="run-stats">
-          <div class="eyebrow">CURRENT RIFT</div>
-          <div class="stage-line"><strong id="stageLabel">STAGE 01</strong><span id="actLabel">NEBULA DEPTHS</span></div>
-          <div class="stage-track"><span id="stageTrack"></span></div>
-          <div class="stat-line"><span>⌖ <b id="killsLabel">0</b> KILLS</span><span>✧ <b id="scoreLabel">0</b> SCORE</span><span>◈ <b id="levelLabel">1</b> LVL</span></div>
+  <div class="game-shell">
+    <header class="top-hud">
+      <div class="hud-box"><span>🪙</span><b id="goldText">0</b></div>
+      <div class="hud-box"><span>🔮</span><b id="manaStoneText">0</b></div>
+      <div class="stage-sign">
+        <button id="prevStageBtn" title="진행 경로 보기">◀</button>
+        <div>
+          <strong id="stageText">CORE ROGUE</strong>
+          <small id="waveText">10층 모험</small>
         </div>
-        <div class="hero-stats"><div class="stat-caption"><span id="heroLabel">VOID REAVER</span><span id="hpLabel">145 / 145</span></div><div class="meter hp-meter"><span id="hpFill"></span></div><div class="meter shield-meter"><span id="shieldFill"></span></div><div class="stat-caption tiny"><span>VITALITY / ASTRAL SHIELD</span><span id="shieldLabel">0 SHIELD</span></div></div>
+        <button id="nextStageBtn" title="성장 정보 보기">▶</button>
       </div>
-      <aside class="side-panel"><div class="eyebrow">BUILD SYNERGIES</div><div id="abilityTags" class="ability-tags"></div><div class="eyebrow relic-label">RELICS ACQUIRED</div><div id="relicTags" class="relic-tags"><span class="placeholder">NO RELICS YET</span></div></aside>
-      <div id="announcement" class="announcement" aria-live="polite"></div>
-      <div id="bossBanner" class="boss-banner" hidden><div><span>☠</span> THE STAR DEVOURER <span>☠</span></div><div class="boss-meter"><span id="bossHpFill"></span></div></div>
-      <div id="damageFlash" class="damage-flash"></div>
-      <div class="bottom-hud"><div class="bottom-top"><span>ASCENSION PROGRESS</span><span id="xpLabel">0 / 22 XP</span></div><div class="xp-track"><span id="xpFill"></span></div>
-        <div class="bottom-row"><div class="health-display"><span class="health-icon">✚</span><div><strong id="bottomHp">145</strong><small>HEALTH</small></div></div>
-          <div class="skill-dock" id="skillDock"></div><div class="supernova"><button id="ultBtn" class="ult-button" aria-label="Supernova ultimate"><span class="ult-orbit">✷</span><span id="ultText">SUPERNOVA</span><small id="ultHint">R · 12%</small></button></div></div>
+      <div class="hud-box"><span>💎</span><b id="dustText">0</b></div>
+      <div class="hud-box"><span>🏅</span><b id="medalText">0</b></div>
+    </header>
+
+    <div class="run-strip" id="runStrip"><span id="runBadge">✦ 새 모험</span><div class="floor-track" id="floorTrack"></div><span id="runChargeText">⚡ 0%</span></div>
+
+    <main class="battle-card region-grass" id="battleCard">
+      <div class="region-label" id="regionLabel">초원 지역</div>
+      <div class="battle-toast" id="battleToast" aria-live="polite"></div>
+      <div class="battle-info">
+        <div class="stat-pill">⚔️ 공격 <b id="atkText">10</b></div>
+        <div class="stat-pill">🛡️ 방어 <b id="defText">3</b></div>
+        <div class="stat-pill">⏱️ 속도 <b id="speedText">1.00초</b></div>
       </div>
-      <div class="desktop-help">W A S D MOVE <i>•</i> SPACE DASH <i>•</i> R SUPERNOVA <i>•</i> P PAUSE <i>•</i> AUTO ATTACK</div>
-      <div class="touch-controls" id="touchControls"><div id="joystick" class="joystick"><div id="joystickDot" class="joystick-dot"></div></div><div class="touch-buttons"><button id="dashBtn" class="touch-btn dash">↗<small>DASH</small></button><button id="mobileUlt" class="touch-btn ultimate">✷<small>ULT</small></button></div></div>
+
+      <section class="fighters">
+        <div class="fighter player-side">
+          <div class="nameplate">유물술사</div>
+          <div class="player-sprite" id="playerSprite">🧙‍♂️</div>
+          <div class="hp-wrap player-hp"><div class="hp-fill" id="playerHpBar"></div><span id="playerHpText">100/100</span></div>
+          <div class="mp-wrap"><div class="mp-fill" id="playerMpBar"></div><span id="playerMpText">50/50</span></div>
+        </div>
+
+        <div class="projectile-layer" id="projectileLayer"></div>
+
+        <div class="fighter enemy-side">
+          <div class="nameplate enemy-name" id="enemyName">슬라임</div>
+          <div class="enemy-frame" id="enemyFrame">
+            <img id="enemyImage" src="assets/monsters/slime.png" alt="몬스터" />
+          </div>
+          <div class="hp-wrap enemy-hp"><div class="hp-fill" id="enemyHpBar"></div><span id="enemyHpText">30/30</span></div>
+          <div class="enemy-tags" id="enemyTags">무속성 · 일반</div>
+        </div>
+      </section>
+
+      <div class="battle-footer">
+        <button class="action-btn" id="skill1Btn">스킬 1</button>
+        <button class="action-btn" id="skill2Btn">스킬 2</button>
+        <button class="action-btn" id="skill3Btn">스킬 3</button>
+        <button class="action-btn danger" id="bossBtn">⚡ 코어 해방</button>
+        <button class="action-btn ghost" id="autoBtn">자동 ON</button>
+        <button class="action-btn manual" id="attackBtn">⚔️ 직접 공격 (A)</button>
+      </div>
+    </main>
+
+    <nav class="bottom-tabs">
+      <button class="tab active" data-panel="upgradePanel">강화</button>
+      <button class="tab" data-panel="skillPanel">스킬</button>
+      <button class="tab" data-panel="gearPanel">장비</button>
+      <button class="tab" data-panel="dungeonPanel">던전</button>
+      <button class="tab" data-panel="logPanel">기록</button>
+    </nav>
+
+    <section class="panel-area">
+      <div class="panel active" id="upgradePanel">
+        <h2>모험 중 강화</h2>
+        <p class="panel-desc">원작의 기본 강화 4종을 유지했습니다. 획득한 골드와 강화 효과는 이번 모험 동안만 유지됩니다.</p>
+        <div class="upgrade-grid" id="upgradeGrid"></div>
+      </div>
+
+      <div class="panel" id="skillPanel">
+        <h2>스킬 각인</h2>
+        <p class="panel-desc">기존 스킬 10종과 3개 슬롯을 유지했습니다. 전투 중 마나를 소비해 시전하며 재사용 대기시간이 적용됩니다. 마나수정으로 이번 모험의 스킬을 강화하세요.</p>
+        <div class="slot-row" id="slotRow"></div>
+        <div class="skill-grid" id="skillGrid"></div>
+      </div>
+
+      <div class="panel" id="gearPanel">
+        <h2>전리품 장비</h2>
+        <p class="panel-desc">기존 장비 4종을 유지했습니다. 장비는 이번 모험에서 획득한 골드로 구매하고 교체할 수 있습니다.</p>
+        <div class="gear-grid" id="gearGrid"></div>
+      </div>
+
+      <div class="panel" id="dungeonPanel">
+        <h2>🗺️ 초원의 10층 미궁</h2>
+        <p class="panel-desc">매 층마다 세 갈래 길 중 하나를 선택합니다. 전투, 정예, 보물, 상점, 휴식, 위험 이벤트를 거쳐 10층 보스를 쓰러뜨리세요.</p>
+        <div class="run-metrics" id="runMetrics"></div>
+        <div class="path-history" id="pathHistory"></div>
+        <h3 class="subhead">이번 모험의 축복</h3><div class="collection-grid" id="boonCollection"></div>
+        <h3 class="subhead">이번 모험의 유물</h3><div class="collection-grid" id="relicCollection"></div>
+        <div class="dungeon-actions"><button class="small-btn" id="routeBtn">🗺️ 현재 선택지 보기</button><button class="small-btn danger" id="giveUpBtn">🔁 모험 포기 / 다시 시작</button></div>
+      </div>
+
+      <div class="panel" id="logPanel">
+        <h2>전투 기록</h2>
+        <div class="log-box" id="logBox"></div>
+        <button class="small-btn danger" id="resetBtn">이 버전의 모든 저장 초기화</button>
+      </div>
+    </section>
+  </div>
+  <div class="choice-overlay" id="choiceOverlay" role="dialog" aria-modal="true" aria-labelledby="choiceTitle" hidden>
+    <div class="choice-window">
+      <div class="choice-kicker" id="choiceKicker">CORE ROGUE</div>
+      <h1 id="choiceTitle">새로운 모험</h1>
+      <p id="choiceDescription"></p>
+      <div class="choice-cards" id="choiceCards"></div>
+      <p class="choice-foot" id="choiceFoot"></p>
     </div>
-    <section id="menuOverlay" class="full-overlay"><div class="menu-backdrop"></div><div class="menu-card"><div class="menu-kicker">AN ASTRAL ACTION ROGUELIKE</div><h1>ECLIPSE <span>PROTOCOL</span></h1><p class="menu-subhead">THE STARS HAVE FALLEN.<br><strong>YOU ARE THE LAST LIGHT.</strong></p><div class="menu-rule"><span>CHOOSE YOUR ASCENDANT</span></div><div id="classChoices" class="class-grid"></div><div class="menu-bottom"><button id="startBtn" class="primary-btn">ENTER THE RIFT <span>↗</span></button><span class="key-hint">WASD · DASH · AUTOMATIC ATTACKS · SUPERNOVA</span></div></div><div class="menu-note">PROCEDURAL WAVES · INFINITE BUILD COMBINATIONS · CINEMATIC 2D VFX</div></section>
-    <section id="choiceOverlay" class="full-overlay choice-overlay hidden"><div class="modal-shell"><div id="choiceKicker" class="modal-kicker">LEVEL UP</div><h2 id="choiceTitle">CHOOSE YOUR ASCENSION</h2><p id="choiceSubtitle">The Rift offers three paths. Choose wisely.</p><div id="upgradeChoices" class="upgrade-grid"></div><div class="modal-footer">TIME IS FROZEN. YOUR CHOICE SHAPES THIS RUN.</div></div></section>
-    <section id="gameoverOverlay" class="full-overlay hidden"><div class="gameover-card"><div class="modal-kicker">THE RIFT CLAIMS ANOTHER</div><h2>YOU HAVE <span>FALLEN</span></h2><p>Every end is a spark of something greater.</p><div id="runSummary" class="summary-grid"></div><button id="againBtn" class="primary-btn">RISE AGAIN ↗</button></div></section>
-    <section id="pauseOverlay" class="full-overlay hidden"><div class="pause-card"><div class="modal-kicker">TIME SUSPENDED</div><h2>PAUSED</h2><p>The abyss awaits your return.</p><button id="resumeBtn" class="primary-btn">RESUME RUN ↗</button><button id="restartBtn" class="secondary-btn">ABANDON RUN</button></div></section>
-    <div id="toast" class="toast" role="status"></div>
-  </main>
-  <script type="module" src="./src/main.js"></script>
+  </div>
+  <script src="roguelike.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
