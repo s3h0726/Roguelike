@@ -31,7 +31,8 @@
     const boss=!!state.boss;
     waveSeq++;
     const stage=finite(state.stage,1);
-    const number=boss?Math.min(7,4+Math.floor(stage/12)):clamp(7+Math.floor(stage/5)+(state.field!=='normal'?2:0)+(state.towerMode?2:0),7,18);
+    const sprint=state.field==='normal'&&!state.towerMode&&stage<=10;
+    const number=boss?Math.min(7,4+Math.floor(stage/12)):(sprint?(stage<=5?3:4):clamp(7+Math.floor(stage/5)+(state.field!=='normal'?2:0)+(state.towerMode?2:0),7,18));
     const captain=state.enemy,baseHp=Math.max(1,finite(state.enemyMaxHp,1));
     const totalShield=Math.max(0,finite(state.enemyFortifiedHp,0));
     const pool=state.towerMode?(regionFields?.[currentNormalRegionKey()]?.pool||[]):(state.field==='normal'?(currentNormalRegion()?.pool||[]):(fields[state.field]?.pool||[]));
@@ -40,8 +41,8 @@
     for(let i=0;i<number;i++){
       const datum=i===0?captain:(pool.length?pool[(Math.floor(Math.random()*pool.length))]:captain);
       const isBoss=boss && i===0;
-      const fraction=boss?(isBoss?1:.06):.85/Math.sqrt(number);
-      const maxHp=Math.max(12+Math.floor(stage*1.4),Math.floor(baseHp*fraction*(i>0?rand(.78,1.22):1)));
+      const fraction=boss?(isBoss?1:.06):(sprint?.34:.85)/Math.sqrt(number);
+      const maxHp=Math.max(sprint?3:12+Math.floor(stage*1.4),Math.floor(baseHp*fraction*(i>0?rand(.78,1.22):1)));
       const maxShield=Math.max(0,Math.floor(totalShield*(boss?(isBoss?.85:.15/(number-1)):1/number)));
       const angle=first+(i/number)*TAU;
       const radius=rand(195,290);
@@ -51,7 +52,7 @@
         name:String(datum.name||'몬스터'),type:datum, boss:isBoss, elite:datum.grade==='정예',
         hp:maxHp,maxHp,shield:maxShield,maxShield,
         atk:Math.max(1,Math.floor(finite(state.enemyAtk,3)*(isBoss?.48:.19)*(i>0?rand(.72,1.07):1))),
-        speed:isBoss?34:rand(36,57)*(datum.grade==='정예'?.84:1),
+        speed:isBoss?34:rand(sprint?64:36,sprint?82:57)*(datum.grade==='정예'?.84:1),
         attackAt:gameTime+rand(1.2,2.4),skillAt:gameTime+rand(3.5,5),
         color:enemyPalette(datum,isBoss),flash:0,angle:rand(0,TAU)});
     }
@@ -81,6 +82,7 @@
   function damageOne(a,raw,critical=false){
     if(!a||a.hp<=0||deathLocked)return 0;
     let amount=Math.max(0,Math.floor(finite(raw)));
+    if(window.ChaosSystems)amount=window.ChaosSystems.modifyDamage(a,amount);
     if(amount<=0)return 0;
     const shieldHit=Math.min(a.shield,amount);a.shield-=shieldHit;amount-=shieldHit;
     const hpHit=Math.min(a.hp,amount);a.hp-=hpHit;
@@ -170,6 +172,7 @@
   function hurtHero(a){
     if(state.hp<=0||gameTime<hero.dashUntil)return;
     let raw=Math.max(1,a.atk);
+    if(window.ChaosSystems)raw=Math.max(1,Math.floor(raw*window.ChaosSystems.incomingMultiplier()));
     if(state.debuff>0)raw=Math.max(1,Math.floor(raw*.7));
     raw=Math.min(raw,Math.max(2,Math.floor(getMaxHp()*(a.boss?.13:.065))));
     const hpBefore=state.hp;
@@ -203,7 +206,7 @@
     gameTime=time;
     if(!state||state.hp<=0||!actors.length)return;
     if(autoOn){autoTimer+=dt*1000;
-      const interval=Math.max(150,attackInterval());
+      const interval=Math.max(95,(state.stage<=10 && state.field==='normal'&&!state.boss)?Math.min(220,attackInterval()):attackInterval());
       if(autoTimer>=interval){autoTimer%=interval;if(nearest(hero,385))hit(1,false);}
     }else autoTimer=0;
     if(state.boss&&time-lastBossPhase>1){lastBossPhase=time;updateBossPhase();}

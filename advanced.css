@@ -1,0 +1,55 @@
+/* System-rich expansion UI, deliberately compartmentalized from 2D arena */
+.chaos-quick-panel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:8px 0 12px}
+.chaos-quick-panel>div{display:flex;flex-direction:column;gap:3px;padding:8px 10px;border:1px solid #6b58a850;background:#0b1331bd;border-radius:11px;font-size:12px}
+.chaos-quick-panel b{color:#f4d4ff}.chaos-quick-panel small{color:#aab5d4;font-size:10px}
+.expansion-panel{border-color:#a78bfa5c;background:linear-gradient(160deg,rgba(38,20,69,.85),rgba(11,19,41,.96))}
+.exp-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:5px}
+.exp-title h2{font-size:19px;margin:0;color:#f6e5ff}
+.exp-title span{font-size:11px;color:#c3b6e5}
+.expansion-panel .exp-description{margin:0 0 10px;color:#c9d0e7;font-size:12px}
+.exp-tabs{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:8px 0 12px}
+.exp-tabs button{border:1px solid #745baa77;border-radius:8px;background:#100f2c;color:#c9c5df;padding:8px 4px;font-size:11px;white-space:nowrap}
+.exp-tabs button.active{background:linear-gradient(115deg,#7035a9,#2a58b4);color:#fff;border-color:#b7a4ff}
+.exp-toolbar{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:9px}
+.exp-toolbar input{flex:1;background:#0b1128;border:1px solid #72639a;color:#fff;border-radius:8px;padding:8px;min-width:0;font-size:12px}
+.exp-toolbar>span{font-size:11px;color:#c1aef6;flex:1}
+.exp-notice{font-size:12px;line-height:1.55;background:#141b3e;border-left:3px solid #ab86fa;padding:10px;border-radius:7px;margin:6px 0 12px;color:#d6def0}
+.exp-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:9px 0 14px}
+.exp-summary-grid>div{background:#0c1732;border:1px solid #6b6ea055;border-radius:10px;padding:9px;display:flex;flex-direction:column;gap:4px}
+.exp-summary-grid b{color:#aaafca;font-size:10px}.exp-summary-grid strong{color:#e4caff;font-size:19px}
+.exp-subtitle{color:#d7ccff;font-size:14px;margin:12px 0 7px}
+.exp-wallet{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.exp-wallet>div{background:#0b1129;border:1px solid #4f568555;padding:7px 6px;border-radius:7px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.exp-wallet span{color:#afb9d6;font-size:10px;overflow-wrap:anywhere}.exp-wallet b{color:#f2e7ff;font-size:13px}
+.exp-note{font-size:11px;line-height:1.6;color:#bbbee0}
+.exp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.exp-card{border:1px solid #715eab69;background:linear-gradient(160deg,#15223d,#0b1024);border-radius:12px;padding:10px;min-width:0}
+.exp-card.exp-locked{border-color:#45495a69;opacity:.67}
+.exp-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:4px}
+.exp-heading b{color:#f4d2fb;font-size:13px;line-height:1.4}
+.exp-heading span{color:#a3aac4;font-size:10px;text-align:right}
+.exp-card p{font-size:11px;line-height:1.5;color:#c0c8dc;margin:7px 0}
+.exp-cost{font-size:10px;color:#9ff3ca;margin:6px 0;overflow-wrap:anywhere}.exp-cost.exp-short{color:#fda5ab}
+.exp-card button{width:100%;padding:9px 7px;font-size:11px;margin-top:5px;background:linear-gradient(115deg,#4056c2,#8645b6);border:1px solid #ad90e7}
+.exp-card button:disabled{opacity:.4}
+.exp-sets{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.exp-sets span{background:#1a2041;border:1px solid #a78bfa65;border-radius:7px;padding:6px;font-size:11px}
+.exp-expedition,.exp-auto{padding:12px;background:#161b39;border:1px solid #a887c35c;border-radius:11px;margin-bottom:10px;font-size:12px;line-height:1.6}
+.exp-expedition button,.exp-auto button{display:inline-block;max-width:100%;margin:8px 4px 4px 0}
+.exp-auto label{display:flex;flex-direction:column;gap:5px;color:#c3d0e8;font-size:11px;margin:8px 0}
+.exp-auto select{background:#111a36;border:1px solid #8b78b4;border-radius:7px;padding:8px;color:#fff;max-width:100%}
+.exp-message{margin-top:8px;padding:8px;color:#c1d1ec;font-size:11px;min-height:28px}
+#expansionContent{max-height:650px;overflow-y:auto;scrollbar-color:#695ba8 #121832;scrollbar-width:thin}
+@media(max-width:1100px){.exp-tabs{grid-template-columns:repeat(7,minmax(0,1fr))}}
+@media(max-width:800px){.exp-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}.exp-wallet{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:470px){.chaos-quick-panel{grid-template-columns:repeat(2,minmax(0,1fr))}.exp-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.exp-wallet{grid-template-columns:repeat(2,minmax(0,1fr))}.exp-grid{grid-template-columns:1fr}.exp-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* Keep combat visible above the dense economy panel on small devices. */
+#testButton{display:none!important}
+@media(max-width:640px){
+ .app > section.panel:first-child{display:flex;flex-direction:column}
+ .app > section.panel:first-child > .top{order:1}
+ .app > section.panel:first-child > .bars{order:2;margin-top:10px}
+ .app > section.panel:first-child > .chaos-quick-panel{order:3;margin-top:4px}
+ .app > section.panel:first-child > .arena{order:4}
+ .app > section.panel:first-child > .buttons{order:5}
+ .app > section.panel:first-child > .resources{order:6}
+}

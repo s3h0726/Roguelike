@@ -142,6 +142,10 @@ const regionFields = {
 };
 
 const NORMAL_STAGE_WAVES = 10;
+// The first ten stages are a rapid tutorial sprint; later regions regain depth.
+function stageWaveCap(stage = state?.stage || 1) {
+  return stage <= 5 ? 1 : stage <= 10 ? 2 : stage <= 20 ? 3 : stage <= 40 ? 5 : NORMAL_STAGE_WAVES;
+}
 const regionOrder = Object.keys(regionFields);
 const allRegionMonsters = Object.entries(regionFields).flatMap(([regionKey, region], regionIndex) =>
   region.pool.map((monster, monsterIndex) => ({
@@ -222,7 +226,7 @@ const barrierCityMonsters = [
 const fields = {
   normal: {
     label: '일반 전장', cls: 'meadow', reward: 'mixed', hp: 1.05, atk: 1.05, mechanic: 'regionMix', pool: allRegionMonsters,
-    desc: '스테이지형 기본 전장입니다. 하나의 전장 안에서 여러 지역 몬스터가 등장하며, 한 스테이지는 10개 웨이브로 구성됩니다. 같은 스테이지 안에서도 뒤로 갈수록 더 강한 몬스터가 배치됩니다.',
+    desc: '스테이지형 기본 전장입니다. 하나의 전장 안에서 여러 지역 몬스터가 등장하며, 1~5스테이지는 1웨이브, 6~10스테이지는 2웨이브, 이후 단계적으로 증가하여 41스테이지부터 10웨이브입니다. 같은 스테이지 안에서도 뒤로 갈수록 더 강한 몬스터가 배치됩니다.',
     tip: '초반 웨이브는 약한 일반 몬스터, 후반 웨이브는 정예급 몬스터가 등장합니다. 스테이지가 오를수록 몬스터 체력이 단계적으로 증가합니다.'
   },
   gold: { label: '황금 폐광', minStage: 5, cls: 'gold', reward: 'gold', hp: 1.8, atk: 0.75, mechanic: 'treasure', pool: [{ icon:'🪙', name:'황금 광석수', trait:'골드를 많이 주지만 체력이 높습니다.', hp:1, atk:1 }], desc:'골드 집중 파밍 전장입니다. 이곳에서 보스 도전 시 황금 폐광 전용 보스가 등장합니다.', tip:'피해 스킬과 버프 스킬을 추천합니다.' },
@@ -1525,7 +1529,7 @@ function normalStageHpMultiplier(enemy) {
   const stage = Math.max(1, state.stage || 1);
   // 같은 스테이지 안에서는 뒤로 갈수록 강해지고, 스테이지가 오르면 체력이 증가합니다.
   // 단, 1스테이지 초반은 빠르게 처치되도록 낮은 배율에서 시작합니다.
-  const waveScale = 0.38 + (wave - 1) * 0.045;
+  const waveScale = (stage <= 10 ? 0.14 : stage <= 20 ? 0.29 : 0.38) + (wave - 1) * 0.045;
   const stageScale = 1 + Math.max(0, stage - 1) * 0.10;
   const eliteScale = enemy?.grade === '정예' ? 1.18 : 1;
   return waveScale * stageScale * eliteScale;
@@ -1540,7 +1544,7 @@ function normalStageAtkMultiplier() {
 function advanceNormalStage() {
   if (state.field !== 'normal') return;
   state.stageWave = normalStageWave() + 1;
-  if (state.stageWave > NORMAL_STAGE_WAVES) {
+  if (state.stageWave > stageWaveCap()) {
     state.stageWave = 1;
     state.stage += 1;
     log(`스테이지 ${state.stage} 진입! 몬스터 체력과 등장 지역이 강화됩니다.`, 'good');
@@ -2749,6 +2753,7 @@ function prestige() {
     bossWins: state.bossWins || 0,
     bossFails: state.bossFails || 0,
     testRewardUsed: state.testRewardUsed,
+    advanced: state.advanced,
   };
   const startStage = Math.max(1, 1 + rebirthStartStageBonus());
   state = defaultState();
@@ -2839,7 +2844,7 @@ function renderBattle() {
   const enemy = state.enemy || field.pool[0];
   const arenaClass = state.boss ? currentBossArena().cls : (state.field === 'normal' ? currentNormalRegionKey() : field.cls);
   document.getElementById('arena').className = 'arena ' + arenaClass;
-  document.getElementById('stageLabel').textContent = state.boss ? `${currentBossArena().label} / ${enemy.name}` : (state.field === 'normal' ? `${field.label} 스테이지 ${state.stage} · ${normalStageWave()}/${NORMAL_STAGE_WAVES}` : `${field.label} ${state.stage}`);
+  document.getElementById('stageLabel').textContent = state.boss ? `${currentBossArena().label} / ${enemy.name}` : (state.field === 'normal' ? `${field.label} 스테이지 ${state.stage} · ${normalStageWave()}/${stageWaveCap()}` : `${field.label} ${state.stage}`);
   document.getElementById('resourceBox').innerHTML = [
     ['골드', state.gold], ['마나수정', state.manaCrystal], ['영혼석', state.soul], ['유물가루', state.dust], ['룬조각', state.rune], ['보스메달', state.bossMedal || 0], ['윤회석', state.rebirthPoints || 0], ['초당 피해', dps()], ['방어력', getDefense()], ['방어 감소', Math.round(defenseReductionRate()*100) + '%'], ['핵 레벨', state.coreLv]
   ].map(([label, value]) => `<div class="resource"><span>${label}</span><b>${fmt(value)}</b></div>`).join('');
@@ -2850,7 +2855,7 @@ function renderBattle() {
   document.getElementById('enemyName').textContent = enemy.name;
   document.getElementById('enemyName2').textContent = enemy.name;
   document.getElementById('enemyIcon').textContent = enemy.icon;
-  const mechanicText = state.boss ? `보스전 ${currentBossDifficulty().label} / ${state.bossPhase || 1}페이즈 / 남은 시간 ${state.bossTimeLeft || 0}초 / 실패 ${state.bossFails || 0} / 승리 ${state.bossWins || 0}` : (state.field === 'normal' ? `스테이지 ${state.stage} · ${normalStageWave()}/${NORMAL_STAGE_WAVES} · ${normalStageRankText()} · 개방 지역 ${normalStageUnlockRegionCount()}/${regionOrder.length}` : dungeonMechanicText());
+  const mechanicText = state.boss ? `보스전 ${currentBossDifficulty().label} / ${state.bossPhase || 1}페이즈 / 남은 시간 ${state.bossTimeLeft || 0}초 / 실패 ${state.bossFails || 0} / 승리 ${state.bossWins || 0}` : (state.field === 'normal' ? `스테이지 ${state.stage} · ${normalStageWave()}/${stageWaveCap()} · ${normalStageRankText()} · 개방 지역 ${normalStageUnlockRegionCount()}/${regionOrder.length}` : dungeonMechanicText());
   const enemyHits = getEnemyAttackCount(enemy.mechanic || currentField().mechanic);
   document.getElementById('enemyTrait').textContent = `${enemy.trait} / 공격력 ${state.enemyAtk} / 공격횟수 ${enemyHits}회 / 방어력 ${fmt(getDefense())} / 보호막 ${fmt(state.shield)} / ${mechanicText} / 장착 ${equippedWeapon().name}`;
   const activeBar = currentEnemyBar();
