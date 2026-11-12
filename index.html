@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="battlefield.css" />
   <link rel="stylesheet" href="advanced.css" />
+  <link rel="stylesheet" href="unified-menu.css" />
 </head>
 <body>
 <main class="app">
@@ -76,8 +77,21 @@
     </div>
   </section>
 
-  <aside>
-    <section class="panel expansion-panel" aria-label="차원 확장 성장 시스템">
+  <aside class="unified-sidebar" id="unifiedSidebar" aria-label="통합 게임 메뉴">
+    <section class="panel unified-menu-shell">
+      <header class="unified-menu-head">
+        <div><div class="unified-eyebrow">CHAOS EDEN · COMMAND CENTER</div><h2 id="unifiedCurrentTitle">통합 성장 메뉴</h2></div>
+        <div class="unified-head-actions"><button type="button" id="unifiedSearchTrigger" title="전체 메뉴 검색 (Ctrl+K)">⌕ 전체</button><button type="button" id="unifiedClose" aria-label="메뉴 닫고 전장 복귀">✕ 전장</button></div>
+      </header>
+      <nav class="unified-groups" id="unifiedGroups" aria-label="메뉴 대분류"></nav>
+      <nav class="unified-views" id="unifiedViews" aria-label="현재 카테고리 메뉴"></nav>
+      <div class="unified-palette" id="unifiedPalette" hidden>
+        <label for="unifiedPaletteSearch">전체 메뉴 검색</label>
+        <input type="search" id="unifiedPaletteSearch" placeholder="예: 스킬, 무한 탑, 유물, 연구" autocomplete="off" />
+        <div class="unified-palette-results" id="unifiedPaletteResults"></div>
+      </div>
+      <div class="unified-content" id="unifiedContent" tabindex="0" aria-label="선택한 메뉴 내용">
+        <section id="expansionMenuPanel" class="panel expansion-panel" aria-label="차원 확장 성장 시스템">
       <div class="exp-title"><h2>🌌 차원 확장 연구소</h2><span>경제 · 유물 · 다중 성장</span></div>
       <p class="exp-description">전투를 진행하면서 특수 재화를 획득하고 시설, 기술, 유물, 탐사를 연결하세요.</p>
       <div class="exp-tabs" id="expansionTabs"></div>
@@ -85,7 +99,7 @@
       <div id="expansionContent"></div>
       <div class="exp-message" id="expansionMessage" aria-live="polite"></div>
     </section>
-    <section class="panel">
+    <section class="panel legacy-panel" id="legacyMenuPanel">
       <div class="main-tabs">
         <button id="tabGrowth" class="active" onclick="showMainTab('growth')">기본 성장</button>
         <button id="tabFields" onclick="showMainTab('fields')">특별 전장</button>
@@ -215,16 +229,21 @@
       </div>
     </section>
 
-    <section class="panel log-panel">
+    <section class="panel log-panel" id="battleLogPanel">
       <h2>전투 기록</h2>
       <div class="log" id="logBox"></div>
     </section>
+      </div>
+    </section>
   </aside>
 </main>
+<div class="unified-backdrop" id="unifiedBackdrop" aria-hidden="true"></div>
+<nav id="mobileQuickDock" class="mobile-quick-dock" aria-label="빠른 메뉴 전환"></nav>
 <script src="game.js"></script>
 <script src="horde.js"></script>
 <script src="advanced-core.js"></script>
 <script src="advanced-ui.js"></script>
 <script src="battlefield.js"></script>
+<script src="unified-menu.js"></script>
 </body>
 </html>
