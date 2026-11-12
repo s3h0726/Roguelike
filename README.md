@@ -1,75 +1,51 @@
-# OMEGA — The Infinite Foundry
+# CHAOS EDEN HORDE — 유물 핵 RPG
 
-A **complete replacement** for the earlier pixel-action and roguelike codebase: a responsive, dependency-free browser incremental universe with factories, resource conversion, research, fleets, contracts, artifacts, automation, and four prestige layers.
+**2D 탑다운 다중 몬스터 전투와 유물 성장형 RPG**입니다. 기존 RPG의 장비·스킬·재화·보스·무한 탑·환생 시스템 위에 카오스 에덴 스타일의 다수 적 전장과 강렬한 Canvas 2D 이펙트를 결합했습니다.
 
-## Play
+## 실행
 
-- **GitHub Pages:** deploy the repository root from `main` (`index.html`). No build step or third-party CDN is required.
-- **Local (multi-file):** from this directory run `python -m http.server 8000` then open `http://localhost:8000`.
-- **Offline standalone:** the separately packaged `OMEGA_INCREMENTAL_PLAYABLE.html` is a single-file version that also works without a web server.
+- [GitHub Pages](https://s3h0726.github.io/Roguelike/)에서 바로 실행합니다. (저장소 Pages 설정이 활성화되어 있어야 합니다.)
+- 또는 저장소의 `index.html`을 브라우저로 열 수 있습니다. 모든 CSS/JS는 같은 폴더에 있어야 합니다.
+- 별도 패키지 설치나 외부 CDN이 필요하지 않습니다.
 
-## Content and progression
+## 조작
 
-| System | Content | Notes |
-|---|---:|---|
-| Resources | **32** | Foundation → industry → exotic matter → cosmic realms → meta-currencies |
-| Factories | **22** | Per-second inputs and outputs, unlocks and scaling costs; facilities can be disabled |
-| Technologies | **27** | Research prerequisites, production boosts and automation unlocks |
-| Fabrication formulas | **15** | Resource conversion, including alternate ways to bridge production chains |
-| Artifacts | **12** | Rare production boosts; cost Relic Shards, Blueprints and high-level ingredients |
-| Faction contracts | **10** | Delivery requirements and rewards scale after repeated completion |
-| Expeditions | **4** | Real-duration missions with rare loot and offline completion |
-| Intra-run upgrades | **6** | 12–20 levels each; fleet, storage, trading, pulse, and production boosts |
-| Achievements | **14** | Claimable rewards for progress and statistics |
-| Prestige layers | **4** | Reboot → Ascension → Collapse → Eternity |
-| Permanent upgrade tracks | **4** | Compounding multipliers paid in respective prestige currencies |
+| 조작 | 동작 |
+| --- | --- |
+| WASD / 방향키 | 이동 |
+| Shift | 대시 및 짧은 회피 |
+| 1 / 2 / 3 | 장착 스킬 사용 |
+| R | Chaos Cataclysm 궁극기 |
+| 전장 터치 / ⚔ 공격 | 직접 공격 |
+| ULTRA / HIGH / LITE | 이펙트 품질 변경 |
 
-### Gameplay loop
+모바일에서는 가상 조이스틱과 화면 버튼을 사용합니다. 일반 공격은 가까운 적을 자동으로 겨냥하며, 자동 전투 토글을 사용할 수 있습니다.
 
-1. Activate **OVERDRIVE** for initial funding and a temporary 3× multiplier.
-2. Build **Matter Extractors**, **Fusion Reactors**, and **Exchange Nodes**.
-3. Unlock **Metallurgy I** in the Research Lab, then build an Alloy Smelter.
-4. Expand increasingly interdependent supply chains through exotic matter to reality weaving.
-5. Diversify with Contracts, timed Expeditions, Synthesis, Artifacts and market trading.
-6. Automate industrial activities as the relevant research is unlocked.
-7. Reboot after accumulating production score, then pursue higher prestige layers.
+## 게임 시스템
 
-### Player controls
+- 일반 전투에 여러 몬스터가 동시에 출현하고 각 몬스터가 개별 체력·보호막·속도·공격 쿨타임을 갖습니다.
+- 광역 스킬은 여러 몬스터를 동시에 공격합니다. 보스와 소환 몬스터가 함께 출현합니다.
+- 몬스터를 모두 쓰러뜨리면 다음 웨이브와 스테이지 보상을 처리합니다.
+- 기존 유물 핵 성장, 특별 전장, 보스 난이도/시간 제한, 스킬트리, 무기고, 무한 탑, 환생 기능을 유지합니다.
+- Canvas2D 마법진, 번개, 유성, 충격파, 잔상, 이펙트 품질 설정을 지원합니다.
 
-- Left navigation: select a system.
-- 1–9: quick-select the first nine systems.
-- **Space:** trigger OVERDRIVE when ready (15-second cooldown, 8-second boost).
-- Click quantity selectors to buy/craft/trade in larger batches.
-- Each facility can be switched off when it consumes a scarce input.
-- Save is automatic, and **Chronicle → EXPORT SAVE** offers a JSON backup.
+## 프로젝트 파일
 
-## Saves and compatibility
+- `index.html`: 메인 화면
+- `style.css`: RPG UI
+- `battlefield.css`: 탑다운 전장 전용 UI
+- `game.js`: 성장·전투 계산 등 기존 RPG 엔진
+- `horde.js`: 다수 몬스터 전투 모델
+- `battlefield.js`: 전장 렌더러·입력·시각 효과
+- `tests/static.test.mjs`: 파일 연결·필수 전장 요소 확인
 
-- Progress saves in the current browser's `localStorage` every five seconds and when the tab is hidden.
-- An offline simulation grants up to **2 hours**, extended by one hour per Quantum Vault upgrade.
-- **Exports are private, local JSON files**; there are no servers, user accounts, analytics or payments.
-- Previous PIXEL CORE HUNTER and ECLIPSE saves are incompatible with OMEGA. Back them up before switching if needed.
-- A new universe reset clears all progress. Prestige resets ordinary progress but preserves appropriate meta-currencies, permanent upgrades and career statistics.
-
-## Code layout
-
-- `index.html`: responsive application shell.
-- `styles.css`: controls, cards, resource bar, visual system and responsive layouts.
-- `src/data.js`: resource, factory, technology, artifact and event catalogs.
-- `src/engine.js`: pure economy simulation and persistence validation.
-- `src/ui.js`: template-rendered controls and views for 11 navigation systems.
-- `src/main.js`: app lifecycle, event handling, local saves, offline gains and rendering cadence.
-- `tests/economy.test.js`: catalog validation and economy regression tests.
-
-Requires Node.js 18+ for tests. Run:
+### 검증
 
 ```bash
-npm test
-npm run check
+node --test tests/static.test.mjs
+node --check game.js
+node --check horde.js
+node --check battlefield.js
 ```
 
-No runtime dependencies. Designed to be hosted on GitHub Pages as static files.
-
-## Implementation notes
-
-This is a playable, extensible foundation—not a claim of complete endgame balance. Exotic and cosmic branches and higher prestige layers may need further tuning after real long-session playtests. The engine uses standard JavaScript floating-point arithmetic and an approximate chunked offline simulation, rather than arbitrary-precision numbers or exact high-frequency production scheduling.
+> 기존 `OMEGA` 경제 증분 게임은 백업 브랜치에 보존하고, GitHub Pages의 루트 게임을 본 프로젝트로 교체합니다. 두 게임의 저장 데이터는 서로 호환되지 않습니다.

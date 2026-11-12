@@ -1,23 +1,217 @@
 <!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#090f1b"><meta name="description" content="OMEGA — a vast sci-fi incremental economy. 32 currencies, 22 facilities, research, crafting, relics and four prestige layers.">
-<title>OMEGA // THE INFINITE FOUNDRY</title>
-<link rel="stylesheet" href="./styles.css">
-</head><body>
-<div id="app" class="app-shell">
- <header class="topbar">
-  <div class="brand"><div class="brand-symbol"><span>Ω</span></div><div><div class="eyebrow">THE INFINITE FOUNDRY <span class="build-version">v1.0</span></div><strong>OMEGA<span class="brand-dot">.</span></strong></div></div>
-  <div id="topStats" class="top-stats"></div>
-  <div class="top-actions"><button id="pulseButton" class="pulse-btn" data-action="pulse" title="Trigger an overdrive pulse">⚡ OVERDRIVE</button><span class="save-signal" id="saveSignal">● LOCAL SAVE</span></div>
- </header>
- <div class="workspace">
-  <aside class="navigation"><div class="nav-label">CONTROL CENTER</div><nav id="tabNav" aria-label="Game systems"></nav><div class="nav-footer"><div class="status-light"><span class="live-dot"></span> SIMULATION ONLINE</div><div id="navFooterText">TIER I · INDUSTRIAL AGE</div></div></aside>
-  <main class="content-frame"><div id="mainContent" class="scroll-content" tabindex="-1"><div class="loading"><span class="spinner"></span>INITIALIZING THE OMEGA ENGINE...</div></div></main>
-  <aside class="inventory-panel"><div class="inventory-heading"><div><div class="eyebrow">LIVE TELEMETRY</div><h3>RESOURCES <span>32</span></h3></div><button class="tiny-btn" data-action="toggleResources" title="Show or hide zero-balance resources" id="resourceToggle">ALL</button></div><div id="resourceFilters" class="resource-filters"></div><div id="resourceList" class="resource-list"></div><div id="currentStatus" class="current-status"></div></aside>
- </div>
- <div id="toastContainer" class="toast-container" aria-live="polite"></div>
- <footer class="footer"><span>Ω / OMEGA FOUNDATION</span><span>LOCAL-FIRST · ZERO EXTERNAL DEPENDENCIES · <span id="versionStatus">SIMULATION ACTIVE</span></span><span id="liveClock">00:00:00</span></footer>
-</div>
-<script type="module" src="./src/main.js"></script>
-</body></html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="유물 핵 RPG" />
+  <title>유물 핵 RPG — CHAOS EDEN HORDE</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="battlefield.css" />
+</head>
+<body>
+<main class="app">
+  <section class="panel">
+    <div class="top">
+      <div>
+        <h1>유물 핵 RPG <span class="chaos-title">CHAOS EDEN · HORDE</span></h1>
+        <p class="sub">한 번에 여러 몬스터가 몰려오는 2D 탑다운 전장! 장비·스킬·환생 성장은 그대로 유지됩니다. WASD 이동, Shift 대시, R 카오스 대폭발.</p>
+        <p class="mobile-hint">모바일에서는 화면을 세로로 두고 아래 메뉴를 스크롤해 플레이하세요.</p>
+      </div>
+      <div class="stage" id="stageLabel">일반 전장 1</div>
+    </div>
+
+    <div class="resources" id="resourceBox"></div>
+
+    <div class="bars">
+      <div class="bar-card">
+        <div class="bar-label"><span>플레이어 체력</span><span id="hpText"></span></div>
+        <div class="bar"><div class="fill hp" id="hpBar"></div></div>
+      </div>
+      <div class="bar-card">
+        <div class="bar-label"><span>플레이어 마나</span><span id="mpText"></span></div>
+        <div class="bar"><div class="fill mp" id="mpBar"></div></div>
+      </div>
+    </div>
+
+    <div class="arena chaos-arena" id="arena">
+      <canvas id="chaosCanvas" width="900" height="560" role="img" aria-label="다수 몬스터를 상대하는 2D 탑다운 실시간 전투"></canvas>
+      <div class="chaos-battle-hud"><span class="chaos-hud-chip" id="chaosEnemies">몬스터 0 / 0</span><span class="chaos-hud-chip" id="chaosCombo">연속 타격 0</span><span class="chaos-hud-chip" id="chaosDash">대시 준비</span></div>
+      <div class="chaos-joystick" id="chaosJoystick" aria-label="모바일 이동 조이스틱"><div class="chaos-knob" id="chaosKnob"></div></div>
+      <div class="chaos-combat-help">WASD / 방향키 이동 · Shift 대시 · 1~3 스킬 · R 궁극기 · 전장 터치: 수동 공격</div>
+      <div class="chaos-actions">
+        <button type="button" id="chaosAttackBtn" title="직접 공격" class="chaos-mobile-action">⚔ 공격</button>
+        <button type="button" id="chaosDashBtn" class="chaos-mobile-action">➤ 대시</button>
+        <button type="button" id="chaosBurstBtn">☄️ CHAOS CATACLYSM<span id="chaosBurstStatus">R · MP 25</span></button>
+        <button type="button" id="chaosFxBtn">✨ ULTRA</button>
+      </div>
+      <div class="enemy-box">
+        <div class="bar-label"><span id="enemyName"></span><span id="enemyHpText"></span></div>
+        <div class="bar enemy-bar-shell"><div class="fill enemyhp" id="enemyHpBar"></div><div class="fill fortifiedhp" id="enemyFortifiedHpBar"></div><span class="enemy-bar-count" id="enemyBarCountBadge">x1</span></div>
+        <div class="enemy-multi-bars" id="enemyMultiBars"></div>
+      </div>
+      <div class="monster" id="monsterBox">
+        <div class="icon" id="enemyIcon">🌾</div>
+        <div class="monster-name" id="enemyName2"></div>
+        <p class="small" id="enemyTrait"></p>
+      </div>
+      <div class="core" id="coreIcon">🔹</div>
+      <div class="hero">플레이어: 유물술사</div>
+    </div>
+
+    <div class="buttons">
+      <button class="gold-btn" id="slotButton0" onclick="useSkillSlot(0)">스킬 1</button>
+      <button class="gold-btn" id="slotButton1" onclick="useSkillSlot(1)">스킬 2</button>
+      <button class="gold-btn" id="slotButton2" onclick="useSkillSlot(2)">스킬 3</button>
+      <button class="red-btn" onclick="challengeBoss()">보스 도전</button>
+      <button class="green-btn" id="autoButton" onclick="toggleAuto()">자동 전투 ON</button>
+      <button class="cyan-btn" onclick="enterField('normal')">일반 전장</button>
+      <button class="purple-btn" id="testButton" onclick="grantTestResources()">테스트</button>
+      <button class="dark-btn" onclick="resetGame()">초기화</button>
+    </div>
+  </section>
+
+  <aside>
+    <section class="panel">
+      <div class="main-tabs">
+        <button id="tabGrowth" class="active" onclick="showMainTab('growth')">기본 성장</button>
+        <button id="tabFields" onclick="showMainTab('fields')">특별 전장</button>
+        <button id="tabBoss" onclick="showMainTab('boss')">보스 전장</button>
+        <button id="tabTower" onclick="showMainTab('tower')">무한 탑</button>
+        <button id="tabSkills" onclick="showMainTab('skills')">스킬</button>
+        <button id="tabArmory" onclick="showMainTab('armory')">무기고</button>
+      </div>
+
+      <div id="growthPanel">
+        <div class="menu-section">
+          <div class="menu-title"><h2>기본 성장 메뉴</h2><b>상시 강화</b></div>
+          <p class="small">전장에서 얻은 재화로 유물 핵, 체력, 마나, 치명타, 등급을 성장시킵니다.</p>
+        </div>
+        <div id="upgradeList"></div>
+        <div id="ascensionPanel"></div>
+        <div id="prestigePanel"></div>
+      </div>
+
+      <div id="fieldsPanel" class="hidden">
+        <div class="menu-section">
+          <div class="menu-title"><h2>특별 전장 메뉴</h2><b>재화 파밍</b></div>
+          <p class="small">일반 전장은 여러 지역 몬스터가 하나의 전장에서 섞여 등장합니다. 특별 전장은 특정 재화를 집중적으로 제공하며, 보스 도전 시 해당 특별 전장에 맞는 전용 보스가 자동으로 등장합니다.</p>
+        </div>
+        <div id="fieldList"></div>
+      </div>
+
+      <div id="bossPanel" class="hidden">
+        <div class="menu-section">
+          <div class="menu-title"><h2>보스 도전 메뉴</h2><b>시간 제한 전투</b></div>
+          <p class="small">보스전은 이제 전장 선택 없이 보스를 직접 선택해 제한 시간 안에 처치하는 방식입니다. 제한 시간 안에 처치하지 못하거나 체력이 0이 되면 보스 실패로 처리됩니다.</p>
+        </div>
+        <div class="menu-section">
+          <div class="menu-title"><h3>보스 난이도</h3><b>리메이크</b></div>
+          <p class="small">보스전은 난이도를 선택해 도전하는 방식으로 리메이크되었습니다. 난이도가 높을수록 체력·공격력이 증가하지만 보상과 보스 메달 획득량도 크게 증가합니다.</p>
+          <div class="grid2" id="bossDifficultyList"></div>
+        </div>
+
+        <div class="menu-section">
+          <div class="menu-title"><h3>보스 제한 시간</h3><b>타임어택</b></div>
+          <p class="small">시간이 짧을수록 보상 배율이 높습니다. 제한 시간이 끝나면 보스 실패로 처리되며 일반 전장으로 복귀합니다.</p>
+          <div class="grid2" id="bossTimeLimitList"></div>
+        </div>
+        <div class="menu-section">
+          <div class="menu-title"><h3>보스 선택</h3><b>직접 선택</b></div>
+          <p class="small">현재 전장과 관계없이 보스를 직접 선택할 수 있습니다. 선택한 보스의 고유 기믹과 제한 시간이 전투의 핵심입니다.</p>
+          <div class="grid2" id="bossList"></div>
+        </div>
+      </div>
+
+      <div id="towerPanel" class="hidden">
+        <div class="menu-section">
+          <div class="menu-title"><h2>무한 탑</h2><b>체력 0까지 등반</b></div>
+          <p class="small">무한 탑은 체력이 0이 될 때까지 계속 강한 몬스터를 만나는 등반 콘텐츠입니다. 층이 올라갈수록 몬스터 체력, 공격 횟수, 보상이 증가합니다. 패배하면 등반 보상을 받고 일반 전장으로 복귀합니다.</p>
+        </div>
+        <div id="towerPanelContent"></div>
+      </div>
+
+      <div id="skillsPanel" class="hidden">
+        <div class="menu-section">
+          <div class="menu-title"><h2>스킬 메뉴</h2><b>리메이크 시스템</b></div>
+          <p class="small">스킬 시스템을 슬롯 장착형으로 리메이크했습니다. 스킬은 3개까지 장착하고, 각 분야는 독립적으로 해금·강화됩니다. 패시브와 자동 힐은 별도 영역에서 관리합니다.</p>
+        </div>
+
+        <div class="sub-tabs skill-mode-tabs">
+          <button class="active" id="skillModeLoadout" onclick="setSkillMode('loadout')">장착 슬롯</button>
+          <button id="skillModeTree" onclick="setSkillMode('tree')">스킬트리</button>
+          <button id="skillModeMastery" onclick="setSkillMode('mastery')">분야 강화</button>
+          <button id="skillModePassive" onclick="setSkillMode('passive')">패시브</button>
+          <button id="skillModeAutoHeal" onclick="setSkillMode('autoHeal')">자동 힐</button>
+        </div>
+
+        <section id="skillLoadoutSection" class="skill-section">
+          <div class="menu-section">
+            <div class="menu-title"><h3>스킬 장착 슬롯</h3><b>3슬롯 전투 세팅</b></div>
+            <p class="small">액티브 스킬을 최대 3개까지 장착합니다. 왼쪽 전투 버튼으로 각 슬롯 스킬을 직접 사용할 수 있고, 자동 사용을 켜면 마나가 충분할 때 순서대로 발동합니다.</p>
+          </div>
+          <div class="grid3" id="skillSlotList"></div>
+          <div id="autoSkillPanel"></div>
+        </section>
+
+        <section id="skillTreeSection" class="skill-section hidden">
+          <div class="menu-section">
+            <div class="menu-title"><h3>분야별 스킬트리</h3><b>독립 해금</b></div>
+            <p class="small">각 분야는 서로 독립된 10단계 트리를 가집니다. 한 분야 안에서 이전 스킬을 Lv.3까지 올리면 다음 스킬이 열립니다.</p>
+          </div>
+          <div class="sub-tabs" id="skillCategoryTabs"></div>
+          <div class="scroll" id="skillList"></div>
+        </section>
+
+        <section id="skillMasterySection" class="skill-section hidden">
+          <div class="menu-section">
+            <div class="menu-title"><h3>분야별 업그레이드</h3><b>계열 전체 강화</b></div>
+            <p class="small">분야 강화를 올리면 해당 분야 스킬 전체의 위력, 회복량, 보상량 등이 증가합니다. 공격만 올리거나 회복만 올리는 식의 빌드 선택이 가능합니다.</p>
+          </div>
+          <div class="grid2" id="categoryUpgradeList"></div>
+        </section>
+
+        <section id="skillPassiveSection" class="skill-section hidden">
+          <div class="menu-section">
+            <div class="menu-title"><h3>패시브 스킬</h3><b>상시 효과</b></div>
+            <p class="small">패시브는 장착하지 않아도 항상 적용됩니다. 기본 피해, 체력, 마나, 보상, 자동 회복 효율을 장기적으로 강화합니다.</p>
+          </div>
+          <div class="grid2" id="passiveSkillList"></div>
+        </section>
+
+        <section id="skillAutoHealSection" class="skill-section hidden">
+          <div class="menu-section">
+            <div class="menu-title"><h3>자동 힐</h3><b>생존 자동화</b></div>
+            <p class="small">체력이 일정 비율 이하로 떨어지고 마나가 충분하면 자동으로 회복합니다. 레벨이 오르면 회복량, 발동 기준, 쿨타임이 좋아집니다.</p>
+          </div>
+          <div id="autoHealPanel"></div>
+        </section>
+      </div>
+
+      <div id="armoryPanel" class="hidden">
+        <div class="menu-section">
+          <div class="menu-title"><h2>무기고 메뉴</h2><b>장착 장비</b></div>
+          <p class="small">무기를 해금하고 강화한 뒤 장착하면 전투 계산에 즉시 반영됩니다.</p>
+        </div>
+        <div class="sub-tabs">
+          <button class="active" id="weaponFilterAll" onclick="setWeaponFilter('all')">전체</button>
+          <button id="weaponFilterOwned" onclick="setWeaponFilter('owned')">보유</button>
+          <button id="weaponFilterLocked" onclick="setWeaponFilter('locked')">미보유</button>
+        </div>
+        <div class="scroll" id="weaponList"></div>
+      </div>
+    </section>
+
+    <section class="panel log-panel">
+      <h2>전투 기록</h2>
+      <div class="log" id="logBox"></div>
+    </section>
+  </aside>
+</main>
+<script src="game.js"></script>
+<script src="horde.js"></script>
+<script src="battlefield.js"></script>
+</body>
+</html>
