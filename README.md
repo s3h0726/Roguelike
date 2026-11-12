@@ -1,50 +1,75 @@
-# 픽셀 코어 헌터: 코어 로그 (Pixel Core Hunter — Core Rogue)
+# OMEGA — The Infinite Foundry
 
-원본 `pixel_core_hunter_v1.zip`의 플레이어/몬스터 1:1 전투 화면, 초원 몬스터 이미지 7종, 초원 1~10층과 최종 보스, 기본 강화 4종, 스킬 10종, 3개 스킬 슬롯, 장비 4종, 자동 전투, 모바일 레이아웃을 유지하고 **로그라이크 10층 모험**으로 개편한 버전입니다.
+A **complete replacement** for the earlier pixel-action and roguelike codebase: a responsive, dependency-free browser incremental universe with factories, resource conversion, research, fleets, contracts, artifacts, automation, and four prestige layers.
 
-## 실행
+## Play
 
-압축을 풀고 `index.html`을 브라우저로 여세요. 외부 CDN이나 추가 설치 없이 실행됩니다. GitHub Pages 정적 호스팅도 지원합니다.
+- **GitHub Pages:** deploy the repository root from `main` (`index.html`). No build step or third-party CDN is required.
+- **Local (multi-file):** from this directory run `python -m http.server 8000` then open `http://localhost:8000`.
+- **Offline standalone:** the separately packaged `OMEGA_INCREMENTAL_PLAYABLE.html` is a single-file version that also works without a web server.
 
-## 게임 진행
+## Content and progression
 
-1. 새 모험 시작 → 1층 전투 진입.
-2. 각 층의 분기 경로에서 일반 전투, 정예 전투, 유물 보물고, 캠프, 상점, 위험 이벤트 중 하나를 선택.
-3. 전투를 완료하면 축복 3개 중 1개를 선택. 정예를 이기면 유물까지 추가 획득.
-4. 골드를 사용해 기존 기본 강화 4종과 장비 4종을 구매. 마나수정으로 스킬 10종을 성장.
-5. 기본 공격으로 코어 충전, 충전 100%에서 **코어 해방** 발동.
-6. 10층 최종 보스 **초원의 거대멧돼지** 격파 시 완주. 패배하면 모험 종료, 다음 모험을 처음부터 다시 시작.
+| System | Content | Notes |
+|---|---:|---|
+| Resources | **32** | Foundation → industry → exotic matter → cosmic realms → meta-currencies |
+| Factories | **22** | Per-second inputs and outputs, unlocks and scaling costs; facilities can be disabled |
+| Technologies | **27** | Research prerequisites, production boosts and automation unlocks |
+| Fabrication formulas | **15** | Resource conversion, including alternate ways to bridge production chains |
+| Artifacts | **12** | Rare production boosts; cost Relic Shards, Blueprints and high-level ingredients |
+| Faction contracts | **10** | Delivery requirements and rewards scale after repeated completion |
+| Expeditions | **4** | Real-duration missions with rare loot and offline completion |
+| Intra-run upgrades | **6** | 12–20 levels each; fleet, storage, trading, pulse, and production boosts |
+| Achievements | **14** | Claimable rewards for progress and statistics |
+| Prestige layers | **4** | Reboot → Ascension → Collapse → Eternity |
+| Permanent upgrade tracks | **4** | Compounding multipliers paid in respective prestige currencies |
 
-## 조작
+### Gameplay loop
 
-- 기본 공격은 자동으로 진행. 자동 OFF 시 **A / Space / 직접 공격 버튼 / 플레이어 클릭**으로 공격 가능.
-- `1` `2` `3`: 장착 스킬 사용.
-- `Q`: 코어 해방 (코어 100%).
-- 화면의 **강화 / 스킬 / 장비 / 던전 / 기록** 탭 사용.
-- 스킬은 마나 외에 재사용 대기시간이 있습니다.
+1. Activate **OVERDRIVE** for initial funding and a temporary 3× multiplier.
+2. Build **Matter Extractors**, **Fusion Reactors**, and **Exchange Nodes**.
+3. Unlock **Metallurgy I** in the Research Lab, then build an Alloy Smelter.
+4. Expand increasingly interdependent supply chains through exotic matter to reality weaving.
+5. Diversify with Contracts, timed Expeditions, Synthesis, Artifacts and market trading.
+6. Automate industrial activities as the relevant research is unlocked.
+7. Reboot after accumulating production score, then pursue higher prestige layers.
 
-## 시스템
+### Player controls
 
-- **축복 12종:** 공격·체력·공격 속도·마나·치명타·방어·독·흡혈·코어 충전·골드·스킬 피해·방 클리어 회복.
-- **유물 12종:** 1회 부활, 추가 번개, 고위험 고화력, 전투 진입 회복, 골드 증가 등.
-- **로그라이크 진행:** 10층 경로 선택, 전투/정예/상점/캠프/보물/이벤트/최종 보스.
-- **메타 기록:** 도전 횟수, 완주 횟수, 최고 도달 층, 메달과 기억의 가루.
-- **저장:** `localStorage`에 진행 중인 모험과 메타 기록을 자동 저장. 원본 v1 저장 키(`pixelCoreHunterV1`)는 건드리지 않습니다.
-- **자산:** 원본 7종 몬스터 PNG를 보존하고, 전투에는 배경을 투명하게 처리한 동일 몬스터 아트를 사용합니다. 게임은 CSS 이펙트 기반의 2D입니다.
+- Left navigation: select a system.
+- 1–9: quick-select the first nine systems.
+- **Space:** trigger OVERDRIVE when ready (15-second cooldown, 8-second boost).
+- Click quantity selectors to buy/craft/trade in larger batches.
+- Each facility can be switched off when it consumes a scarce input.
+- Save is automatic, and **Chronicle → EXPORT SAVE** offers a JSON backup.
 
-## 파일
+## Saves and compatibility
 
-- `index.html`: 기본 UI, 경로 선택 모달
-- `style.css`: 기존 픽셀 스타일 + 신규 경로/유물 UI 및 전투 이펙트
-- `roguelike.js`: 브라우저/Node 공용 순수 로그라이크 규칙
-- `game.js`: 원작 몬스터/스킬/장비 데이터와 통합 게임 로직
-- `assets/monsters/*.webp`: 원작 몬스터 아트 7종을 투명 배경 유지하고 WebP로 최적화한 게임 표시용 이미지 (원본 PNG는 사용자가 제공한 ZIP에 보존됨)
-- `tests/roguelike.test.js`: Node `node --test` 로직 테스트
+- Progress saves in the current browser's `localStorage` every five seconds and when the tab is hidden.
+- An offline simulation grants up to **2 hours**, extended by one hour per Quantum Vault upgrade.
+- **Exports are private, local JSON files**; there are no servers, user accounts, analytics or payments.
+- Previous PIXEL CORE HUNTER and ECLIPSE saves are incompatible with OMEGA. Back them up before switching if needed.
+- A new universe reset clears all progress. Prestige resets ordinary progress but preserves appropriate meta-currencies, permanent upgrades and career statistics.
 
-> 기존 v1 누적 저장값과 새로운 로그라이크 런의 진행은 분리됩니다. 누적 스탯을 직접 가져오지 않고, 새 모험마다 전투 성장이 초기화됩니다.
+## Code layout
 
-## GitHub Pages 배포
+- `index.html`: responsive application shell.
+- `styles.css`: controls, cards, resource bar, visual system and responsive layouts.
+- `src/data.js`: resource, factory, technology, artifact and event catalogs.
+- `src/engine.js`: pure economy simulation and persistence validation.
+- `src/ui.js`: template-rendered controls and views for 11 navigation systems.
+- `src/main.js`: app lifecycle, event handling, local saves, offline gains and rendering cadence.
+- `tests/economy.test.js`: catalog validation and economy regression tests.
 
-`main` 루트의 `index.html`로 실행됩니다. 별도 빌드나 외부 CDN이 필요하지 않습니다. Settings → Pages → Deploy from a branch → main/(root)를 선택하세요.
+Requires Node.js 18+ for tests. Run:
 
-주의: 이전 ECLIPSE PROTOCOL과 저장 키가 다르므로 기존 기록은 자동 이전되지 않습니다.
+```bash
+npm test
+npm run check
+```
+
+No runtime dependencies. Designed to be hosted on GitHub Pages as static files.
+
+## Implementation notes
+
+This is a playable, extensible foundation—not a claim of complete endgame balance. Exotic and cosmic branches and higher prestige layers may need further tuning after real long-session playtests. The engine uses standard JavaScript floating-point arithmetic and an approximate chunked offline simulation, rather than arbitrary-precision numbers or exact high-frequency production scheduling.
