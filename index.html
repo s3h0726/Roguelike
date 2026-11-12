@@ -7,9 +7,10 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="유물 핵 RPG" />
-  <title>유물 핵 RPG — CHAOS EDEN HORDE</title>
+  <title>CHAOS EDEN — 차원 확장 RPG</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="battlefield.css" />
+  <link rel="stylesheet" href="advanced.css" />
 </head>
 <body>
 <main class="app">
@@ -17,7 +18,7 @@
     <div class="top">
       <div>
         <h1>유물 핵 RPG <span class="chaos-title">CHAOS EDEN · HORDE</span></h1>
-        <p class="sub">한 번에 여러 몬스터가 몰려오는 2D 탑다운 전장! 장비·스킬·환생 성장은 그대로 유지됩니다. WASD 이동, Shift 대시, R 카오스 대폭발.</p>
+        <p class="sub">한 번에 여러 몬스터가 몰려오는 2D 탑다운 전장! 초반 10스테이지는 고속 돌파! 장비·스킬·제작·유물·연구·탐사·자동화·차원 환생을 성장시키세요. WASD 이동, Shift 대시, R 카오스 대폭발.</p>
         <p class="mobile-hint">모바일에서는 화면을 세로로 두고 아래 메뉴를 스크롤해 플레이하세요.</p>
       </div>
       <div class="stage" id="stageLabel">일반 전장 1</div>
@@ -35,6 +36,8 @@
         <div class="bar"><div class="fill mp" id="mpBar"></div></div>
       </div>
     </div>
+
+    <div class="chaos-quick-panel" id="chaosQuickPanel" aria-label="진행과 성장 현황"></div>
 
     <div class="arena chaos-arena" id="arena">
       <canvas id="chaosCanvas" width="900" height="560" role="img" aria-label="다수 몬스터를 상대하는 2D 탑다운 실시간 전투"></canvas>
@@ -74,6 +77,14 @@
   </section>
 
   <aside>
+    <section class="panel expansion-panel" aria-label="차원 확장 성장 시스템">
+      <div class="exp-title"><h2>🌌 차원 확장 연구소</h2><span>경제 · 유물 · 다중 성장</span></div>
+      <p class="exp-description">전투를 진행하면서 특수 재화를 획득하고 시설, 기술, 유물, 탐사를 연결하세요.</p>
+      <div class="exp-tabs" id="expansionTabs"></div>
+      <div class="exp-toolbar"><input id="expansionSearch" type="search" maxlength="30" placeholder="현재 메뉴에서 이름 검색" oninput="ChaosExpansion.search(this.value)" aria-label="현재 메뉴 검색"/><span>초반 빠른 진행 · 고난도 후반 콘텐츠</span></div>
+      <div id="expansionContent"></div>
+      <div class="exp-message" id="expansionMessage" aria-live="polite"></div>
+    </section>
     <section class="panel">
       <div class="main-tabs">
         <button id="tabGrowth" class="active" onclick="showMainTab('growth')">기본 성장</button>
@@ -212,6 +223,8 @@
 </main>
 <script src="game.js"></script>
 <script src="horde.js"></script>
+<script src="advanced-core.js"></script>
+<script src="advanced-ui.js"></script>
 <script src="battlefield.js"></script>
 </body>
 </html>
